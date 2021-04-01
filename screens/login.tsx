@@ -1,12 +1,12 @@
 import React, { FC } from "react";
 import { View, Text, StyleSheet, Alert } from "react-native";
-import { Button } from '../components';
+import { LoginButton } from '../components';
 
 const App : FC = () => {
     return(
         <View style={styles.container}>
-            <Text>Duy</Text>
-            <Button title="LOGIN" onPress={() => alert("Test successfully!")} />
+            <LoginButton title="LOGIN" onPress={() => alert("LOGIN")} />
+            <LoginButton title="SIGN UP" onPress={() => alert("SIGN UP")} />
         </View>
     )
 }
@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: "#4B8FD2"
     }
 })

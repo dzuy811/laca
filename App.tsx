@@ -5,7 +5,7 @@ import MainNav from './navigation/mainNav';
 
 export default function App() {
   return (
-    <MainNav />
+      <MainNav />
   );
 }
 
