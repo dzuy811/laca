@@ -1,22 +1,22 @@
 import React, { Component } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
     StyleSheet,
     View,
     Text,
-    TextInput,
-    ImageBackground,
-    FlatList,
-    Dimensions,
     TouchableOpacity,
     Image
 } from "react-native";
 import { Ionicons, FontAwesome5, AntDesign } from '@expo/vector-icons';
 
-type CardProps = {
+type attractionType = {
+    id: string,
+    name: string,
+    reward: number,
+    ratings: number
+}
 
+interface CardProps  {
+    data: attractionType
 }
 
 
@@ -36,7 +36,7 @@ export default class AttractionCard extends Component<CardProps> {
                 <View style={style.cardBody}>
                     <View>
                         <Text style={style.attractionName}>
-                            Nhà Thờ Đức Bà
+                            {this.props.data.name}
                         </Text>
                     </View>
                     <View style={style.firstInfo}>

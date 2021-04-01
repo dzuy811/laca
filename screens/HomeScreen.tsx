@@ -2,11 +2,42 @@ import React, { Component } from 'react'
 import { StyleSheet, Text, View} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import AttractionCard from '../components/AttractionCard'
+import AttractionList from '../components/AttractionList'
 
-type homeScreenProps = {}
+const data = [
+    {
+        id: '1',
+        name: 'Nha Tho Duc Ba',
+        reward: 100,
+        ratings: 3.5
+    },
+    {
+        id: '2',
+        name: 'Dai Hoc RMIT',
+        reward: 200,
+        ratings: 4.8
+    },
+    {
+        id: '3',
+        name: 'Bao Tang Ho Chi Minh',
+        reward: 240,
+        ratings: 4.1
+    }
+]
 
-export class HomeScreen extends Component<homeScreenProps> {
+
+type homeScreenProps = {
+    
+}
+
+type attractionData = {
+    name: string,
+    reward: number,
+    review: number,
+
+}
+
+export class HomeScreen extends Component<homeScreenProps, attractionData> {
 
     render() {
         return (
@@ -16,13 +47,7 @@ export class HomeScreen extends Component<homeScreenProps> {
                         <Text>702 Nguyen Van Linh</Text>
                     </View>
                 </SafeAreaView>
-                <View>
-                    <View>
-                        <Text>Local Attractions</Text>
-                    </View>
-                    <AttractionCard/>
-                </View>
-                
+                <AttractionList attraction={data}/>
             </View>
         )
     }
@@ -34,6 +59,9 @@ const style = StyleSheet.create({
         backgroundColor: '#4B8FD2',
         height: 100,
         alignItems: 'center'
+    },
+    sectionHeading: {
+        color: '#4B8FD2'
     }
 })
 
