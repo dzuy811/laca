@@ -1,12 +1,16 @@
 import React, { FC } from 'react';
 import {createStackNavigator} from "@react-navigation/stack"
-import {LogIn} from '../screens'
+import {Login} from '../screens'
 const {Navigator,Screen} = createStackNavigator();
 
 const AppStack : FC = () => {
     return(
-        <Navigator>
-            <Screen name="login" component={LogIn} />
+        <Navigator
+            screenOptions={{
+                headerShown: false
+            }}
+        >
+            <Screen name="login" component={Login} />
         </Navigator>
     )
 }
