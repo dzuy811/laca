@@ -39,6 +39,8 @@ type attractionData = {
 
 export class HomeScreen extends Component<homeScreenProps, attractionData> {
 
+    
+
     render() {
         return (
             <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
@@ -47,7 +49,10 @@ export class HomeScreen extends Component<homeScreenProps, attractionData> {
                         <Text>702 Nguyen Van Linh</Text>
                     </View>
                 </SafeAreaView>
-                <AttractionList attraction={data}/>
+                <View style={{marginLeft: 20, marginTop: 20}}>
+                    <AttractionList attraction={data}/>
+                </View>
+                
             </View>
         )
     }

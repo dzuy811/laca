@@ -28,7 +28,7 @@ export default class AttractionCard extends Component<CardProps> {
     render() {
         return (
             <TouchableOpacity
-                activeOpacity={0.8} style={style.cardContainer}
+                activeOpacity={0.8} style={[style.cardContainer, style.item]}
             >
                 <View>
                     <Image style={style.cardImage} source={{ uri: 'https://dulichkhampha24.com/wp-content/uploads/2020/01/nha-tho-duc-ba-sai-gon-1.jpg' }} />
@@ -39,19 +39,22 @@ export default class AttractionCard extends Component<CardProps> {
                             {this.props.data.name}
                         </Text>
                     </View>
-                    <View style={style.firstInfo}>
-                        <View style={[style.reward]}>
-                            <FontAwesome5 style={{marginRight: 2}} name="coins" size={24} color="#E2D0A2" />
-                            <Text style={{marginLeft: 2}} >400</Text>
+                    <View style={{marginTop: 4}}>
+                        <View style={style.firstInfo}>
+                            <View style={[style.reward]}>
+                                <FontAwesome5 style={{marginRight: 2}} name="coins" size={24} color="#E2D0A2" />
+                                <Text style={{marginLeft: 2}} >400</Text>
+                            </View>
+                            <View style={{marginRight: 12}}>
+                                <Text style={{color: '#A0A0A0'}}>0.5km</Text>
+                            </View>
                         </View>
-                        <View style={{marginRight: 12}}>
-                            <Text style={{color: '#A0A0A0'}}>0.5km</Text>
+                        <View style={style.reward}>
+                            <AntDesign style={{marginRight: 2}} name="star" size={24} color="#FF5353" />
+                            <Text style={{marginLeft: 2}}>3.5/5(92)</Text>
                         </View>
                     </View>
-                    <View style={style.reward}>
-                        <AntDesign style={{marginRight: 2}} name="star" size={24} color="#FF5353" />
-                        <Text style={{marginLeft: 2}}>3.5/5(92)</Text>
-                    </View>
+                   
                 </View>
 
 
@@ -61,6 +64,10 @@ export default class AttractionCard extends Component<CardProps> {
 }
 
 const style = StyleSheet.create({
+
+    item: {
+        marginRight: 15
+    },
 
     cardContainer: {
         backgroundColor: '#fff',
@@ -80,7 +87,8 @@ const style = StyleSheet.create({
     },
     firstInfo: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems: 'center'
 
     },
     attractionName: {

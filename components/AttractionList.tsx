@@ -33,7 +33,7 @@ export default class AttractionList extends React.Component<AttractionType> {
                 <View>
                     <Text style={style.sectionHeading}>Local Attractions</Text>
                 </View>
-                <View>
+                <View style={{marginTop: 10}}>
                     <FlatList 
                     data={this.props.attraction}
                     horizontal={true} 
@@ -50,6 +50,7 @@ export default class AttractionList extends React.Component<AttractionType> {
 
 const style = StyleSheet.create({
     sectionHeading: {
-        color: '#4B8FD2'
+        color: '#4B8FD2',
+        fontSize: 20
     }
 })
