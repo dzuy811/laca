@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { LoginButton, RoundedImage, AppLogo } from '../components';
+import LoginScreen from './LoginScreen';
 
 const socialMedia = [
   {
@@ -13,11 +14,16 @@ const socialMedia = [
   }
 ];
 
-const App: FC = (props) => {
+interface Props {
+    navigation: any;
+}
+
+const App: FC <Props> = (props) => {
     return (
         
         <View style={styles.container}>
             <AppLogo />
+            <LoginScreen />
             <LoginButton title="LOGIN" onPress={() => alert("LOGIN")} /> 
                 <FlatList style={{flexGrow: 0}}
                     data={socialMedia}

@@ -4,7 +4,11 @@ import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { LoginButton, AppLogo } from '../components';
 
-const App: FC = (props) => {
+interface Props {
+    navigation: any;
+}
+
+const App: FC <Props> = (props) => {
     const [name, setName] = useState<string | null>(null);
     const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
     const [password, setPassword] = useState<string | null>(null);
