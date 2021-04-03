@@ -1,8 +1,6 @@
 import React, { FC } from "react";
-import { Dimensions, Text, StyleSheet } from "react-native";
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler'
-
-const {height, width} = Dimensions.get('screen');
+import { Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 interface Props {
     title: string;
