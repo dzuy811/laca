@@ -10,7 +10,6 @@ const LoginScreen: React.FC = () => {
 	// Styles defined
 	const styles = StyleSheet.create({
 		container: {
-			paddingTop: 0,
 			width: "100%",
 		},
 		input: {

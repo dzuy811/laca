@@ -23,7 +23,7 @@ const FormInput: React.FC<Props> = ({ label, value, isSecured, onChangeHandler }
 	// STYLES defined
 	const styles = StyleSheet.create({
 		container: {
-			paddingTop: 14,
+			paddingTop: 18,
 			marginTop: 24,
 			marginLeft: 32,
 			marginRight: 32,
