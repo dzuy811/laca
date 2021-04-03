@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import FormInput from "../components/FormInput";
 
 const LoginScreen: React.FC = () => {
