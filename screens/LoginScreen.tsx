@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TextInput } from "react-native";
+import { View, Text, Image, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import FormInput from "../components/FormInput";
 
 const LoginScreen: React.FC = () => {
@@ -10,6 +10,7 @@ const LoginScreen: React.FC = () => {
 	// Styles defined
 	const styles = StyleSheet.create({
 		container: {
+			flex: 1,
 			width: "100%",
 		},
 		input: {
@@ -31,7 +32,10 @@ const LoginScreen: React.FC = () => {
 	};
 
 	return (
-		<View style={styles.container}>
+		<KeyboardAvoidingView
+			style={styles.container}
+			behavior={Platform.OS == "ios" ? "padding" : "height"}
+		>
 			<FormInput label="Username" value={textValue} onChangeHandler={handleTextChange} />
 			<FormInput
 				isSecured={true}
@@ -39,7 +43,7 @@ const LoginScreen: React.FC = () => {
 				value={passwordValue}
 				onChangeHandler={handlePasswordChange}
 			/>
-		</View>
+		</KeyboardAvoidingView>
 	);
 };
 
