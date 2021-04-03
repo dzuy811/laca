@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         shadowOpacity: 1,
         borderColor: "transparent",
-        marginBottom: 66,
+        marginBottom: 35,
     },
     image: {
         height: 167,

@@ -1,11 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import MainNav from './navigation/mainNav';
 
 export default function App() {
   return (
-      <MainNav />
+	  <View style={styles.container}>
+		<StatusBar />
+      	<MainNav />
+	  </View>
   );
 }
 

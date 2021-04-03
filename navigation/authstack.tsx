@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import {createStackNavigator} from "@react-navigation/stack"
-import {Login, SignUp} from '../screens'
-const {Navigator,Screen} = createStackNavigator();
+import { createStackNavigator } from "@react-navigation/stack"
+import { Login, SignUp } from '../screens'
+const { Navigator, Screen } = createStackNavigator();
 
 const AuthStack : FC = () => {
     return(
@@ -11,7 +11,7 @@ const AuthStack : FC = () => {
             }}
         >
             <Screen name="login" component={Login} />
-            <Screen name="signup" component={SignUp} />
+            <Screen name="signUp" component={SignUp} />
         </Navigator>
     )
 }

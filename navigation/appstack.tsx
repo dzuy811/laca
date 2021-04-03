@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import {createStackNavigator} from "@react-navigation/stack"
-import {Login} from '../screens'
-const {Navigator,Screen} = createStackNavigator();
+import { createStackNavigator } from "@react-navigation/stack"
+import { Login } from '../screens'
+const { Navigator, Screen } = createStackNavigator();
 
 const AppStack : FC = () => {
     return(
