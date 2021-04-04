@@ -14,11 +14,12 @@ type attractionType = {
     id: string,
     name: string,
     reward: number,
-    ratings: number
+    ratings: number,
+    imageThumbnail: string
 }
 
 interface AttractionType {
-    attraction: attractionType[]
+    attractions: attractionType[]
 }
 
 export default class AttractionList extends React.Component<AttractionType> {
@@ -34,9 +35,11 @@ export default class AttractionList extends React.Component<AttractionType> {
                     <Text style={style.sectionHeading}>Local Attractions</Text>
                 </View>
                 <View style={{marginTop: 10}}>
-                    <FlatList 
-                    data={this.props.attraction}
+                    <FlatList
+                    showsHorizontalScrollIndicator={false} 
+                    data={this.props.attractions}
                     horizontal={true} 
+                    keyExtractor={item => item.id}
                     renderItem={({item})=> (
                         <AttractionCard data={item}/>
                     )}>
