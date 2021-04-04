@@ -12,7 +12,8 @@ type attractionType = {
     id: string,
     name: string,
     reward: number,
-    ratings: number
+    ratings: number,
+    imageThumbnail: string,
 }
 
 interface CardProps  {
@@ -31,11 +32,11 @@ export default class AttractionCard extends Component<CardProps> {
                 activeOpacity={0.8} style={[style.cardContainer, style.item]}
             >
                 <View>
-                    <Image style={style.cardImage} source={{ uri: 'https://dulichkhampha24.com/wp-content/uploads/2020/01/nha-tho-duc-ba-sai-gon-1.jpg' }} />
+                    <Image style={style.cardImage} source={{ uri: `${this.props.data.imageThumbnail}`}} />
                 </View>
                 <View style={style.cardBody}>
                     <View>
-                        <Text style={style.attractionName}>
+                        <Text numberOfLines={1} style={style.attractionName}>
                             {this.props.data.name}
                         </Text>
                     </View>
@@ -43,7 +44,7 @@ export default class AttractionCard extends Component<CardProps> {
                         <View style={style.firstInfo}>
                             <View style={[style.reward]}>
                                 <FontAwesome5 style={{marginRight: 2}} name="coins" size={24} color="#E2D0A2" />
-                                <Text style={{marginLeft: 2}} >400</Text>
+                                <Text style={{marginLeft: 2}} >{this.props.data.reward}</Text>
                             </View>
                             <View style={{marginRight: 12}}>
                                 <Text style={{color: '#A0A0A0'}}>0.5km</Text>
