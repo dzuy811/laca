@@ -42,48 +42,6 @@ const Login: React.FC <Props> = (props) => {
             Alert.alert(`Error`, `Missing Fields`);
         }
     }
-    
-    var ggProvider = new firebase.auth.GoogleAuthProvider();
-    var fbProvider = new firebase.auth.FacebookAuthProvider();
-
-    function signInRedirect(ggProvider: any) {
-        // [START auth_signin_redirect]
-        firebase.auth().signInWithRedirect(ggProvider);
-        // [END auth_signin_redirect]
-        }
-
-    function googleSignInRedirectResult() {
-  // [START auth_google_signin_redirect_result]
-  firebase.auth()
-    .getRedirectResult()
-    .then((result) => {
-      if (result.credential) {
-        /** @type {firebase.auth.OAuthCredential} */
-        var credential = result.credential;
-
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        var token = credential.accessToken;
-        
-      }
-      // The signed-in user info.
-      var user = result.user;
-    }).catch((error) => {
-      // Handle Errors here.
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-      // ...
-    });
-  // [END auth_google_signin_redirect_result]
-}
-
-
-    function facebookSignInPopup() {
-        firebase.auth().signInWithPopup(fbProvider)
-    }
 
     return (
         <View style={styles.container}>

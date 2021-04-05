@@ -50,12 +50,13 @@ const SignUp: React.FC <Props> = (props): JSX.Element => {
                     errorValidationSet("Error: Phone number only contains number.");
                 } 
                 // Check email account
-                else {
+                else {                        
+                    alert("Success");
                     const user = await firebase.auth().createUserWithEmailAndPassword(emailValue, passwordValue).then(user => {
-                        // firebase.auth().getUserByPhoneNumber(phoneValue)
                     });
                     if(user) {
                         await firebase.firestore().collection('user').doc(user.uid).set({emailValue, phoneValue, passwordValue})
+                        alert("Success");
                     } 
                 }
             } catch (error) {
@@ -97,7 +98,7 @@ const SignUp: React.FC <Props> = (props): JSX.Element => {
             <LoginButton title="SIGN UP" onPress={signUp} />
             <View style={{flexDirection: 'row', marginTop: 20}}>
                 <Text style={styles.text}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('phoneAuth')}>
+                <TouchableOpacity onPress={() => props.navigation.navigate('login')}>
                     <Text style={styles.textLogin}>Sign in</Text>
                 </TouchableOpacity>
             </View>

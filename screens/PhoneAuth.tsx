@@ -1,27 +1,9 @@
 import * as React from 'react';
-import {
-  Text,
-  View,
-  TextInput,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
+import { Text, View, TextInput, Button, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
 import * as firebase from 'firebase';
 
-// Initialize Firebase JS SDK
-// https://firebase.google.com/docs/web/setup
-/*try {
-  firebase.initializeApp({
-    ...
-  });
-} catch (err) {
-  // ignore app already initialized error in snack
-}*/
-
-export default function PhoneAuth(phoneValue:string) {
+export default function PhoneAuth() {
   const recaptchaVerifier = React.useRef(null);
   const [phoneNumber, setPhoneNumber] = React.useState();
   const [verificationId, setVerificationId] = React.useState();
@@ -38,7 +20,7 @@ export default function PhoneAuth(phoneValue:string) {
   const attemptInvisibleVerification = true;
 
   return (
-    <View style={{ padding: 20, marginTop: 50 }}>
+    <View style={styles.container}>
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={firebaseConfig}
@@ -101,10 +83,6 @@ export default function PhoneAuth(phoneValue:string) {
       />
       {message ? (
         <TouchableOpacity
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: 0xffffffee, justifyContent: 'center' },
-          ]}
           onPress={() => showMessage(undefined)}>
           <Text
             style={{
@@ -123,3 +101,44 @@ export default function PhoneAuth(phoneValue:string) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "#4B8FD2"
+    },
+    text: {
+        color: "#FFF",
+        fontWeight: "normal",
+        marginBottom: 15,
+    },
+    textLogin: {
+        color: "#FFF",
+        fontWeight: "normal",
+        marginBottom: 15,
+        textDecorationLine: 'underline'
+    },
+    containerForm: {
+        width: "100%",
+        marginBottom: 60 
+    },
+    input: {
+        height: 26,
+        fontSize: 20,
+        color: "#000",
+        borderBottomWidth: 1,
+        borderBottomColor: "#555",
+    },
+    containerSignUp: {
+        width: 300,
+        padding: 20,
+        backgroundColor:'#DFEBF7',
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: '#fff',
+        alignItems: 'center',
+        marginBottom: 10,
+    }
+})
