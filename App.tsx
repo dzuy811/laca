@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import './constants/firebase';
 import MainNav from './navigation/mainNav';
 
 export default function App() {

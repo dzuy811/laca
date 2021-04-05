@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { LoginButton, RoundedImage, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
+import firebase from 'firebase'
 
 interface Props {
     navigation: any;
@@ -18,11 +19,8 @@ const App: React.FC <Props> = (props) => {
             title: "GG"
         }
     ];
-
-    const [name, setName] = useState<string | null>(null);
-    const [password, setPassword] = useState<string | null>(null);
-
-    const [textValue, setTextValue] = useState<string>("");
+    
+    const [emailValue, setTextValue] = useState<string>("");
 	const [passwordValue, setPasswordValue] = useState<string>("");
 
     const handleTextChange = (newText: string) => {
@@ -33,6 +31,60 @@ const App: React.FC <Props> = (props) => {
 		setPasswordValue(newPassword);
 	};
 
+    const login = async () => {
+        if(emailValue && passwordValue) {
+            try {
+            const {user} = await firebase.auth().signInWithEmailAndPassword(emailValue, passwordValue)
+            } catch(error) {
+                alert(error);
+            }
+        } else {
+            Alert.alert(`Error`, `Missing Fields`);
+        }
+    }
+    
+    var ggProvider = new firebase.auth.GoogleAuthProvider();
+    var fbProvider = new firebase.auth.FacebookAuthProvider();
+
+    function signInRedirect(ggProvider: any) {
+        // [START auth_signin_redirect]
+        firebase.auth().signInWithRedirect(ggProvider);
+        // [END auth_signin_redirect]
+        }
+
+    function googleSignInRedirectResult() {
+  // [START auth_google_signin_redirect_result]
+  firebase.auth()
+    .getRedirectResult()
+    .then((result) => {
+      if (result.credential) {
+        /** @type {firebase.auth.OAuthCredential} */
+        var credential = result.credential;
+
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        var token = credential.accessToken;
+        
+      }
+      // The signed-in user info.
+      var user = result.user;
+    }).catch((error) => {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
+  // [END auth_google_signin_redirect_result]
+}
+
+
+    function facebookSignInPopup() {
+        firebase.auth().signInWithPopup(fbProvider)
+    }
+
     return (
         <View style={styles.container}>
             <AppLogo />
@@ -40,15 +92,16 @@ const App: React.FC <Props> = (props) => {
                 style={styles.containerForm}
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-                <FormInput label="Username" value={textValue} onChangeHandler={handleTextChange} />
+                <FormInput label="Email" value={emailValue} onChangeHandler={handleTextChange} />
                 <FormInput
+                    style={{backgroundColor: "red"}}
                     isSecured={true}
                     label="Password"
                     value={passwordValue}
                     onChangeHandler={handlePasswordChange}
                 />
             </KeyboardAvoidingView>
-            <LoginButton title="LOGIN" onPress={() => alert("LOGIN")} /> 
+            <LoginButton title="LOGIN" onPress={login} /> 
             <FlatList style={{flexGrow: 0}}
                 data={socialMedia}
                 numColumns={2}
@@ -56,7 +109,7 @@ const App: React.FC <Props> = (props) => {
                     <View style={(item.id==1)?{ width: 100 }:{}}>
                     <RoundedImage 
                         title={item.title} 
-                        onPress={() => (item.title == "FB" ? alert("Facebook") : alert("Google"))} />
+                        onPress={() => (item.title == "FB" ? facebookSignInPopup : googleSignInRedirectResult)} />
                     </View>
                 }
                 keyExtractor={(item) => item.id.toString()}

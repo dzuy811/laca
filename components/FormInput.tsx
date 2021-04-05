@@ -28,7 +28,6 @@ const FormInput: React.FC<Props> = ({ label, value, isSecured, onChangeHandler }
 			marginLeft: 32,
 			marginRight: 32,
 		},
-
 		input: {
 			height: 26,
 			fontSize: 18,

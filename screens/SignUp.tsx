@@ -1,24 +1,21 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, Alert } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { LoginButton, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
+import firebase from 'firebase'
+import auth from '@react-native-firebase/auth';
 
 interface Props {
     navigation: any;
 }
 
-const App: React.FC <Props> = (props) => {
-    // const [name, setName] = useState<string | null>(null);
-    // const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-    // const [password, setPassword] = useState<string | null>(null);
-    // const [passwordCf, setPasswordCf] = useState<string | null>(null);
-
-    const [nameValue, setNameValue] = useState<string>("");
+const SignUp: React.FC <Props> = (props): JSX.Element => {
+    const [emailValue, setNameValue] = useState<string>("");
     const [phoneValue, setPhoneValue] = useState<string>("");
 	const [passwordValue, setPasswordValue] = useState<string>("");
     const [passwordCfValue, setPasswordCfValue] = useState<string>("");
-
+    const [errorValidation, setErrorValidation] = useState<string>("");
 
     const handleNameChange = (newText: string) => {
 		setNameValue(newText);
@@ -36,17 +33,53 @@ const App: React.FC <Props> = (props) => {
 		setPasswordCfValue(newPassword);
 	};
 
+    const errorValidationSet = (newText: string) => {
+		setErrorValidation(newText);
+	};
+
+    const signUp = async () => {
+        var pattern = /^\d+$/;
+        if(emailValue && phoneValue && passwordValue) {
+            try {
+                // Check password and confirm password
+                if(!(passwordValue === passwordCfValue)) {
+                    errorValidationSet("Error: Password is not matching.");
+
+                // Check phone number
+                } else if(!(pattern.test(phoneValue))) {
+                    errorValidationSet("Error: Phone number only contains number.");
+                } 
+                // Check email account
+                else {
+                    const user = await firebase.auth().createUserWithEmailAndPassword(emailValue, passwordValue).then(user => {
+                        // firebase.auth().getUserByPhoneNumber(phoneValue)
+                    });
+                    if(user) {
+                        await firebase.firestore().collection('user').doc(user.uid).set({emailValue, phoneValue, passwordValue})
+                    } 
+                }
+            } catch (error) {
+                errorValidationSet(String(error));
+            }
+        } else {
+            Alert.alert(`Error`, `Missing Fields`);
+        }
+    }
+
     return (  
         <View style={styles.container}>
             <AppLogo />
             <Text style={styles.text}>
                 Let's start your journey from here with us!
             </Text>
+            <Text style={{color: "red"}}>
+                {errorValidation.substring(7)}
+            </Text>
             <KeyboardAvoidingView
                 style={styles.containerForm}
                 behavior={"padding"}
 		    >
-                <FormInput label="Username" value={nameValue} onChangeHandler={handleNameChange} />
+                <FormInput label="Email" value={emailValue} onChangeHandler={handleNameChange} />
                 <FormInput label="Phone Number" value={phoneValue} onChangeHandler={handlePhoneChange} />
                 <FormInput
                     isSecured={true}
@@ -61,10 +94,10 @@ const App: React.FC <Props> = (props) => {
                     onChangeHandler={handlePasswordCfChange}
                 />
 		    </KeyboardAvoidingView>
-            <LoginButton title="SIGN UP" onPress={() => alert("SIGN UP")} />
+            <LoginButton title="SIGN UP" onPress={signUp} />
             <View style={{flexDirection: 'row', marginTop: 20}}>
                 <Text style={styles.text}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('login')}>
+                <TouchableOpacity onPress={() => props.navigation.navigate('phoneAuth')}>
                     <Text style={styles.textLogin}>Sign in</Text>
                 </TouchableOpacity>
             </View>
@@ -72,7 +105,7 @@ const App: React.FC <Props> = (props) => {
     )
 }
 
-export default App;
+export default SignUp;
 
 const styles = StyleSheet.create({
     container: {
