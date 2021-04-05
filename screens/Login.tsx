@@ -8,7 +8,7 @@ interface Props {
     navigation: any;
 }
 
-const App: React.FC <Props> = (props) => {
+const Login: React.FC <Props> = (props) => {
     const socialMedia = [
         {
             id: 1,
@@ -125,7 +125,7 @@ const App: React.FC <Props> = (props) => {
     )
 }
 
-export default App;
+export default Login;
 
 const styles = StyleSheet.create({
     container: {
