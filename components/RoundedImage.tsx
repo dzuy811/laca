@@ -38,8 +38,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         borderColor: "transparent",
         marginBottom: 20,
-        
-        
     },
     image: {
         height: 40,

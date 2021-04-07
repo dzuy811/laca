@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { createStackNavigator } from "@react-navigation/stack"
-import { Login, SignUp } from '../screens'
+import { Login, SignUp, PhoneAuth } from '../screens'
 const { Navigator, Screen } = createStackNavigator();
 
 const AuthStack : FC = () => {
@@ -9,8 +9,9 @@ const AuthStack : FC = () => {
             screenOptions={{
                 headerShown: false
             }}
-        >
+        > 
             <Screen name="login" component={Login} />
+            <Screen name="phoneAuth" component={PhoneAuth} />
             <Screen name="signUp" component={SignUp} />
         </Navigator>
     )
