@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, TextInput, Animated, Dimensions } from "react-n
 interface Props {
 	label: string;
 	value: string;
+	editable?: boolean;
 	isSecured?: boolean;
 	[key: string]: any;
 }
@@ -14,7 +15,7 @@ interface AnyObject {
 	[key: string]: any;
 }
 
-const FormInput: React.FC<Props> = ({ label, value, isSecured, onChangeHandler }) => {
+const FormInput: React.FC<Props> = ({ label, value,editable, isSecured, onChangeHandler }) => {
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	// var width = Dimensions.get("window").width; //full width
 	// var height = Dimensions.get("window").height; //full height
@@ -81,6 +82,7 @@ const FormInput: React.FC<Props> = ({ label, value, isSecured, onChangeHandler }
 			<TextInput
 				value={value}
 				style={styles.input}
+				editable={editable}
 				onFocus={handleFocus}
 				onBlur={handleBlur}
 				blurOnSubmit

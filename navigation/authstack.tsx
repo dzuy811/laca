@@ -11,8 +11,8 @@ const AuthStack : FC = () => {
             }}
         > 
             <Screen name="login" component={Login} />
+            <Screen name="phoneAuth" component={PhoneAuth} />
             <Screen name="signUp" component={SignUp} />
-            {/* <Screen name="phoneAuth" component={PhoneAuth} /> */}
         </Navigator>
     )
 }

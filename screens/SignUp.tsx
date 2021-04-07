@@ -1,71 +1,42 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, Alert } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, Alert, Platform } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { LoginButton, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
-import firebase from 'firebase'
 import auth from '@react-native-firebase/auth';
+import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
+import * as firebase from 'firebase';
 
 interface Props {
     navigation: any;
 }
 
 const SignUp: React.FC <Props> = (props): JSX.Element => {
-    const [emailValue, setNameValue] = useState<string>("");
     const [phoneValue, setPhoneValue] = useState<string>("");
-	const [passwordValue, setPasswordValue] = useState<string>("");
-    const [passwordCfValue, setPasswordCfValue] = useState<string>("");
     const [errorValidation, setErrorValidation] = useState<string>("");
 
-    const handleNameChange = (newText: string) => {
-		setNameValue(newText);
-	};
+    const recaptchaVerifier = React.useRef(null);
+    const [phoneNumber, setPhoneNumber] = React.useState();
+    const [verificationId, setVerificationId] = React.useState();
+    const [verificationCode, setVerificationCode] = React.useState();
+    const firebaseConfig = firebase.apps.length ? firebase.app().options : undefined;
+    const [message, showMessage] = React.useState(
+    !firebaseConfig || Platform.OS === 'web'
+      ? {
+          text:
+            'To get started, provide a valid firebase config in App.js and open this snack on an iOS or Android device.',
+        }
+      : undefined
+  );
+    const attemptInvisibleVerification = true;
 
     const handlePhoneChange = (newText: string) => {
 		setPhoneValue(newText);
 	};
 
-	const handlePasswordChange = (newPassword: string) => {
-		setPasswordValue(newPassword);
-	};
-
-    const handlePasswordCfChange = (newPassword: string) => {
-		setPasswordCfValue(newPassword);
-	};
-
     const errorValidationSet = (newText: string) => {
 		setErrorValidation(newText);
 	};
-
-    const signUp = async () => {
-        var pattern = /^\d+$/;
-        if(emailValue && phoneValue && passwordValue) {
-            try {
-                // Check password and confirm password
-                if(!(passwordValue === passwordCfValue)) {
-                    errorValidationSet("Error: Password is not matching.");
-
-                // Check phone number
-                } else if(!(pattern.test(phoneValue))) {
-                    errorValidationSet("Error: Phone number only contains number.");
-                } 
-                // Check email account
-                else {                        
-                    alert("Success");
-                    const user = await firebase.auth().createUserWithEmailAndPassword(emailValue, passwordValue).then(user => {
-                    });
-                    if(user) {
-                        await firebase.firestore().collection('user').doc(user.uid).set({emailValue, phoneValue, passwordValue})
-                        alert("Success");
-                    } 
-                }
-            } catch (error) {
-                errorValidationSet(String(error));
-            }
-        } else {
-            Alert.alert(`Error`, `Missing Fields`);
-        }
-    }
 
     return (  
         <View style={styles.container}>
@@ -80,20 +51,9 @@ const SignUp: React.FC <Props> = (props): JSX.Element => {
                 style={styles.containerForm}
                 behavior={"padding"}
 		    >
-                <FormInput label="Email" value={emailValue} onChangeHandler={handleNameChange} />
-                <FormInput label="Phone Number" value={phoneValue} onChangeHandler={handlePhoneChange} />
-                <FormInput
-                    isSecured={true}
-                    label="Password"
-                    value={passwordValue}
-                    onChangeHandler={handlePasswordChange}
-                />
-                <FormInput
-                    isSecured={true}
-                    label="Confirm Password"
-                    value={passwordCfValue}
-                    onChangeHandler={handlePasswordCfChange}
-                />
+                <FormInput label="Phone Number" editable={true} value={phoneValue} onChangeHandler={handlePhoneChange} />
+
+
 		    </KeyboardAvoidingView>
             <LoginButton title="SIGN UP" onPress={signUp} />
             <View style={{flexDirection: 'row', marginTop: 20}}>
