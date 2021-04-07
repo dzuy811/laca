@@ -8,17 +8,23 @@ import {
 } from "react-native";
 import { Ionicons, FontAwesome5, AntDesign } from '@expo/vector-icons';
 
+import { useNavigation } from '@react-navigation/native';
+
+
 type attractionType = {
     id: string,
     name: string,
     reward: number,
     ratings: number,
     imageThumbnail: string,
+    geoPoint: any,
 }
 
 interface CardProps  {
-    data: attractionType
+    data: attractionType,
+    navigation: any
 }
+
 
 
 export default class AttractionCard extends Component<CardProps> {
@@ -27,8 +33,16 @@ export default class AttractionCard extends Component<CardProps> {
     }
 
     render() {
+
         return (
             <TouchableOpacity
+                onPress={() => {
+                    console.log(this.props.data.geoPoint._latitude)
+                    this.props.navigation.navigate('Map', {
+                        latitude: this.props.data.geoPoint._latitude,
+                        longitude: this.props.data.geoPoint._longitude
+                    })
+                }}
                 activeOpacity={0.8} style={[style.cardContainer, style.item]}
             >
                 <View>
@@ -40,19 +54,19 @@ export default class AttractionCard extends Component<CardProps> {
                             {this.props.data.name}
                         </Text>
                     </View>
-                    <View style={{marginTop: 4}}>
+                    <View style={{marginTop: 10}}>
                         <View style={style.firstInfo}>
                             <View style={[style.reward]}>
                                 <FontAwesome5 style={{marginRight: 2}} name="coins" size={24} color="#E2D0A2" />
-                                <Text style={{marginLeft: 2}} >{this.props.data.reward}</Text>
+                                <Text style={{marginLeft: 2, fontSize: 18}} >{this.props.data.reward}</Text>
                             </View>
                             <View style={{marginRight: 12}}>
-                                <Text style={{color: '#A0A0A0'}}>0.5km</Text>
+                                <Text style={{color: '#A0A0A0', fontSize: 16}}>0.5km</Text>
                             </View>
                         </View>
                         <View style={style.reward}>
                             <AntDesign style={{marginRight: 2}} name="star" size={24} color="#FF5353" />
-                            <Text style={{marginLeft: 2}}>3.5/5(92)</Text>
+                            <Text style={{marginLeft: 2, fontSize: 18}}>3.5/5(92)</Text>
                         </View>
                     </View>
                    
@@ -72,19 +86,23 @@ const style = StyleSheet.create({
 
     cardContainer: {
         backgroundColor: '#fff',
-        width: 180,
-        borderRadius: 10,
+        width: 350,
+        borderTopRightRadius: 20,
+        borderTopLeftRadius: 20,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15
     },
     cardImage: {
-        height: 180,
+        height: 360,
         width: '100%',
-        borderRadius: 10,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
     },
     cardBody: {
-        paddingTop: 5,
-        paddingLeft: 10,
+        paddingTop: 15,
+        paddingLeft: 25,
         paddingRight: 10,
-        paddingBottom: 13,
+        paddingBottom: 30,
     },
     firstInfo: {
         flexDirection: 'row',
@@ -93,7 +111,7 @@ const style = StyleSheet.create({
 
     },
     attractionName: {
-        fontSize: 16,
+        fontSize: 24,
     },
     reward: {
         flexDirection: 'row',

@@ -4,40 +4,20 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import AttractionList from '../components/AttractionList'
 
-// const data = [
-//     {
-//         id: '1',
-//         name: 'Nha Tho Duc Ba',
-//         reward: 100,
-//         ratings: 3.5
-//     },
-//     {
-//         id: '2',
-//         name: 'Dai Hoc RMIT',
-//         reward: 200,
-//         ratings: 4.8
-//     },
-//     {
-//         id: '3',
-//         name: 'Bao Tang Ho Chi Minh',
-//         reward: 240,
-//         ratings: 4.1
-//     }
-// ]
-
-
 type homeScreenProps = {
     data: any[],
+    navigation: any
 }
 
 export class HomeScreen extends Component<homeScreenProps> {
 
     state: homeScreenProps = {
-        data: []
+        data: [],
+        navigation: ''
     }
 
     componentDidMount() {
-        fetch('http://localhost:5001/laca-59b8c/us-central1/api/attractions')
+        fetch('http://10.247.219.103:5001/laca-59b8c/us-central1/api/attractions')
         .then((response) => response.json())
         .then((json) => {
             this.setState({ data: json})
@@ -52,11 +32,11 @@ export class HomeScreen extends Component<homeScreenProps> {
             <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
                 <SafeAreaView style={style.header}>
                     <View>
-                        <Text>702 Nguyen Van Linh</Text>
+                        <Text style={{marginLeft: 10, fontSize: 18, color: '#fff'}}>702 Nguyen Van Linh</Text>
                     </View>
                 </SafeAreaView>
-                <View style={{marginLeft: 20, marginTop: 20}}>
-                    <AttractionList attractions={this.state.data}/>
+                <View style={style.cardList}>
+                    <AttractionList navigation={this.props.navigation} attractions={this.state.data}/>
                 </View>
                 
             </View>
@@ -73,6 +53,12 @@ const style = StyleSheet.create({
     },
     sectionHeading: {
         color: '#4B8FD2'
+    },
+    cardList: {
+        marginLeft: 20,
+        marginTop: 100,
+        alignItems: 'stretch',
+        justifyContent: 'center'
     }
 })
 

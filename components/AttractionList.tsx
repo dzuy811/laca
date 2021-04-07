@@ -15,11 +15,13 @@ type attractionType = {
     name: string,
     reward: number,
     ratings: number,
-    imageThumbnail: string
+    imageThumbnail: string,
+    geoPoint: any,
 }
 
 interface AttractionType {
-    attractions: attractionType[]
+    attractions: attractionType[],
+    navigation: any
 }
 
 export default class AttractionList extends React.Component<AttractionType> {
@@ -29,19 +31,17 @@ export default class AttractionList extends React.Component<AttractionType> {
     }
 
     render() {
+    
         return (
             <ScrollView>
-                <View>
-                    <Text style={style.sectionHeading}>Local Attractions</Text>
-                </View>
-                <View style={{marginTop: 10}}>
+                <View  style={style.attractionList}>
                     <FlatList
                     showsHorizontalScrollIndicator={false} 
                     data={this.props.attractions}
                     horizontal={true} 
                     keyExtractor={item => item.id}
                     renderItem={({item})=> (
-                        <AttractionCard data={item}/>
+                        <AttractionCard navigation={this.props.navigation} data={item}/>
                     )}>
 
                     </FlatList>
@@ -55,5 +55,9 @@ const style = StyleSheet.create({
     sectionHeading: {
         color: '#4B8FD2',
         fontSize: 20
+    },
+    attractionList: {
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 })
