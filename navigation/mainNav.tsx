@@ -37,8 +37,6 @@ const MainNav : FC = () => {
     return(
         <NavigationContainer>
             {user != null ? 
-            <View style={{flex:1, alignItems: 'center', alignSelf:'center'}}>
-                <LoginButton title="Sign Out" onPress={signOut}></LoginButton>
                   <Tab.Navigator>
         <Tab.Screen
         name="main"
@@ -48,7 +46,6 @@ const MainNav : FC = () => {
         children={()=><AttractionMap latitude={10.759327992014628} longitude={106.70257070404554}/>}
         /> */}
       </Tab.Navigator>
-    </View>
 
             : <AuthStack />}
         </NavigationContainer>

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 import AttractionList from '../components/AttractionList'
 
@@ -17,7 +16,7 @@ export class HomeScreen extends Component<homeScreenProps> {
     }
 
     componentDidMount() {
-        fetch('http://10.247.219.103:5001/laca-59b8c/us-central1/api/attractions')
+        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
         .then((response) => response.json())
         .then((json) => {
             this.setState({ data: json})
@@ -30,11 +29,11 @@ export class HomeScreen extends Component<homeScreenProps> {
         const data = this.state;
         return (
             <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
-                <SafeAreaView style={style.header}>
+                <View style={style.header}>
                     <View>
                         <Text style={{marginLeft: 10, fontSize: 18, color: '#fff'}}>702 Nguyen Van Linh</Text>
                     </View>
-                </SafeAreaView>
+                </View>
                 <View style={style.cardList}>
                     <AttractionList navigation={this.props.navigation} attractions={this.state.data}/>
                 </View>
