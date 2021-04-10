@@ -16,7 +16,7 @@ export class HomeScreen extends Component<homeScreenProps> {
     }
 
     componentDidMount() {
-        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
+        fetch('http://10.247.200.52:5001/laca-59b8c/us-central1/api/attractions')
         .then((response) => response.json())
         .then((json) => {
             this.setState({ data: json})

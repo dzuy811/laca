@@ -38,7 +38,7 @@ export default class AttractionCard extends Component<CardProps> {
             <TouchableOpacity
                 onPress={() => {
                     console.log(this.props.data.geoPoint._latitude)
-                    this.props.navigation.navigate('Map', {
+                    this.props.navigation.navigate('Description', {
                         latitude: this.props.data.geoPoint._latitude,
                         longitude: this.props.data.geoPoint._longitude
                     })

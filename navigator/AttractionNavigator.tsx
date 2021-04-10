@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import HomeScreen from '../screens/HomeScreen'
 import AttractionMap from '../screens/AttractionMap'
+import DescriptionTab from '../screens/DescriptionTab';
 
 const Stack = createStackNavigator();
 
@@ -14,6 +15,7 @@ const AttractionNavigator = () => {
           name="Home"
           component={HomeScreen}
         />
+        <Stack.Screen name="Description" component={DescriptionTab}/>
         <Stack.Screen name="Map" component={AttractionMap} />
       </Stack.Navigator>
   );
