@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { createStackNavigator } from "@react-navigation/stack"
-import { Login, SignUp, PhoneAuth } from '../screens'
+import { Login, PhoneAuth } from '../screens'
 const { Navigator, Screen } = createStackNavigator();
 
 const AuthStack : FC = () => {
@@ -12,9 +12,9 @@ const AuthStack : FC = () => {
         > 
             <Screen name="login" component={Login} />
             <Screen name="phoneAuth" component={PhoneAuth} />
-            <Screen name="signUp" component={SignUp} />
         </Navigator>
     )
 }
+
 
 export default AuthStack;

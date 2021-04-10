@@ -1,5 +1,5 @@
 import Login from './Login'
-import SignUp from './SignUp'
 import PhoneAuth from './PhoneAuth'
+import MapScreen from "./MapScreen";
 
-export {Login, SignUp, PhoneAuth }
+export {Login, PhoneAuth, MapScreen }
