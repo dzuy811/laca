@@ -25,19 +25,20 @@ const RoundedImage: FC<Props> = (props) => {
 export default RoundedImage;
 
 const styles = StyleSheet.create({
-	imgContainer: {
-		marginLeft: 8,
-		height: 40,
-		width: 40,
-		borderRadius: 40,
-		borderWidth: 1,
-		shadowOpacity: 1,
-		borderColor: "transparent",
-		marginBottom: 20,
-	},
-	image: {
-		height: 40,
-		width: 40,
-		borderRadius: 40,
-	},
-});
+
+    imgContainer: {
+        marginLeft: 8,
+        height: 40,
+        width: 40,
+        borderRadius: 40,
+        borderWidth: 1,
+        shadowOpacity: 1,
+        borderColor: "transparent",
+        marginBottom: 20,
+    },
+    image: {
+        height: 40,
+        width: 40,
+        borderRadius: 40,
+  },
+})

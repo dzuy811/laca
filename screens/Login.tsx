@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import { LoginButton, RoundedImage, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
+import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
+import * as firebase from 'firebase';
 
 interface Props {
     navigation: any;
@@ -18,37 +20,111 @@ const Login: React.FC <Props> = (props) => {
             title: "GG"
         }
     ];
-
-    const [name, setName] = useState<string | null>(null);
-    const [password, setPassword] = useState<string | null>(null);
-
-    const [textValue, setTextValue] = useState<string>("");
+    
+    const [emailValue, setTextValue] = useState<string>("");
 	const [passwordValue, setPasswordValue] = useState<string>("");
 
     const handleTextChange = (newText: string) => {
 		setTextValue(newText);
 	};
 
-	const handlePasswordChange = (newPassword: string) => {
-		setPasswordValue(newPassword);
+    const recaptchaVerifier = React.useRef(null);
+  const [phoneNumber, setPhoneNumber] = React.useState<string>("");
+  const [verificationId, setVerificationId] = React.useState();
+  const [verificationCode, setVerificationCode] = React.useState<string>("");
+  const firebaseConfig = firebase.apps.length ? firebase.app().options : undefined;
+
+  const handlePhoneChange = (newText: string) => {
+		setPhoneNumber(newText);
 	};
+
+  const handleVerificationCode = (newText: string) => {
+		setVerificationCode(newText);
+	};
+  
+  const [message, showMessage] = React.useState(
+    !firebaseConfig || Platform.OS === 'web'
+      ? { text: 'To get started, provide a valid firebase config in App.js and open this snack on an iOS or Android device.'}
+      : undefined
+  );
+
+  const attemptInvisibleVerification = true;
 
     return (
         <View style={styles.container}>
             <AppLogo />
+            <FirebaseRecaptchaVerifierModal
+                ref={recaptchaVerifier}
+                firebaseConfig={firebaseConfig}
+                attemptInvisibleVerification={attemptInvisibleVerification}
+            />
             <KeyboardAvoidingView
                 style={styles.containerForm}
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-                <FormInput label="Username" value={textValue} onChangeHandler={handleTextChange} />
                 <FormInput
-                    isSecured={true}
-                    label="Password"
-                    value={passwordValue}
-                    onChangeHandler={handlePasswordChange}
-                />
+                label="Phone Number"
+                value={phoneNumber}
+                onChangeHandler={handlePhoneChange}
+                />            
             </KeyboardAvoidingView>
-            <LoginButton title="LOGIN" onPress={() => alert("LOGIN")} /> 
+            <LoginButton 
+                title="Send Verification Code" 
+                onPress={async () => {
+                    try {
+                        const phoneProvider = new firebase.auth.PhoneAuthProvider();
+                        const verificationId = await phoneProvider.verifyPhoneNumber(
+                        ("+84" + phoneNumber.substring(1)), recaptchaVerifier.current);
+                        setVerificationId(verificationId);
+                        showMessage({
+                            text: 'Verification code has been sent to your phone.',
+                        });
+                        } catch (err) {
+                            showMessage({ text: `Error: ${err.message}`});
+                        }
+                    }}
+            />
+            {!verificationId ? (<View></View>) :(
+                <>
+                    <KeyboardAvoidingView
+                        style={styles.containerForm}
+                        behavior={Platform.OS == "ios" ? "padding" : "height"}
+                    >
+                        <FormInput
+                            label="Verification Code"
+                            value={verificationCode}
+                            editable={!!verificationId}
+                            onChangeHandler={handleVerificationCode}
+                        />
+                    </KeyboardAvoidingView>
+                    <LoginButton 
+                        title="Send Verification Code"
+                        onPress={async () => {
+                            try {
+                            const credential = firebase.auth.PhoneAuthProvider.credential(
+                                verificationId,
+                                verificationCode
+                            );
+                            await firebase.auth().signInWithCredential(credential);
+                            } catch (err) {
+                                showMessage({ text: `Error: ${err.message}`, color: 'red' });
+                            }
+                        }}
+                    />
+                </>
+            )}
+        
+            {message ? (
+                <TouchableOpacity
+                    onPress={() => showMessage(undefined)}>
+                <Text style={{ color:"blue" }}>
+                    {message.text}
+                </Text>
+                </TouchableOpacity>
+            ) : (
+                undefined
+            )}
+            {false && attemptInvisibleVerification && <FirebaseRecaptchaBanner />} 
             <FlatList style={{flexGrow: 0}}
                 data={socialMedia}
                 numColumns={2}
@@ -56,7 +132,7 @@ const Login: React.FC <Props> = (props) => {
                     <View style={(item.id==1)?{ width: 100 }:{}}>
                     <RoundedImage 
                         title={item.title} 
-                        onPress={() => (item.title == "FB" ? alert("Facebook") : alert("Google"))} />
+                        onPress={() => (item.title == "FB" ? alert("FB") : alert("GG"))} />
                     </View>
                 }
                 keyExtractor={(item) => item.id.toString()}
@@ -64,10 +140,14 @@ const Login: React.FC <Props> = (props) => {
             <Text style={styles.text}>
                 ___________________________
             </Text>
-            <Text style={styles.text}>
-                Don’t have an account?
-            </Text>
-            <LoginButton title="SIGN UP" onPress={() => props.navigation.navigate('signUp')} />
+            <View style={{flexDirection: 'row', marginTop: 20}}>
+                <Text style={styles.text}>
+                    Don’t have an account?
+                </Text>
+                <TouchableOpacity onPress={() => props.navigation.navigate('phoneAuth')}>
+                        <Text style={styles.textLogin}> Sign up</Text>
+                </TouchableOpacity> 
+            </View>
         </View>
     )
 }
@@ -88,7 +168,7 @@ const styles = StyleSheet.create({
     },
     containerForm: {
         width: "100%",
-        paddingBottom: 50
+        paddingBottom: 20
     },
     input: {
         height: 26,
@@ -96,5 +176,11 @@ const styles = StyleSheet.create({
         color: "#000",
         borderBottomWidth: 1,
         borderBottomColor: "#555",
+    },
+    textLogin: {
+        color: "#FFF",
+        fontWeight: "normal",
+        marginBottom: 15,
+        textDecorationLine: 'underline'
     },
 })
