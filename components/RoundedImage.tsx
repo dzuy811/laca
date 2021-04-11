@@ -1,34 +1,31 @@
 import React, { FC } from "react";
 import { StyleSheet, Image } from "react-native";
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { TouchableHighlight } from "react-native-gesture-handler";
 
-const fb_logo = require('../assets/fb_logo.png');
-const gg_logo = require('../assets/gg_logo.jpg');
+const fb_logo = require("../assets/fb_logo.png");
+const gg_logo = require("../assets/gg_logo.jpg");
 
 interface Props {
-    title: string;
-    onPress: () => void;
+	title: string;
+	onPress: () => void;
 }
 
-const App: FC <Props> = (props) => {
-    return(
-        <TouchableHighlight 
-        activeOpacity = {0.6}
-        style = {styles.imgContainer} 
-        onPress={props.onPress}
-        >
-            <Image
-                style={styles.image}
-                source={props.title == "FB" ? fb_logo : gg_logo}
-                resizeMode={"cover"} // <- needs to be "cover" for borderRadius to take effect on Android
-/>
-        </TouchableHighlight>
-    )
-}
+const RoundedImage: FC<Props> = (props) => {
+	return (
+		<TouchableHighlight activeOpacity={0.6} style={styles.imgContainer} onPress={props.onPress}>
+			<Image
+				style={styles.image}
+				source={props.title == "FB" ? fb_logo : gg_logo}
+				resizeMode={"cover"} // <- needs to be "cover" for borderRadius to take effect on Android
+			/>
+		</TouchableHighlight>
+	);
+};
 
-export default App;
+export default RoundedImage;
 
 const styles = StyleSheet.create({
+
     imgContainer: {
         marginLeft: 8,
         height: 40,
@@ -38,8 +35,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         borderColor: "transparent",
         marginBottom: 20,
-        
-        
     },
     image: {
         height: 40,
