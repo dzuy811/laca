@@ -11,6 +11,7 @@ import AttractionNavigator from '../navigator/AttractionNavigator'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AttractionList from '../components/AttractionList';
 import AttractionCard from '../components/AttractionCard';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,10 +42,9 @@ const MainNav : FC = () => {
         <Tab.Screen
         name="main"
         component={AttractionNavigator}/>
-        {/* <Tab.Screen 
-        name="AttractionMap"
-        children={()=><AttractionMap latitude={10.759327992014628} longitude={106.70257070404554}/>}
-        /> */}
+        <Tab.Screen 
+        name="profile"
+        component={ProfileScreen}/>
       </Tab.Navigator>
 
             : <AuthStack />}
