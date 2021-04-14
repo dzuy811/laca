@@ -5,16 +5,16 @@ import { FlatList } from 'react-native-gesture-handler'
 import UserOption from './UserOption'
 
 interface Props {
-    name: string,
+    navigation: any
 }
 
-const UserOptionsList: React.FC<Props> = () => {
+const UserOptionsList: React.FC<Props> = ({navigation}) => {
     return(
         <View>
-            <UserOption name="History"/>
-            <UserOption name="Voucher"/>
-            <UserOption name="Favorite attraction"/>
-            <UserOption name="Help"/>
+            <UserOption navigation={navigation} name="History"/>
+            <UserOption navigation={navigation} name="Voucher"/>
+            <UserOption navigation={navigation} name="Favorite attraction"/>
+            <UserOption navigation={navigation} name="Help"/>
         </View>
     )
 }

@@ -4,10 +4,19 @@ import { FlatList } from 'react-native-gesture-handler'
 import ProfileHeader from '../components/profile-screen-components/ProfileHeader'
 import UserOptionsList from '../components/profile-screen-components/UserOptionsList'
 
-const ProfileScreen = () => {
+import { StackScreenProps } from '@react-navigation/stack';
+import { RootStackParamList } from './ProfileStackParams'
+
+type ProfileScreenNavigationProp = StackScreenProps<RootStackParamList, 'Profile Screen'>
+
+const ProfileScreen = ({route, navigation}: ProfileScreenNavigationProp) => {
     return <View>
-        <ProfileHeader/>
-        <UserOptionsList/>
+        <View>
+            <ProfileHeader/>
+        </View>
+        <View style={{marginTop: 50}}>
+            <UserOptionsList navigation={navigation}/>
+        </View>
     </View>
 }
 
