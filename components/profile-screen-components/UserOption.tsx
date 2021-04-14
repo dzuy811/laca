@@ -11,7 +11,7 @@ interface type {
 const UserOption: React.FC<type> = (props: type) => {
 
     return (
-        <TouchableOpacity onPress={() => props.navigation.navigate('Journey History')}>
+        <TouchableOpacity onPress={() => props.navigation.navigate(props.name)}>
             <View style={{borderBottomColor: '#2966A3', borderBottomWidth: 1}}>
                 <View style={{backgroundColor: '#DFEBF7', height: 50, justifyContent: 'center', padding: 15}}>
                     <Text style={{}}>{props.name}</Text>

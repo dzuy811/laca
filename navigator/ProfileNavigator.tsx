@@ -11,13 +11,13 @@ const ProfileNavigator = () => {
     return (
         <ProfileStack.Navigator
         headerMode="none"
-        initialRouteName="Profile Screen">
+        initialRouteName="Profile screen">
             <ProfileStack.Screen
-            name="Profile Screen"
+            name="Profile screen"
             component={ProfileScreen}
             />
             <ProfileStack.Screen
-            name="Journey History"
+            name="Journey history"
             component={JourneyHistoryScreen}
             />
         </ProfileStack.Navigator>

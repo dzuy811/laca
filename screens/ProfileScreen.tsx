@@ -7,7 +7,7 @@ import UserOptionsList from '../components/profile-screen-components/UserOptions
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from './ProfileStackParams'
 
-type ProfileScreenNavigationProp = StackScreenProps<RootStackParamList, 'Profile Screen'>
+type ProfileScreenNavigationProp = StackScreenProps<RootStackParamList>
 
 const ProfileScreen = ({route, navigation}: ProfileScreenNavigationProp) => {
     return <View>

@@ -4,15 +4,20 @@ import { View, Text, StyleSheet} from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import UserOption from './UserOption'
 
+import { RootStackParamList } from '../../screens/ProfileStackParams'
+
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack';
+ 
+
 interface Props {
-    navigation: any
+    navigation: StackScreenProps<RootStackParamList>
 }
 
 const UserOptionsList: React.FC<Props> = ({navigation}) => {
     return(
         <View>
-            <UserOption navigation={navigation} name="History"/>
-            <UserOption navigation={navigation} name="Voucher"/>
+            <UserOption navigation={navigation} name="Journey history"/>
+            <UserOption navigation={navigation} name="My voucher"/>
             <UserOption navigation={navigation} name="Favorite attraction"/>
             <UserOption navigation={navigation} name="Help"/>
         </View>

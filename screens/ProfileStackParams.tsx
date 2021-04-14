@@ -1,4 +1,4 @@
 export type RootStackParamList = {
-    "Profile Screen": undefined;
-    "Journey History": undefined;
+    "Profile screen": undefined;
+    "Journey history": undefined;
 };
