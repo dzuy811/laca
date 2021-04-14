@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     Image
 } from "react-native";
-import { Ionicons, FontAwesome5, AntDesign } from '@expo/vector-icons';
+import { FontAwesome5, AntDesign } from '@expo/vector-icons';
 
 import { useNavigation } from '@react-navigation/native';
 
