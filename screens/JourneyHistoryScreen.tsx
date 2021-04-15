@@ -1,7 +1,8 @@
 import React from 'react'
 import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
-import { FontAwesome5, AntDesign } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import {Header} from 'react-native-elements'
+import JourneyHistoryCard from '../components/profile-screen-components/journey-history-components/JourneyHistoryCard';
 
 
 const JourneyHistoryScreen:React.FC<any> = (props) => {
@@ -17,29 +18,17 @@ const JourneyHistoryScreen:React.FC<any> = (props) => {
                         <Text style={{fontSize: 18, color: '#fff'}}>Journey History</Text>
                 }
             />
-            <View>
-                <Text>Completed journey</Text>
-            </View>
-            <View>
-                {/* Card Component */}
-                <View>
-                    <View>
-                        <Text>12 March 2021</Text>
-                    </View>
-                    <View>
-                        <Text>Nhà Thờ Đức Bà</Text>
-                    </View>
-                    <View>
-                        <Text>0.7km</Text>
-                        <Text>-</Text>
-                        <Text>69 Đồng Khởi</Text>
-                    </View>
-                    <View>
-                        <FontAwesome5 style={{marginRight: 2}} name="coins" size={24} color="#E2D0A2" />
-                        <Text style={{marginLeft: 2, fontSize: 18}} >400</Text>
-                    </View>
+            {/* Journey History card section */}
+            <View style={{marginTop: 20}}>
+                <View style={{paddingLeft: 25}}>
+                    <Text style={{fontSize: 16, color:'#bdbdbd', fontWeight:'700'}}>Completed journey</Text>
+                </View>
+                <View style={{marginTop: 16}}>
+                    {/* Card Component */}
+                    <JourneyHistoryCard/>
                 </View>
             </View>
+            
         </View>        
     )
 }
@@ -51,6 +40,7 @@ const style = StyleSheet.create({
         height: 100,
         alignItems: 'center'
     },
+    
 })
 
 export default JourneyHistoryScreen
