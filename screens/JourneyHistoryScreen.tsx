@@ -1,27 +1,22 @@
 import React from 'react'
 import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 import { FontAwesome5, AntDesign } from '@expo/vector-icons';
+import {Header} from 'react-native-elements'
 
-
-const JourneyHistoryHeader: React.FC<any> = ({navigation}) => {
-    return (
-        <View style={style.header}>
-        <View>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text> BACK </Text>
-            </TouchableOpacity>
-        </View>
-        <View style={{flex: 1, marginTop:'7%', justifyContent:'center' ,alignItems: 'center'}}>
-            <Text style={{justifyContent: 'center', fontSize: 18, color: '#fff'}}>Journey History</Text>
-        </View>
-        </View>
-    )
-}
 
 const JourneyHistoryScreen:React.FC<any> = (props) => {
     return (
         <View>
-            <JourneyHistoryHeader navigation={props.navigation}/>
+            <Header
+                leftComponent={
+                        <TouchableOpacity onPress={() => props.navigation.goBack()}>
+                            <AntDesign name="arrowleft" size={24} color="#fff" />
+                        </TouchableOpacity>
+                }
+                centerComponent={
+                        <Text style={{fontSize: 18, color: '#fff'}}>Journey History</Text>
+                }
+            />
             <View>
                 <Text>Completed journey</Text>
             </View>

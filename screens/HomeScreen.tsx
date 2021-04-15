@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View} from 'react-native'
+import { Header } from 'react-native-elements'
 
 import AttractionList from '../components/AttractionList'
 
@@ -29,11 +30,12 @@ export class HomeScreen extends Component<homeScreenProps> {
         const data = this.state;
         return (
             <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
-                <View style={style.header}>
-                    <View>
-                        <Text style={{marginLeft: 10, fontSize: 18, color: '#fff'}}>702 Nguyen Van Linh</Text>
-                    </View>
-                </View>
+                <Header
+                leftComponent={
+                    <Text style={{color: '#fff'}}>702 Nguyen Van Linh</Text>
+                }
+                leftContainerStyle={{flex:4}}
+                />
                 <View style={style.cardList}>
                     <AttractionList navigation={this.props.navigation} attractions={this.state.data}/>
                 </View>
