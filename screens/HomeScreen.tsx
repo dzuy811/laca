@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState, useEffect, JSXElementConstructor } from 'react'
 import { StyleSheet, Text, View} from 'react-native'
 import { Header } from 'react-native-elements'
 
@@ -6,44 +6,43 @@ import AttractionList from '../components/AttractionList'
 
 type homeScreenProps = {
     data: any[],
-    navigation: any
+    navigation: any,
+    route: any
 }
 
-export class HomeScreen extends Component<homeScreenProps> {
+const HomeScreen:React.FC<homeScreenProps> = ({route, navigation}) => {
 
-    state: homeScreenProps = {
-        data: [],
-        navigation: ''
-    }
+    const [data, setData] = useState([])
+    const { item } = route.params
 
-    componentDidMount() {
-        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
+    useEffect(() => {
+        fetch('http://10.247.209.155:5001/laca-59b8c/us-central1/api/attractions')
         .then((response) => response.json())
         .then((json) => {
-            this.setState({ data: json})
-            console.log(this.state.data)
+            setData(json)
+            console.log("Attraction list: " + data)
+            console.log(item)
         })
         .catch((err) => console.error(err))
-    }
+    },[item])
 
-    render() {
-        const data = this.state;
-        return (
-            <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
+    return (
+        <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
                 <Header
                 leftComponent={
-                    <Text style={{color: '#fff'}}>702 Nguyen Van Linh</Text>
+                    <Text style={{color: '#fff'}}>{item}</Text>
                 }
                 leftContainerStyle={{flex:4}}
                 />
                 <View style={style.cardList}>
-                    <AttractionList navigation={this.props.navigation} attractions={this.state.data}/>
+                    <AttractionList navigation={navigation} attractions={data}/>
                 </View>
                 
-            </View>
-        )
-    }
+        </View>
+    )
 }
+
+export default HomeScreen
 
 const style = StyleSheet.create({
     header: {
@@ -62,5 +61,3 @@ const style = StyleSheet.create({
         justifyContent: 'center'
     }
 })
-
-export default HomeScreen
