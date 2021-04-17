@@ -1,6 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View , Text} from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import './constants/firebase';
 import MainNav from './navigation/mainNav';
 
@@ -17,25 +16,18 @@ import UserProfile  from './screens/UserProfile';
 
 const Tab = createBottomTabNavigator();
 
+let barStyle: string = "light-content"
+
 export default function App() {
 
   return (
-//     <NavigationContainer>
-//       <Tab.Navigator>
-//         <Tab.Screen
-//         name="main"
-//         component={AttractionNavigator}/>
-//         {/* <Tab.Screen 
-//         name="AttractionMap"
-//         children={()=><AttractionMap latitude={10.759327992014628} longitude={106.70257070404554}/>}
-//         /> */}
-//       </Tab.Navigator>
-//     </NavigationContainer>
 
-	  <View>
-		<StatusBar />
-      	{/* <MainNav /> */}
-		<UserProfile />
+	  <View style={styles.containerLogin}>
+		<StatusBar
+		barStyle="light-content"
+		/>
+      	<MainNav />
+
 	  </View>
   );
 }

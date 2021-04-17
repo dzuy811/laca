@@ -6,9 +6,7 @@ import {
     TouchableOpacity,
     Image
 } from "react-native";
-import { Ionicons, FontAwesome5, AntDesign } from '@expo/vector-icons';
-
-import { useNavigation } from '@react-navigation/native';
+import { FontAwesome5, AntDesign } from '@expo/vector-icons';
 
 
 type attractionType = {
@@ -37,11 +35,11 @@ export default class AttractionCard extends Component<CardProps> {
         return (
             <TouchableOpacity
                 onPress={() => {
-                    console.log(this.props.data.geoPoint._latitude)
                     this.props.navigation.navigate('Description', {
                         latitude: this.props.data.geoPoint._latitude,
                         longitude: this.props.data.geoPoint._longitude
-                    })
+                    }) // Navigate to the attraction description tab
+                    // Passing the latitude and longitude props
                 }}
                 activeOpacity={0.8} style={[style.cardContainer, style.item]}
             >
