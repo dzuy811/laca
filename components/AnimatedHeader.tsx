@@ -4,8 +4,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, FontAwesome5, AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
+interface Props {
+	animatedValue: any;
+	navigation?: any;
+}
+
 const HEADER_HEIGHT = 150;
-const AnimatedHeader = ({ animatedValue }: any) => {
+const AnimatedHeader = ({ animatedValue, navigation }: any) => {
 	const insets = useSafeAreaInsets();
 
 	const headerHeight = animatedValue.interpolate({
@@ -47,6 +52,9 @@ const AnimatedHeader = ({ animatedValue }: any) => {
 						style={{
 							paddingTop: 30,
 							paddingLeft: 30,
+						}}
+						onPress={() => {
+							navigation.navigate("Home");
 						}}
 					>
 						<AntDesign name="arrowleft" size={24} color="white" />

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
 import MainNav from "./navigation/mainNav";
@@ -16,6 +16,11 @@ import AttractionCard from "./components/AttractionCard";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+	// surpress warnings for virtualizedLists
+	useEffect(() => {
+		LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+	}, []);
+
 	return (
 		<View style={styles.containerLogin}>
 			<StatusBar />

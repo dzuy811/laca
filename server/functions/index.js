@@ -63,4 +63,4 @@ app.post("/attractions/", (req, res) => {
 });
 
 // Exports API
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region("asia-east2").https.onRequest(app);

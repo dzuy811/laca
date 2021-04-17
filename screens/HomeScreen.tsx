@@ -15,7 +15,7 @@ export class HomeScreen extends Component<homeScreenProps> {
 	};
 
 	componentDidMount() {
-		fetch("https://us-central1-laca-59b8c.cloudfunctions.net/api/attractions")
+		fetch("https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions")
 			.then((response) => response.json())
 			.then((json) => {
 				this.setState({ data: json });
