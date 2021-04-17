@@ -1,7 +1,6 @@
-
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View , Text} from 'react-native';
 import './constants/firebase';
 import MainNav from './navigation/mainNav';
 
@@ -14,6 +13,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AttractionList from './components/AttractionList';
 import AttractionCard from './components/AttractionCard';
+import UserProfile  from './screens/UserProfile';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,9 +32,10 @@ export default function App() {
 //       </Tab.Navigator>
 //     </NavigationContainer>
 
-	  <View style={styles.containerLogin}>
+	  <View>
 		<StatusBar />
-      	<MainNav />
+      	{/* <MainNav /> */}
+		<UserProfile />
 	  </View>
   );
 }

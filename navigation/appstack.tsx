@@ -11,6 +11,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AttractionList from '../components/AttractionList';
 import AttractionCard from '../components/AttractionCard';
+import UserProfile  from '../screens/UserProfile';
+
 const AppStack : FC = () => {
     return(
        
@@ -19,7 +21,7 @@ const AppStack : FC = () => {
                 headerShown: false
             }}
         >
-            <Screen name="login" component={Login} />
+            <Screen name="user-profile" component={UserProfile} />
         </Navigator>
     )
 }
