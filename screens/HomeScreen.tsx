@@ -7,24 +7,13 @@ import AttractionList from '../components/AttractionList'
 type homeScreenProps = {
     data: any[],
     navigation: any,
-    route: any
+    address: any
 }
 
-const HomeScreen:React.FC<homeScreenProps> = ({route, navigation}) => {
+const HomeScreen:React.FC<homeScreenProps> = ({address,data,navigation}, props) => {
 
-    const [data, setData] = useState([])
-    const { item } = route.params
-
-    useEffect(() => {
-        fetch('http://10.247.209.155:5001/laca-59b8c/us-central1/api/attractions')
-        .then((response) => response.json())
-        .then((json) => {
-            setData(json)
-            console.log("Attraction list: " + data)
-            console.log(item)
-        })
-        .catch((err) => console.error(err))
-    },[item])
+    const item  = address
+    console.log(navigation)
 
     return (
         <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>

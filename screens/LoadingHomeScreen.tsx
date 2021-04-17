@@ -4,72 +4,66 @@ import * as Location from 'expo-location';
 import { AppLogo } from '../components';
 
 type LoadingHomeScreenType = {
-    navigation: any,
 }
 
-const LoadingHomeScreen:React.FC<LoadingHomeScreenType> = ({ navigation }) => {
-  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
-  const [displayCurrentAddress, setDisplayCurrentAddress] = useState(
-    'Wait, we are fetching you location...'
-  );
+const LoadingHomeScreen:React.FC<LoadingHomeScreenType> = () => {
+//   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
 
-useEffect(() => {
-    CheckIfLocationEnabled();
-    GetCurrentLocation();
-  }, []);
+// useEffect(() => {
+//     CheckIfLocationEnabled();
+//     GetCurrentLocation();
+//   }, []);
 
 
-  const GetCurrentLocation = async () => {
-    let { status } = await Location.requestPermissionsAsync();
+//   const GetCurrentLocation = async () => {
+//     let { status } = await Location.requestPermissionsAsync();
   
-    if (status !== 'granted') {
-      Alert.alert(
-        'Permission not granted',
-        'Allow the app to use location service.',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    }
+//     if (status !== 'granted') {
+//       Alert.alert(
+//         'Permission not granted',
+//         'Allow the app to use location service.',
+//         [{ text: 'OK' }],
+//         { cancelable: false }
+//       );
+//     }
   
-    let { coords } = await Location.getCurrentPositionAsync();
+//     let { coords } = await Location.getCurrentPositionAsync();
   
-    if (coords) {
-      const { latitude, longitude } = coords;
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude
-      });
+//     if (coords) {
+//       const { latitude, longitude } = coords;
+//       let response = await Location.reverseGeocodeAsync({
+//         latitude,
+//         longitude
+//       });
   
-      for (let item of response) {
-        let address = `${item.street}`;
+//       for (let item of response) {
+//         let address = `${item.street}`;
   
-        setDisplayCurrentAddress(address);
-        if (address.length > 0) {
-            setTimeout(() => {
-              navigation.navigate('Home', { item: address });
-            }, 2000);
-          }
-      }
-    }
-  };
+//         if (address.length > 0) {
+//             setTimeout(() => {
+//               navigation.navigate('Home', { item: address });
+//             }, 2000);
+//           }
+//       }
+//     }
+//   };
 
   
 
-  const CheckIfLocationEnabled = async () => {
-    let enabled = await Location.hasServicesEnabledAsync();
+//   const CheckIfLocationEnabled = async () => {
+//     let enabled = await Location.hasServicesEnabledAsync();
 
-    if (!enabled) {
-      Alert.alert(
-        'Location Service not enabled',
-        'Please enable your location services to continue',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    } else {
-      setLocationServiceEnabled(enabled);
-    }
-  };
-
+//     if (!enabled) {
+//       Alert.alert(
+//         'Location Service not enabled',
+//         'Please enable your location services to continue',
+//         [{ text: 'OK' }],
+//         { cancelable: false }
+//       );
+//     } else {
+//       setLocationServiceEnabled(enabled);
+//     }
+//   };
   return (
     <View style={styles.container}>
       <AppLogo />
