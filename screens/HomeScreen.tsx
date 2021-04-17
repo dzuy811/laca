@@ -12,6 +12,7 @@ type homeScreenProps = {
 
 const HomeScreen:React.FC<homeScreenProps> = ({address,data,navigation}, props) => {
 
+
     const item  = address
 
     return (

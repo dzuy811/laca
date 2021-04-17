@@ -9,11 +9,12 @@ const logo = require('../assets/icon.png');
 
 
 type IItem  = {
-    item:typeImageData
+    item:typeImageData,
+    index: number
 }
 
-const renderImage = ({item}:IItem) =>(
-    <Image source = {{uri:item.source}} style = {styles.imageStyle}  />
+const renderImage = ({item, index}:IItem) =>(
+    <Image key={index} source = {{uri:item.source}} style = {styles.imageStyle}  />
 )
 
 const HEADER_HEIGHT = 0;
