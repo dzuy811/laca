@@ -3,6 +3,7 @@ import React, {useRef} from "react";
 import {View, Text,StyleSheet, Dimensions, Image,Button,Alert,ScrollView,TouchableOpacity,FlatList, Animated,Platform } from "react-native";
 import { Ionicons, FontAwesome5, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import AnimatedHeader from "../components/AnimatedHeader";
+import { TabRouter } from "@react-navigation/routers";
 
 const logo = require('../assets/icon.png');
 
@@ -17,14 +18,21 @@ const renderImage = ({item}:IItem) =>(
 
 const HEADER_HEIGHT = 0;
 
-const DescriptionTab = () => {
+type props = {
+    route: any,
+    navigation: any
+}
+
+const DescriptionTab:React.FC<props> = ({route ,navigation}) => {
+    
     const workPlease = useRef(new Animated.Value(0)).current;
     const headerHeight = workPlease.interpolate({
         inputRange: [0, HEADER_HEIGHT ],
         outputRange: [HEADER_HEIGHT + 200, 400 + 44],
         extrapolate: 'identity'
       });
-    return (
+
+      return (
             <View style={{flex: 1}}>
                 <Animated.View style={
                     // styles.header
@@ -140,11 +148,19 @@ const DescriptionTab = () => {
 
                 }}>
                     <TouchableOpacity
-                    onPress = {onPressThing}
+                    onPress = {() => {
+                        navigation.navigate('Journey Map', {
+                            latitude: route.params.latitude,
+                            longitude: route.params.longitude
+                        } )
+                    }}
                     style = {styles.buttonChosing}>
-                        <Text style = {styles.choseButton} >
-                            Choose this place 
-                        </Text>
+                        <View>
+                            <Text style = {styles.choseButton} >
+                                Accept the journey
+                            </Text>
+                        </View>
+           
                     </TouchableOpacity>       
                 </View>
 
@@ -315,18 +331,17 @@ const styles = StyleSheet.create ({
     },
 
     buttonChosing : {
-        marginTop:"2%",
-        height:30,
-        paddingTop:"5%",
         backgroundColor : "#4B8FD2",
-        width:"80%",
         alignItems : "center",
-        borderRadius : 20,
-        
+        justifyContent: 'center',
+        borderRadius : 50,
+        width: '90%',
+        marginTop: '5%',
+        height: 70,        
         
     },
     choseButton : {
         fontSize : 20, 
-        textAlignVertical:"center"
+        color:'#E2D0A2',
     }
 })

@@ -8,6 +8,7 @@ import AttractionMap from '../screens/AttractionMap'
 import DescriptionTab from '../screens/DescriptionTab';
 import * as Location from 'expo-location';
 import LoadingHomeScreen from '../screens/LoadingHomeScreen';
+import { MapScreen } from '../screens';
 
 
 const Stack = createStackNavigator();
@@ -99,7 +100,7 @@ useEffect(() => {
           }
         />
         <Stack.Screen name="Description" component={DescriptionTab}/>
-        <Stack.Screen name="Map" component={AttractionMap} />
+        <Stack.Screen name="Journey Map" component={MapScreen} />
       </Stack.Navigator>
 
   );

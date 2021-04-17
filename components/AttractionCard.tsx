@@ -8,8 +8,6 @@ import {
 } from "react-native";
 import { FontAwesome5, AntDesign } from '@expo/vector-icons';
 
-import { useNavigation } from '@react-navigation/native';
-
 
 type attractionType = {
     id: string,

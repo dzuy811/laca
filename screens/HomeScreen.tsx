@@ -13,7 +13,6 @@ type homeScreenProps = {
 const HomeScreen:React.FC<homeScreenProps> = ({address,data,navigation}, props) => {
 
     const item  = address
-    console.log(navigation)
 
     return (
         <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>

@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import MapTile from "../components/MapTile";
 
-const MapScreen: React.FC = () => {
-	return <MapTile />;
+
+type props = {
+	route: any
+}
+
+const MapScreen: React.FC<props> = ({route}) => {
+	return <MapTile attractionCoordinate={route.params}  />;
 };
 
 const styles = StyleSheet.create({

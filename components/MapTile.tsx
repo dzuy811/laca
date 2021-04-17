@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Polyline } from "react-native-maps";
-import { GOOGLE_MAPS_API_KEY } from "@env";
+import MapView, { PROVIDER_GOOGLE, Polyline, Marker } from "react-native-maps";
+import { REACT_NATIVE_GOOGLE_MAPS_API_KEY } from "@env";
 import axios from "axios";
+import { TabRouter } from "@react-navigation/routers";
 
 interface Coordinate {
 	latitude: number;
@@ -18,18 +19,23 @@ interface Props {
 	geoLocation: {};
 }
 
-const MapTile: React.FC = () => {
+type props = {
+	attractionCoordinate: any
+}
+
+const MapTile: React.FC<props> = (props) => {
 	const [geoLocations, setGeoLocations] = useState<GeoLocation[]>();
 	const [coordinates, setCoordinates] = useState<Coordinate[]>();
-	const [originString, setOrginString] = useState<string>("10.734327169637687,106.6536388713616");
-	const [destinationString, setDestinationString] = useState<string>(
-		"10.777394316429763,106.65844016839915"
-	);
+	const [originLat, setOriginLat] = useState<number>(0);
+	const [originLon, setOriginLon] = useState<number>(0);
+	const [originString, setOrginString] = useState<string>();
+	const [destinationString, setDestinationString] = useState<string>();
 
 	const mode = "driving";
 
-	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originString}&destination=${destinationString}&key=${GOOGLE_MAPS_API_KEY}&mode=${mode}`;
+	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originString}&destination=${destinationString}&key=${REACT_NATIVE_GOOGLE_MAPS_API_KEY}&mode=${mode}`;
 
+	// console.log(REACT_NATIVE_GOOGLE_MAPS_API_KEY)
 	// methods defined
 
 	const decode = (t: any, e: any) => {
@@ -71,39 +77,54 @@ const MapTile: React.FC = () => {
 		}
 	};
 
-	const setInitialState = async () => {
-		setGeoLocations([
-			// origin
-			{
-				latitude: 10.734327169637687,
-				longitude: 106.6536388713616,
-				latitudeDelta: 0.0422,
-				longitudeDelta: 0.0422,
-			},
-			// destination
-			{
-				latitude: 10.777394316429763,
-				longitude: 106.65844016839915,
-				latitudeDelta: 0.0422,
-				longitudeDelta: 0.0422,
-			},
-		]);
-		// initialize coordinates
-		setCoordinates([
-			{
-				latitude: 10.734327169637687,
-				longitude: 106.65844016839915,
-			},
-			{
-				latitude: 10.777394316429763,
-				longitude: 106.6536388713616,
-			},
-		]);
-	};
+	// const setInitialState = async () => {
+	// 	setGeoLocations([
+	// 		// origin
+	// 		{
+	// 			latitude: 10.734327169637687,
+	// 			longitude: 106.6536388713616,
+	// 			latitudeDelta: 0.0422,
+	// 			longitudeDelta: 0.0422,
+	// 		},
+	// 		// destination
+	// 		{
+	// 			latitude: 10.777394316429763,
+	// 			longitude: 106.65844016839915,
+	// 			latitudeDelta: 0.0422,
+	// 			longitudeDelta: 0.0422,
+	// 		},
+	// 	]);
+	// 	// initialize coordinates
+	// 	setCoordinates([
+	// 		{
+	// 			latitude: 10.734327169637687,
+	// 			longitude: 106.65844016839915,
+	// 		},
+	// 		{
+	// 			latitude: 10.777394316429763,
+	// 			longitude: 106.6536388713616,
+	// 		},
+	// 	]);
+	// };
+
+	useEffect( () => {
+		console.log('check effect 1')
+		navigator.geolocation.getCurrentPosition((position) => {
+			var lat = (position.coords.latitude)
+			var lon = (position.coords.longitude)
+			setOriginLat(lat);
+			setOriginLon(lon);
+			setOrginString(lat + "," + lon)
+			setDestinationString(props.attractionCoordinate.latitude + "," + props.attractionCoordinate.longitude)
+		},
+		  (error) => alert(JSON.stringify(error)),
+		  {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000});
+	}, [])
 
 	useEffect(() => {
+		console.log('check effect 2')
 		fetchAPI(url);
-	}, []);
+	}, [originString, destinationString]);
 
 	return (
 		<View style={styles.container}>
@@ -112,13 +133,16 @@ const MapTile: React.FC = () => {
 					<MapView
 						provider={PROVIDER_GOOGLE}
 						style={styles.map}
-						initialRegion={{
-							latitude: 10.734327169637687,
-							longitude: 106.6536388713616,
+						showsUserLocation={true}
+						region={{
+							latitude: originLat,
+							longitude: originLon,
 							latitudeDelta: 0.0422,
 							longitudeDelta: 0.0422,
 						}}
 					>
+						<Marker
+                    	coordinate={props.attractionCoordinate}/>
 						<Polyline coordinates={[...coordinates]} strokeColor="#2966A3" strokeWidth={4} />
 					</MapView>
 				</React.Fragment>
