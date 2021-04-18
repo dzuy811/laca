@@ -90,8 +90,8 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation }) => {
 		const midLat = (minLat + maxLat) / 2;
 		const midLng = (minLng + maxLng) / 2;
 
-		const deltaLat = maxLat - minLat + 0.005;
-		const deltaLng = maxLng - minLng + 0.005;
+		const deltaLat = maxLat - minLat + 0.0092;
+		const deltaLng = maxLng - minLng + 0.0092;
 
 		return {
 			latitude: midLat,
