@@ -112,11 +112,11 @@ const PhoneAuth: React.FC <Props> = (props): JSX.Element => {
           undefined
         )}
         <View style={{flexDirection: 'row', marginTop: 20}}>
-                <Text style={styles.text}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('login')}>
-                    <Text style={styles.textLogin}>Sign in</Text>
-                </TouchableOpacity>
-            </View>
+          <Text style={styles.text}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => props.navigation.navigate('login')}>
+              <Text style={styles.textLogin}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
       {false && attemptInvisibleVerification && <FirebaseRecaptchaBanner />}
     </View>
   );

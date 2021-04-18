@@ -1,53 +1,67 @@
-import React, { FC, useState, useEffect } from "react";
-import { Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import AuthStack from "./authstack";
-import LoginButton from "../components/LoginButton";
-import AppStack from "./appstack";
-import firebase from "firebase";
-import HomeScreen from "../screens/HomeScreen";
-import AttractionMap from "../screens/AttractionMap";
-import AttractionNavigator from "../navigator/AttractionNavigator";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import AttractionList from "../components/AttractionList";
-import AttractionCard from "../components/AttractionCard";
+import React, { FC, useState, useEffect } from 'react'
+import { getFocusedRouteNameFromRoute, NavigationContainer, useRoute } from '@react-navigation/native'
+import AuthStack from './authstack'
+
+import firebase from 'firebase'
+
+import AttractionNavigator from '../navigator/AttractionNavigator'
+import ProfileNavigator from '../navigator/ProfileNavigator'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+// Function to hide tab bar for some screen
+// docs: https://reactnavigation.org/docs/screen-options-resolution/
+// stackoverflow: https://stackoverflow.com/questions/60177053/react-navigation-5-hide-tab-bar-from-stack-navigator
+const getTabBarVisibility = (route) => {
+    const routeName = getFocusedRouteNameFromRoute(route)
+
+    if (routeName === 'Edit profile' || routeName === 'Journey history') {
+        return false;
+    }
+    return true;
+}
 
 const Tab = createBottomTabNavigator();
 
-const MainNav: FC = () => {
-	const signOut = () => {
-		firebase.auth().signOut();
-	};
+const MainNav : FC = () => {
 
-	const [user, setUser] = useState<any>(null);
+    const signOut = () => {
+        firebase.auth().signOut();
+    }
+    
+    const [user, setUser] = useState<any>(null);
 
-	const bootstrap = () => {
-		firebase.auth().onAuthStateChanged((_user) => {
-			if (_user) {
-				setUser(_user);
-			}
-		});
-	};
+    const bootstrap = () => {
+        firebase.auth().onAuthStateChanged(_user => {
+            if(_user) {
+                setUser(_user);
+            }
+        })
+    }
 
-	useEffect(() => {
-		bootstrap();
-	}, []);
+    useEffect(() => {
+        bootstrap()
+    }, [])
 
-	return (
-		<NavigationContainer>
-			{user != null ? (
-				<Tab.Navigator>
-					<Tab.Screen name="main" component={AttractionNavigator} />
-					{/* <Tab.Screen 
-        name="AttractionMap"
-        children={()=><AttractionMap latitude={10.759327992014628} longitude={106.70257070404554}/>}
-        /> */}
-				</Tab.Navigator>
-			) : (
-				<AuthStack />
-			)}
-		</NavigationContainer>
-	);
-};
+    return(
+        <NavigationContainer>
+            {user != null ? 
+                  <Tab.Navigator>
+        <Tab.Screen
+        name="main"
+        component={AttractionNavigator}/>
+        <Tab.Screen 
+        name="profile"
+        component={ProfileNavigator}
+        options={({route}) => ({
+            tabBarVisible: getTabBarVisibility(route)
+        })}
+        />
+      </Tab.Navigator>
+
+            : <AuthStack />}
+        </NavigationContainer>
+        
+    )
+}
 
 export default MainNav;

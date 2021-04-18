@@ -19,7 +19,7 @@ import UserLogo from "../assets/fb_logo.png";
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
-// import SafeAreaView from "react-native-safe-area-view";
+import { TabRouter } from "@react-navigation/routers";
 
 const logo = require("../assets/icon.png");
 const windowWidth = Dimensions.get("window").width;
@@ -207,8 +207,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	);
 };
 
-export default DescriptionTab;
-
 type typeImageData = { id: string; source: string };
 
 type DescriptionType = { id: string; name: string; avatar: string; textComment: string };
@@ -297,3 +295,5 @@ const styles = StyleSheet.create({
 		paddingTop: 10,
 	},
 });
+
+export default DescriptionTab;
