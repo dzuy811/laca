@@ -113,7 +113,6 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation }) => {
 		},
 	]);
 
-
 	return (
 		<View style={styles.container}>
 			{coordinates ? (
@@ -121,7 +120,11 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation }) => {
 					<MapView provider={PROVIDER_GOOGLE} style={styles.map} initialRegion={region}>
 						<Polyline coordinates={[...coordinates]} strokeColor="#2966A3" strokeWidth={4.5} />
 						<Marker
-                    	coordinate={{latitude: finishGeoLocation.split(",")[0], longitude: parseFloat(finishGeoLocation.split(",")[1])}/>
+							coordinate={{
+								latitude: parseFloat(finishGeoLocation.split(",")[0]),
+								longitude: parseFloat(finishGeoLocation.split(",")[1]),
+							}}
+						/>
 					</MapView>
 				</React.Fragment>
 			) : (
