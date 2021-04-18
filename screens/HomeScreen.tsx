@@ -2,7 +2,7 @@ import React, { Component, useState, useEffect, JSXElementConstructor } from 're
 import { StyleSheet, Text, View} from 'react-native'
 import { Header } from 'react-native-elements'
 
-import AttractionList from '../components/AttractionList'
+import AttractionList from "../components/AttractionList";
 
 type homeScreenProps = {
     data: any[],

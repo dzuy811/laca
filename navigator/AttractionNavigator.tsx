@@ -30,7 +30,6 @@ const AttractionNavigator:React.FC<props> = ({navigation}) => {
         })
         .catch((err) => console.error(err))
     },[])
-
   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
   const [address, setAddress] = useState("")
 useEffect(() => {
@@ -106,4 +105,4 @@ useEffect(() => {
   );
 };
 
-export default AttractionNavigator
+export default AttractionNavigator;
