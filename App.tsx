@@ -12,13 +12,12 @@ import AttractionNavigator from "./navigator/AttractionNavigator";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AttractionList from "./components/AttractionList";
 import AttractionCard from "./components/AttractionCard";
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import UserProfile  from './screens/UserProfile';
+import { NavigationContainer } from "@react-navigation/native";
+import UserProfile from "./screens/UserProfile";
 
 const Tab = createBottomTabNavigator();
 
-let barStyle: string = "light-content"
+let barStyle: string = "light-content";
 
 export default function App() {
 	// surpress warnings for virtualizedLists
@@ -32,7 +31,6 @@ export default function App() {
 			<MainNav />
 		</View>
 	);
-
 }
 
 const styles = StyleSheet.create({
