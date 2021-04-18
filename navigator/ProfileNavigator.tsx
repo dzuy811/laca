@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/ProfileScreen';
 import JourneyHistoryScreen from '../screens/JourneyHistoryScreen'
 import {RootStackParamList} from '../screens/ProfileStackParams'
+import UserProfile from '../screens/UserProfile';
 
 const ProfileStack = createStackNavigator<RootStackParamList>();
 interface Props {
@@ -19,6 +20,10 @@ const ProfileNavigator = () => {
             <ProfileStack.Screen
             name="Profile screen"
             component={ProfileScreen}
+            />
+            <ProfileStack.Screen
+            name="Edit profile"
+            component={UserProfile}
             />
             <ProfileStack.Screen
             name="Journey history"

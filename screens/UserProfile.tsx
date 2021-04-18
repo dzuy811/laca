@@ -3,13 +3,15 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'rea
 import FormUserProfile from "../components/FormUserProfile";
 import { RadioButton } from 'react-native-paper';
 import firebase from 'firebase'
+import { AntDesign } from '@expo/vector-icons';
+import {Header} from 'react-native-elements'
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const user_avatar = require("../assets/user_avatar.jpg");
 
-function UserProfile() {
+function UserProfile(props) {
     const user_info = {
         phoneNumber: "0707318155",
         name: "Nguyen Ngoc Dang Hung",
@@ -46,6 +48,7 @@ function UserProfile() {
     }
 
     useEffect(() => {
+        console.log("aaa")
         bootstrap()
     }, [])
 
@@ -102,11 +105,10 @@ function UserProfile() {
         opacity: 0.7
     },
     textUpdate: {
-        color: checkValidation ? '#F2F2F2' : '#BDBDBD',
+        color: checkValidation ? '#FFF' : '#BDBDBD',
         textAlign: 'right',
-        paddingTop: 50,
-        paddingRight: 20,
-        fontSize: 20,
+        fontSize: 18,
+        marginRight: 15,
         fontWeight: checkValidation ? 'bold' : 'normal'
     }
 })
@@ -114,8 +116,17 @@ function UserProfile() {
   return (
     <View>
         {/* Navigation */}
-        <View style={styles.containerNavigator}>
-            <TouchableOpacity 
+        <Header
+                leftComponent={
+                        <TouchableOpacity onPress={() => props.navigation.goBack()}>
+                            <AntDesign name="arrowleft" size={24} color="#fff" />
+                        </TouchableOpacity>
+                }
+                centerComponent={
+                        <Text style={{fontSize: 18, color: '#fff'}}>Edit Profile</Text>
+                }
+                rightComponent={
+                    <TouchableOpacity 
             activeOpacity={checkValidation ? 0.4 : 1}
             onPress={() => {
                 if(checkValidation) alert("Seulgi")
@@ -123,7 +134,9 @@ function UserProfile() {
             >
                 <Text style={styles.textUpdate}>Update</Text>
             </TouchableOpacity>
-        </View>
+                }
+
+        />
 
         {/* Image */}
         <View style={styles.container}>

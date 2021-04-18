@@ -12,7 +12,7 @@ type ProfileScreenNavigationProp = StackScreenProps<RootStackParamList>
 const ProfileScreen = ({route, navigation}: ProfileScreenNavigationProp) => {
     return <View>
         <View>
-            <ProfileHeader/>
+            <ProfileHeader navigation={navigation}/>
         </View>
         <View style={{marginTop: 50}}>
             <UserOptionsList navigation={navigation}/>

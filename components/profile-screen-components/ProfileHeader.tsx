@@ -1,9 +1,10 @@
 import React from 'react'
 
 import { View, Text, StyleSheet, Image } from 'react-native'
+import { MaterialIcons } from '@expo/vector-icons'
+import { NavigationContainer } from '@react-navigation/native'
 
-
-const ProfileHeader = () => {
+const ProfileHeader = ({navigation}) => {
     
     return <View style={styles.profileHeaderContainer}>
         <View style={{flexGrow: 1}}>
@@ -19,7 +20,9 @@ const ProfileHeader = () => {
             <View>
                 <Text style={styles.city}>Hồ Chí Minh city</Text>
             </View>
-            
+        </View>
+        <View>
+            <MaterialIcons onPress={() => navigation.navigate('Edit profile')} name="keyboard-arrow-right" size={24} color="#fff" />
         </View>
     </View>
 }
