@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Dimensions } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Polyline, Marker } from "react-native-maps";
 import { REACT_NATIVE_GOOGLE_MAPS_API_KEY } from "@env";
 import axios from "axios";
-import { TabRouter } from "@react-navigation/routers";
+
+// const REACT_NATIVE_GOOGLE_MAPS_API_KEY = process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY
 
 interface Coordinate {
 	latitude: number;
@@ -35,7 +36,7 @@ const MapTile: React.FC<props> = (props) => {
 
 	const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originString}&destination=${destinationString}&key=${REACT_NATIVE_GOOGLE_MAPS_API_KEY}&mode=${mode}`;
 
-	// console.log(REACT_NATIVE_GOOGLE_MAPS_API_KEY)
+	console.log(REACT_NATIVE_GOOGLE_MAPS_API_KEY)
 	// methods defined
 
 	const decode = (t: any, e: any) => {
@@ -118,7 +119,7 @@ const MapTile: React.FC<props> = (props) => {
 			setDestinationString(props.attractionCoordinate.latitude + "," + props.attractionCoordinate.longitude)
 		},
 		  (error) => alert(JSON.stringify(error)),
-		  {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000});
+		  {enableHighAccuracy: true, timeout: 2000, maximumAge: 1000});
 	}, [])
 
 	useEffect(() => {
