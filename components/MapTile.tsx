@@ -119,7 +119,7 @@ const MapTile: React.FC<props> = (props) => {
 			setDestinationString(props.attractionCoordinate.latitude + "," + props.attractionCoordinate.longitude)
 		},
 		  (error) => alert(JSON.stringify(error)),
-		  {enableHighAccuracy: true, timeout: 2000, maximumAge: 1000});
+		  {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000});
 	}, [])
 
 	useEffect(() => {

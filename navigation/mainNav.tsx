@@ -14,7 +14,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const getTabBarVisibility = (route) => {
     const routeName = getFocusedRouteNameFromRoute(route)
 
-    if (routeName === 'Edit profile' || routeName === 'Journey history') {
+    if (routeName === 'Edit profile'
+        || routeName === 'Journey history'
+        || routeName === 'Attraction detail') {
         return false;
     }
     return true;
@@ -48,7 +50,11 @@ const MainNav : FC = () => {
                   <Tab.Navigator>
         <Tab.Screen
         name="main"
-        component={AttractionNavigator}/>
+        component={AttractionNavigator}
+        options={({route}) => ({
+            tabBarVisible: getTabBarVisibility(route)
+        })}
+        />
         <Tab.Screen 
         name="profile"
         component={ProfileNavigator}
