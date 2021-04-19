@@ -6,6 +6,7 @@ const express = require("express");
 
 const app = express();
 
+
 admin.initializeApp();
 
 // // Create and Deploy Your First Cloud Functions
@@ -23,7 +24,7 @@ app.get('/attractions', (req, res) => {
         return res.json(attractions);
     })
     .catch(err => {
-        console.error(err)
+        console.log("Error: ", err);
     })
 })
 

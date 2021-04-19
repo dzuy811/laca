@@ -182,7 +182,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					<LoginButton
 						title="Take the journey"
 						onPress={() => {
-							navigation.navigate("MapTile", {
+							navigation.navigate("Journey Map", {
 								latitude: latitude,
 								longitude: longitude,
 							});
