@@ -7,10 +7,11 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 interface Props {
 	animatedValue: any;
 	navigation?: any;
+	headerName: string;
 }
 
 const HEADER_HEIGHT = 150;
-const AnimatedHeader = ({ animatedValue, navigation }: any) => {
+const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
 	const insets = useSafeAreaInsets();
 
 	const headerHeight = animatedValue.interpolate({
@@ -69,7 +70,7 @@ const AnimatedHeader = ({ animatedValue, navigation }: any) => {
 							marginLeft: 53,
 						}}
 					>
-						<Text style={{ color: "#fff", fontSize: 24 }}>Nhà Thờ Đức Bà</Text>
+						<Text style={{ color: "#fff", fontSize: 24 }}>{headerName}</Text>
 					</Animated.View>
 
 					{/* Info icon container*/}
@@ -95,7 +96,7 @@ const AnimatedHeader = ({ animatedValue, navigation }: any) => {
 								fontWeight: "400",
 							}}
 						>
-							0.7km - 69 Đồng Khởi
+							6.9km, 01 Nguyễn Tất Thành, Quận 4
 						</Animated.Text>
 					</Animated.View>
 				</Animated.View>
