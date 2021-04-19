@@ -4,7 +4,7 @@ import AuthStack from './authstack'
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet } from 'react-native'
 
-import firebase from 'firebase'
+import firebase from "firebase";
 
 import AttractionNavigator from '../navigator/AttractionNavigator'
 import ProfileNavigator from '../navigator/ProfileNavigator'
@@ -14,8 +14,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 // Function to hide tab bar for some screen
 // docs: https://reactnavigation.org/docs/screen-options-resolution/
 // stackoverflow: https://stackoverflow.com/questions/60177053/react-navigation-5-hide-tab-bar-from-stack-navigator
-const getTabBarVisibility = (route) => {
-    const routeName = getFocusedRouteNameFromRoute(route)
+const getTabBarVisibility = (route: any) => {
+	const routeName = getFocusedRouteNameFromRoute(route);
 
     if (routeName === 'Edit profile'
         || routeName === 'Journey history'
@@ -28,24 +28,23 @@ const getTabBarVisibility = (route) => {
 const Tab = createBottomTabNavigator();
 
 const MainNav: FC = () => {
+	const signOut = () => {
+		firebase.auth().signOut();
+	};
 
-    const signOut = () => {
-        firebase.auth().signOut();
-    }
+	const [user, setUser] = useState<any>(null);
 
-    const [user, setUser] = useState<any>(null);
+	const bootstrap = () => {
+		firebase.auth().onAuthStateChanged((_user) => {
+			if (_user) {
+				setUser(_user);
+			}
+		});
+	};
 
-    const bootstrap = () => {
-        firebase.auth().onAuthStateChanged(_user => {
-            if (_user) {
-                setUser(_user);
-            }
-        })
-    }
-
-    useEffect(() => {
-        bootstrap()
-    }, [])
+	useEffect(() => {
+		bootstrap();
+	}, []);
 
     return (
         <NavigationContainer>

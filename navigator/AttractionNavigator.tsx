@@ -16,7 +16,6 @@ type props = {
 
 const AttractionNavigator:React.FC<props> = ({navigation}) => {
 
-  
 
   return (
       <Stack.Navigator headerMode="none">
@@ -30,7 +29,5 @@ const AttractionNavigator:React.FC<props> = ({navigation}) => {
         <Stack.Screen name="Journey Map" component={MapScreen} />
       </Stack.Navigator>
 
-  );
-};
-
-export default AttractionNavigator
+  )}
+export default AttractionNavigator;

@@ -90,7 +90,7 @@ useEffect(() => {
         <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
                 <Header
                 leftComponent={
-                    <Text style={{color: '#fff'}}>{item}</Text>
+                    <Text style={{color: '#fff'}}>{item || "Location not available"}</Text>
                 }
                 leftContainerStyle={{flex:4}}
                 />
@@ -105,19 +105,19 @@ useEffect(() => {
 export default HomeScreen
 
 const style = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        backgroundColor: '#4B8FD2',
-        height: 100,
-        alignItems: 'center'
-    },
-    sectionHeading: {
-        color: '#4B8FD2'
-    },
-    cardList: {
-        marginLeft: 20,
-        marginTop: 100,
-        alignItems: 'stretch',
-        justifyContent: 'center'
-    }
-})
+	header: {
+		flexDirection: "row",
+		backgroundColor: "#4B8FD2",
+		height: 100,
+		alignItems: "center",
+	},
+	sectionHeading: {
+		color: "#4B8FD2",
+	},
+	cardList: {
+		marginLeft: 20,
+		marginTop: 100,
+		alignItems: "stretch",
+		justifyContent: "center",
+	},
+});
