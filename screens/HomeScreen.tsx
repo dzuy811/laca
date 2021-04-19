@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, JSXElementConstructor } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Header } from "react-native-elements";
 

@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-	View,
-	Text,
-	StyleSheet,
-	ActivityIndicator,
-	TouchableOpacity,
-	Dimensions,
-	Alert,
-} from "react-native";
+import { View, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Polyline, Marker } from "react-native-maps";
 import axios from "axios";
 import * as Svg from "react-native-svg";

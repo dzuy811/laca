@@ -1,29 +1,12 @@
-import React, { useEffect, useRef, useState, Fragment } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // import React from "react";
-import {
-	View,
-	Text,
-	StyleSheet,
-	Image,
-	Alert,
-	ScrollView,
-	TouchableOpacity,
-	FlatList,
-	Animated,
-	Dimensions,
-} from "react-native";
-import { BlurView } from "expo-blur";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import UserLogo from "../assets/fb_logo.png";
 
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
-import { TabRouter } from "@react-navigation/routers";
-
-const logo = require("../assets/icon.png");
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
 
 type IItem = {
 	item: typeImageData;
