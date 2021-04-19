@@ -136,7 +136,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 					<TouchableOpacity
 						style={styles.overlayLeft}
 						onPress={() => {
-							navigation.navigate("Description");
+							navigation.navigate("Attraction detail");
 						}}
 					>
 						<AntDesign name="leftcircleo" size={40} color="#4B8FD2" />
