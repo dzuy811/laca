@@ -1,24 +1,33 @@
-import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import { Alert } from 'react-native';
 import HomeScreen from '../screens/HomeScreen'
-import AttractionMap from '../screens/AttractionMap'
 import DescriptionTab from '../screens/DescriptionTab';
+import * as Location from 'expo-location';
+import LoadingHomeScreen from '../screens/LoadingHomeScreen';
+import { MapScreen } from '../screens';
 
 const Stack = createStackNavigator();
 
-const AttractionNavigator = () => {
+type props = {
+  navigation: any;
+}
+
+const AttractionNavigator:React.FC<props> = ({navigation}) => {
+
+
   return (
       <Stack.Navigator headerMode="none">
         <Stack.Screen
           name="Home"
-          component={HomeScreen}
+          children={ () =>
+            <HomeScreen navigation={navigation} />
+          }
         />
-        <Stack.Screen name="Description" component={DescriptionTab}/>
-        <Stack.Screen name="Map" component={AttractionMap} />
+        <Stack.Screen name="Attraction detail" component={DescriptionTab}/>
+        <Stack.Screen name="Journey Map" component={MapScreen} />
       </Stack.Navigator>
-  );
-};
 
-export default AttractionNavigator
+  )}
+export default AttractionNavigator;

@@ -1,17 +1,16 @@
 const functions = require("firebase-functions");
 
-const admin = require("firebase-admin")
+const admin = require("firebase-admin");
 
-const express = require('express')
+const express = require("express");
 
-const app = express()
+const app = express();
+
 
 admin.initializeApp();
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-
 app.get('/attractions', (req, res) => {
     admin.firestore().collection('attractions').get()
     .then((data) => {
@@ -25,9 +24,29 @@ app.get('/attractions', (req, res) => {
         return res.json(attractions);
     })
     .catch(err => {
-        console.error(err)
+        console.log("Error: ", err);
     })
 })
+
+app.get("/users", (req, res) => {
+  admin
+    .firestore()
+    .collection("users")
+    .get()
+    .then((data) => {
+      let users = [];
+      data.forEach((doc) => {
+        users.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      return res.json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+});
 
 app.post('/attractions', (req, res) => {
     const newAttraction = {
@@ -56,4 +75,4 @@ app.post('/attractions', (req, res) => {
 })
 
 // Exports API
-exports.api = functions.https.onRequest(app)
+exports.api = functions.region("asia-east2").https.onRequest(app);

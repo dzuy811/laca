@@ -1,64 +1,123 @@
-import React, { Component } from 'react'
-import { StyleSheet, Text, View} from 'react-native'
-
+import React, { Component, useState, useEffect, JSXElementConstructor } from 'react'
+import { StyleSheet, Text, View, Alert} from 'react-native'
+import { Header } from 'react-native-elements'
+import * as Location from 'expo-location';
+import LoadingHomeScreen from '../screens/LoadingHomeScreen';
 import AttractionList from '../components/AttractionList'
 
 type homeScreenProps = {
-    data: any[],
-    navigation: any
+    navigation: any,
 }
 
-export class HomeScreen extends Component<homeScreenProps> {
+const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
 
-    state: homeScreenProps = {
-        data: [],
-        navigation: ''
-    }
 
-    componentDidMount() {
-        fetch('http://10.247.200.52:5001/laca-59b8c/us-central1/api/attractions')
+    const [data, setData] = useState([])
+
+    useEffect(() => {
+        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
         .then((response) => response.json())
         .then((json) => {
-            this.setState({ data: json})
-            console.log(this.state.data)
+            setData(json)
+            console.log("Attraction list" ) // For debugging. Check if the effect is called multiple times or not
         })
         .catch((err) => console.error(err))
-    }
+    },[])
 
-    render() {
-        const data = this.state;
-        return (
-            <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
-                <View style={style.header}>
-                    <View>
-                        <Text style={{marginLeft: 10, fontSize: 18, color: '#fff'}}>702 Nguyen Van Linh</Text>
-                    </View>
-                </View>
+  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+  const [address, setAddress] = useState("")
+useEffect(() => {
+    CheckIfLocationEnabled();
+    GetCurrentLocation();
+  },[address]);
+
+
+  const GetCurrentLocation = async () => {
+    let { status } = await Location.requestPermissionsAsync();
+  
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission not granted',
+        'Allow the app to use location service.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    }
+  
+    let { coords } = await Location.getCurrentPositionAsync();
+  
+    if (coords) {
+      const { latitude, longitude } = coords;
+      let response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude
+      });
+  
+
+      for (let item of response) {
+        setAddress(`${item.street}`);
+      }
+
+    }
+  };
+
+
+  const CheckIfLocationEnabled = async () => {
+    let enabled = await Location.hasServicesEnabledAsync();
+
+    if (!enabled) {
+      Alert.alert(
+        'Location Service not enabled',
+        'Please enable your location services to continue',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    } else {
+      setLocationServiceEnabled(enabled);
+    }
+  };
+
+  if (address=="") {
+    return (
+      <LoadingHomeScreen/>
+    )
+  }
+
+
+    const item  = address
+
+    return (
+        <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
+                <Header
+                leftComponent={
+                    <Text style={{color: '#fff'}}>{item || "Location not available"}</Text>
+                }
+                leftContainerStyle={{flex:4}}
+                />
                 <View style={style.cardList}>
-                    <AttractionList navigation={this.props.navigation} attractions={this.state.data}/>
+                    <AttractionList navigation={navigation} attractions={data}/>
                 </View>
                 
-            </View>
-        )
-    }
+        </View>
+    )
 }
 
-const style = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        backgroundColor: '#4B8FD2',
-        height: 100,
-        alignItems: 'center'
-    },
-    sectionHeading: {
-        color: '#4B8FD2'
-    },
-    cardList: {
-        marginLeft: 20,
-        marginTop: 100,
-        alignItems: 'stretch',
-        justifyContent: 'center'
-    }
-})
-
 export default HomeScreen
+
+const style = StyleSheet.create({
+	header: {
+		flexDirection: "row",
+		backgroundColor: "#4B8FD2",
+		height: 100,
+		alignItems: "center",
+	},
+	sectionHeading: {
+		color: "#4B8FD2",
+	},
+	cardList: {
+		marginLeft: 20,
+		marginTop: 100,
+		alignItems: "stretch",
+		justifyContent: "center",
+	},
+});

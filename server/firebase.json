@@ -4,8 +4,7 @@
       "port": 9099
     },
     "functions": {
-      "port": 5001,
-      "host": "192.168.2.104"
+      "port": 5001
     },
     "firestore": {
       "port": 8050
