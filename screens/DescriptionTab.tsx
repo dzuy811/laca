@@ -1,64 +1,49 @@
-import React, { useEffect, useRef, useState, Fragment } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // import React from "react";
-import {
-	View,
-	Text,
-	StyleSheet,
-	Image,
-	Alert,
-	ScrollView,
-	TouchableOpacity,
-	FlatList,
-	Animated,
-	Dimensions,
-} from "react-native";
-import { BlurView } from "expo-blur";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import UserLogo from "../assets/fb_logo.png";
 
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
-import { TabRouter } from "@react-navigation/routers";
-
-const logo = require("../assets/icon.png");
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
 
 type IItem = {
 	item: typeImageData;
 	index: number;
 };
 type Props = {
-	route?: any;
+	route: {
+		params: {
+			latitude: number;
+			longitude: number;
+			description: string;
+			name: string;
+		};
+	};
 	navigation: any;
 };
 
 const Data = [
 	{
 		id: "01",
-		source:
-			"https://s1.cdn.autoevolution.com/images/news/mint-mercedes-slr-stirling-moss-for-sale-at-4-million-108621_1.jpg",
+		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 	{
 		id: "02",
-		source:
-			"https://s1.cdn.autoevolution.com/images/news/mint-mercedes-slr-stirling-moss-for-sale-at-4-million-108621_1.jpg",
+		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 	{
 		id: "03",
-		source:
-			"https://s1.cdn.autoevolution.com/images/news/mint-mercedes-slr-stirling-moss-for-sale-at-4-million-108621_1.jpg",
+		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 	{
 		id: "04",
-		source:
-			"https://s1.cdn.autoevolution.com/images/news/mint-mercedes-slr-stirling-moss-for-sale-at-4-million-108621_1.jpg",
+		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 	{
 		id: "05",
-		source:
-			"https://s1.cdn.autoevolution.com/images/news/mint-mercedes-slr-stirling-moss-for-sale-at-4-million-108621_1.jpg",
+		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 ];
 
@@ -77,13 +62,13 @@ const descriptionData = [
 	},
 	{
 		id: "03",
-		name: "Minh Pham",
+		name: "Duy Vo",
 		avatar: "../assets/user.jpg",
 		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	},
 	{
 		id: "04",
-		name: "Nicky Minaj",
+		name: "Dat Ngo",
 		avatar: "../assets/user.jpg",
 		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	},
@@ -102,6 +87,10 @@ const descriptionData = [
 ];
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
+	const { latitude, longitude, description, name } = route.params;
+	// useEffect(() => {
+	// 	console.log(latitude, longitude);
+	// }, [latitude, longitude]);
 
 	// Render list of descriptions for Flatlist
 	const renderDescription = ({ item }: dataDescrip) => (
@@ -140,7 +129,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	return (
 		<>
 			<View style={{ flex: 1 }}>
-				<AnimatedHeader animatedValue={offset} navigation={navigation} />
+				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} />
 
 				<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
 					<View>
@@ -154,10 +143,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							})}
 						>
 							<Text style={styles.DescriptionTitle}>Description</Text>
-							<Text style={styles.DescriptionBox}>
-								Trong em thật là sảng khoái. Có những điều anh chưa thể noái. Là vì e đẹp đến mức a
-								làm muốn làm thầy boáiii. Chứ ko phải thành soáii. Dẹp hết nỗi phiền toáiii
-							</Text>
+							<Text style={styles.DescriptionBox}>{description}</Text>
 							<Text style={styles.DescriptionTitle}>Gallery</Text>
 							<View style={{ marginLeft: "10%" }}>
 								<FlatList
@@ -196,7 +182,10 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					<LoginButton
 						title="Take the journey"
 						onPress={() => {
-							navigation.navigate("MapTile");
+							navigation.navigate("MapTile", {
+								latitude: latitude,
+								longitude: longitude,
+							});
 						}}
 						color="#4B8FD2"
 						textColor="#E2D0A2"
