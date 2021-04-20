@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Platform } from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
+import * as ImagePicker from 'expo-image-picker'
+import * as firebase from 'firebase'
+import CameraScreen from "./CameraScreen";
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -13,6 +16,17 @@ interface Props {
 	navigation: any;
 }
 
+// Upload to firebase cloudstore function
+async function uploadImage (uri:string)  {
+	const response = await fetch(uri);
+	const blob = await response.blob();
+
+	let name = uri.split("/")[-1]
+	var ref = firebase.storage().ref().child("images/" + name);
+	return ref.put(blob)
+}
+
+
 // Previous Screen -> Call Map Screen /:id -> fetch Routes based on that req.params.id -> pass fetched results to MapTile components for route
 
 const MapScreen: React.FC<Props> = ({ route, navigation }) => {
@@ -21,7 +35,38 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [errorMsg, setErrorMsg] = useState<string>(""); // format example: "10.777394316429763,106.65844016839915"
 	const [destinationStr, setDestinationStr] = useState<string>("");
 	const [isArrived, setIsArrived] = useState<boolean>();
+	const [image, setImage] = useState<any>("");
 
+	useEffect(() => {
+	  (async () => {
+		if (Platform.OS !== 'web') {
+		  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+		  if (status !== 'granted') {
+			alert('Sorry, we need camera roll permissions to make this work!');
+		  }
+		}
+	  })();
+	}, []);
+  	
+	// launch camera and capture function
+	const pickImage = async () => {
+	  let result = await ImagePicker.launchCameraAsync({
+		mediaTypes: ImagePicker.MediaTypeOptions.Images,
+		aspect: [4, 3],
+		quality: 0.8,
+	  });
+    
+	  if (!result.cancelled) {
+		uploadImage(result.uri)
+		.then(() => {
+			console.log("success")
+		})
+		.catch((error) => {
+			console.log(error)
+		})
+		console.log("helloooo")
+	  }
+	};
 	// Fetch and Set the state of destination's geolocation
 	useEffect(() => {
 		setDestinationStr(Object.values(route.params!).join(","));
@@ -86,7 +131,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			// if the user is within the radius of 100meters -> user has arrived!
 			if (dist <= 0.1) {
 				setIsArrived(true);
-				createTwoButtonAlert();
+				navigation.navigate('Camera screen')
 				return;
 			}
 			setIsArrived(false);
@@ -116,7 +161,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 					onPress: () => console.log("Cancel Pressed"),
 					style: "cancel",
 				},
-				{ text: "OK", onPress: () => console.log("OK Pressed") },
+				{ text: "OK", onPress: pickImage },
 			],
 			{ cancelable: false }
 		);

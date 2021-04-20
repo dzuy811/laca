@@ -184,8 +184,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						title="Take the journey"
 						onPress={() => {
 							navigation.navigate("Journey Map", {
-								latitude: latitude,
-								longitude: longitude,
+								latitude: "10.79103732064115", // Hard code for testing
+								longitude: "106.6839277220927", // Hard code for testing
 							});
 						}}
 						color="#4B8FD2"
