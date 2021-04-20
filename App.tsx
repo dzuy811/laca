@@ -26,10 +26,10 @@ export default function App() {
 	}, []);
 
 	return (
-		<View style={styles.containerLogin}>
+		<SafeAreaProvider>
 			<StatusBar />
 			<MainNav />
-		</View>
+		</SafeAreaProvider>
 	);
 }
 
