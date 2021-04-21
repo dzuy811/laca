@@ -167,7 +167,15 @@ function UserProfile(props: any) {
 						activeOpacity={checkValidation ? 0.4 : 1}
 						onPress={() => {
 							if (checkValidation) {
-								alert("Seulgi!");
+								const new_info = {
+									phoneNumber: "+84" + phoneNumber.substring(1),
+									name: name,
+									gender: gender,
+									urlAvatar: urlAvatar
+								};
+								firebase.firestore().collection("users").doc(user?.uid).set(new_info, { merge: true });
+								setData(new_info);
+								setValidation(false);
 							};
 						}}
 					>
