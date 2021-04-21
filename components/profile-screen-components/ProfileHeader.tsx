@@ -1,11 +1,24 @@
-import React from 'react'
-
+import React, {useEffect, useState} from 'react'
+import firebase from "firebase";
+import 'firebase/firestore';
 import { View, Text, StyleSheet, Image } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 import { NavigationContainer } from '@react-navigation/native'
 
 const ProfileHeader = ({navigation}) => {
-    
+    const [data, setData] = useState({});
+    const user = firebase.auth().currentUser;
+
+    useEffect(() => {
+		async function getUserInfo() {
+			firebase.firestore().collection("users").doc(user?.uid).get().then((user_info) => { 
+			setData(user_info.data()) 
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+		getUserInfo();
+    },[])
+
     return <View style={styles.profileHeaderContainer}>
         <View style={{flexGrow: 1}}>
             <Image
@@ -15,7 +28,7 @@ const ProfileHeader = ({navigation}) => {
         </View>
         <View style={{flexGrow: 2}}>
             <View>
-                <Text style={styles.name}>Nguyễn Ngọc Đăng Hưng</Text>
+                <Text style={styles.name}>{data.name}</Text>
             </View>
             <View>
                 <Text style={styles.city}>Hồ Chí Minh city</Text>
