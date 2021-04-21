@@ -5,6 +5,8 @@ import { RadioButton } from "react-native-paper";
 import firebase from "firebase";
 import { AntDesign } from "@expo/vector-icons";
 import { Header } from "react-native-elements";
+import 'firebase/firestore';
+
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -12,46 +14,66 @@ const windowHeight = Dimensions.get("window").height;
 const user_avatar = require("../assets/user_avatar.jpg");
 
 function UserProfile(props: any) {
-	const user_info = {
-		phoneNumber: "0707318155",
-		name: "Nguyen Ngoc Dang Hung",
-		gender: "F",
-	};
+	
+	const [user, setUser] = useState<any>(firebase.auth().currentUser);
+	const [data, setData] = useState({});
+	const [phoneNumber, setPhoneNumber] = useState<string>("");
+	const [name, setName] = useState<string>("");
+	const [gender, setGender] = useState<string>("");
+	const [urlAvatar, setUrlAvatar] = useState<string>("");
+	const [checkValidation, setValidation] = useState<boolean>(false);
+	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
+
+    useEffect(() => {
+		async function getUserInfo() {
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info) => { 
+			setData(user_info.data()) 
+			setPhoneNumber("0" + user_info.data().phoneNumber.substring(3));
+			setName(user_info.data().name);
+			setGender(user_info.data().gender);
+			setUrlAvatar(user_info.data().urlAvatar);
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+
+		getUserInfo();
+
+    },[])
 
 	let regEx = /^\s*([A-Za-z]{1,}([-']| ))+[A-Za-z]+?\s*$/;
-
-	const [user, setUser] = useState<any>(null);
-	const phoneNumber = user_info.phoneNumber;
-	const [name, setName] = useState<string>(user_info.name);
-	const [gender, setGender] = useState<string>(user_info.gender);
-	const [checkValidation, setValidation] = useState<boolean>(false);
-	const [checkValidationName, setValidationName] = useState<boolean>(false);
-	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
+    
 
 	const handleNameChange = (newText: string) => {
 		setName(newText);
 		// Check if the new name is the old name or not
-		if (newText.trimEnd() == user_info.name) setValidationName(false);
+		if (newText.trimEnd() == data.name) {
+			if(checkValidationGender) {
+				setValidation(true);
+			}
+			else {
+				setValidation(false);
+			}
+		}
 		// Validate the new name
-		else setValidationName(regEx.test(newText) ? true : false);
-		confirm();
+		else {
+			if(true) {
+				setValidation(regEx.test(newText) ? true : false)
+			}
+		}
 	};
 
-	function confirm() {
-		if(checkValidationName || checkValidationGender)
-			setValidation(true);
-		if(checkValidationName == false && checkValidationGender == false)
-			setValidation(false);
-	}
-
 	function checkGender() {
-		console.log(gender != user_info.gender);
-		if(gender != user_info.gender)
+		console.log(gender != data.gender);
+		if(gender != data.gender)
 			setValidationGender(true);
 		else
 			setValidationGender(false);
-		confirm();
 	}
+
+	useEffect(() => {
+		console.log(gender)
+		checkGender();
+	}, [gender]);
 
 	const signOut = () => {
 		firebase.auth().signOut();
@@ -68,11 +90,6 @@ function UserProfile(props: any) {
 	useEffect(() => {
 		bootstrap();
 	}, []);
-
-	useEffect(() => {
-		console.log(gender)
-		checkGender();
-	}, [gender]);
 
 	const styles = StyleSheet.create({
 		container: {
@@ -149,7 +166,9 @@ function UserProfile(props: any) {
 					<TouchableOpacity
 						activeOpacity={checkValidation ? 0.4 : 1}
 						onPress={() => {
-							if (checkValidation) alert("Seulgi");
+							if (checkValidation) {
+								alert("Seulgi!");
+							};
 						}}
 					>
 						<Text style={styles.textUpdate}>Update</Text>
@@ -161,7 +180,9 @@ function UserProfile(props: any) {
 			<View style={styles.container}>
 				<Image style={styles.image} source={user_avatar} resizeMode={"cover"} />
 				<View style={styles.infoContainer}>
-					<TouchableOpacity onPress={() => alert("Seulgi")}>
+					<TouchableOpacity onPress={() => {
+						alert("Seulgi");
+					}}>
 						<Text style={styles.textAvatar}> Change avatar</Text>
 					</TouchableOpacity>
 				</View>
@@ -190,7 +211,6 @@ function UserProfile(props: any) {
 								onPress={() => {
 									console.log(">>>>>>>")
 									setGender("M");
-									// checkGender();
 								}
 									}
 							/>
@@ -204,7 +224,6 @@ function UserProfile(props: any) {
 								onPress={() => {
 									console.log(">>>>>>>")
 									setGender("F");
-									// checkGender();
 								}}
 							/>
 							<Text style={{ fontSize: 16, paddingTop: 7 }}>Female</Text>
@@ -214,7 +233,9 @@ function UserProfile(props: any) {
 
 				{/* Sign out */}
 				<View style={styles.signOutButton}>
-					<TouchableOpacity onPress={signOut}>
+					<TouchableOpacity onPress={
+						signOut
+					}>
 						<Text style={styles.textSignOut}> Sign out</Text>
 					</TouchableOpacity>
 				</View>
