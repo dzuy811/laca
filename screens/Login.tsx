@@ -4,12 +4,39 @@ import { LoginButton, RoundedImage, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
 import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
 import * as firebase from 'firebase';
+import 'firebase/firestore';
 
 interface Props {
     navigation: any;
 }
 
 const Login: React.FC <Props> = (props) => {
+    function checkUser(phoneNumber: string) {
+        fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users')
+        .then((response) => response.json())
+        .then((json) => {
+            let data = json;
+            let check = false;
+            data.forEach(function(value: object) {
+                console.log(value.phoneNumber);
+                if(value.phoneNumber == ("+84" + phoneNumber.substring(1))) 
+                    check = true;
+            }); 
+            if(!check) {
+                    const user = firebase.auth().currentUser;
+                    const user_info = {
+                        phoneNumber: "+84" + phoneNumber.substring(1),
+                        name: "",
+                        gender: "",
+                        urlAvatar: ""
+                    }
+                    firebase.firestore().collection("users").doc(user?.uid).set(user_info);
+                    console.log(user_info);
+            }
+        })
+        .catch((err) => console.error(err));
+    }
+
     const socialMedia = [
         {
             id: 1,
@@ -29,23 +56,23 @@ const Login: React.FC <Props> = (props) => {
 	};
 
     const recaptchaVerifier = React.useRef(null);
-  const [phoneNumber, setPhoneNumber] = React.useState<string>("");
-  const [verificationId, setVerificationId] = React.useState();
-  const [verificationCode, setVerificationCode] = React.useState<string>("");
-  const firebaseConfig = firebase.apps.length ? firebase.app().options : undefined;
+    const [phoneNumber, setPhoneNumber] = React.useState<string>("");
+    const [verificationId, setVerificationId] = React.useState();
+    const [verificationCode, setVerificationCode] = React.useState<string>("");
+    const firebaseConfig = firebase.apps.length ? firebase.app().options : undefined;
 
-  const handlePhoneChange = (newText: string) => {
+    const handlePhoneChange = (newText: string) => {
 		setPhoneNumber(newText);
 	};
 
-  const handleVerificationCode = (newText: string) => {
+    const handleVerificationCode = (newText: string) => {
 		setVerificationCode(newText);
 	};
   
-  const [message, showMessage] = React.useState(
-    !firebaseConfig || Platform.OS === 'web'
-      ? { text: 'To get started, provide a valid firebase config in App.js and open this snack on an iOS or Android device.'}
-      : undefined
+    const [message, showMessage] = React.useState(
+        !firebaseConfig || Platform.OS === 'web'
+            ? { text: 'To get started, provide a valid firebase config in App.js and open this snack on an iOS or Android device.'}
+            : undefined
   );
 
   const attemptInvisibleVerification = true;
@@ -98,7 +125,7 @@ const Login: React.FC <Props> = (props) => {
                         />
                     </KeyboardAvoidingView>
                     <LoginButton 
-                        title="Send Verification Code"
+                        title="Confirm Code"
                         onPress={async () => {
                             try {
                             const credential = firebase.auth.PhoneAuthProvider.credential(
@@ -106,6 +133,7 @@ const Login: React.FC <Props> = (props) => {
                                 verificationCode
                             );
                             await firebase.auth().signInWithCredential(credential);
+                            await checkUser(phoneNumber);
                             } catch (err) {
                                 showMessage({ text: `Error: ${err.message}`, color: 'red' });
                             }

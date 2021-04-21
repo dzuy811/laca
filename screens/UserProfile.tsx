@@ -23,16 +23,35 @@ function UserProfile(props: any) {
 	const [user, setUser] = useState<any>(null);
 	const phoneNumber = user_info.phoneNumber;
 	const [name, setName] = useState<string>(user_info.name);
-	const [gender, setGender] = React.useState(user_info.gender);
+	const [gender, setGender] = useState<string>(user_info.gender);
 	const [checkValidation, setValidation] = useState<boolean>(false);
+	const [checkValidationName, setValidationName] = useState<boolean>(false);
+	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
 
 	const handleNameChange = (newText: string) => {
 		setName(newText);
 		// Check if the new name is the old name or not
-		if (newText.trimEnd() == user_info.name) setValidation(false);
+		if (newText.trimEnd() == user_info.name) setValidationName(false);
 		// Validate the new name
-		else setValidation(regEx.test(newText) ? true : false);
+		else setValidationName(regEx.test(newText) ? true : false);
+		confirm();
 	};
+
+	function confirm() {
+		if(checkValidationName || checkValidationGender)
+			setValidation(true);
+		if(checkValidationName == false && checkValidationGender == false)
+			setValidation(false);
+	}
+
+	function checkGender() {
+		console.log(gender != user_info.gender);
+		if(gender != user_info.gender)
+			setValidationGender(true);
+		else
+			setValidationGender(false);
+		confirm();
+	}
 
 	const signOut = () => {
 		firebase.auth().signOut();
@@ -47,9 +66,13 @@ function UserProfile(props: any) {
 	};
 
 	useEffect(() => {
-		console.log("aaa");
 		bootstrap();
 	}, []);
+
+	useEffect(() => {
+		console.log(gender)
+		checkGender();
+	}, [gender]);
 
 	const styles = StyleSheet.create({
 		container: {
@@ -164,7 +187,12 @@ function UserProfile(props: any) {
 								value="M"
 								color="#4B8FD2"
 								status={gender === "M" ? "checked" : "unchecked"}
-								onPress={() => setGender("M")}
+								onPress={() => {
+									console.log(">>>>>>>")
+									setGender("M");
+									// checkGender();
+								}
+									}
 							/>
 							<Text style={{ fontSize: 16, paddingTop: 7 }}>Male</Text>
 						</View>
@@ -173,7 +201,11 @@ function UserProfile(props: any) {
 								value="F"
 								color="#4B8FD2"
 								status={gender === "F" ? "checked" : "unchecked"}
-								onPress={() => setGender("F")}
+								onPress={() => {
+									console.log(">>>>>>>")
+									setGender("F");
+									// checkGender();
+								}}
 							/>
 							<Text style={{ fontSize: 16, paddingTop: 7 }}>Female</Text>
 						</View>

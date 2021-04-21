@@ -74,5 +74,30 @@ app.post('/attractions', (req, res) => {
     })
 })
 
+app.post("/users", (req, res) => {
+  const newUser = {
+    phoneNumber: req.body.phoneNumber,
+    name: "",
+    gender: "",
+    urlAvatar: ""
+  };
+
+  admin
+    .firestore()
+    .collection("users")
+    .add(newUser)
+    .then((doc) => {
+      res.json({
+        message: `document ${doc.id} created successfully.`,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err,
+      });
+      console.error(err);
+    });
+});
+
 // Exports API
 exports.api = functions.region("asia-east2").https.onRequest(app);

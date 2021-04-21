@@ -15,7 +15,7 @@ const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
     const [data, setData] = useState([])
 
     useEffect(() => {
-        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
+        fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions')
         .then((response) => response.json())
         .then((json) => {
             setData(json)

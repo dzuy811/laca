@@ -4,6 +4,7 @@ import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-fi
 import * as firebase from 'firebase';
 import { LoginButton, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
+import { AnimatedRegion } from 'react-native-maps';
 
 interface Props {
     navigation: any;

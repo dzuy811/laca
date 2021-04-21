@@ -28,10 +28,6 @@ const getTabBarVisibility = (route: any) => {
 const Tab = createBottomTabNavigator();
 
 const MainNav: FC = () => {
-	const signOut = () => {
-		firebase.auth().signOut();
-	};
-
 	const [user, setUser] = useState<any>(null);
 
 	const bootstrap = () => {
