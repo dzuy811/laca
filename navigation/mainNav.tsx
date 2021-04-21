@@ -1,7 +1,6 @@
 import React, { FC, useState, useEffect } from 'react'
-import { getFocusedRouteNameFromRoute, NavigationContainer, useRoute } from '@react-navigation/native'
+import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-navigation/native'
 import AuthStack from './authstack'
-import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet } from 'react-native'
 
 import firebase from "firebase";

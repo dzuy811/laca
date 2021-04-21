@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Alert, View, Text, StyleSheet, FlatList, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
-import { LoginButton, RoundedImage, AppLogo } from '../components';
+import React from "react";
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
+import { LoginButton, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
 import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
 import * as firebase from 'firebase';
@@ -12,22 +12,26 @@ interface Props {
 
 const Login: React.FC <Props> = (props) => {
     function checkUser(phoneNumber: string) {
+        // Fetch data of all users in the collection
         fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users')
         .then((response) => response.json())
         .then((json) => {
             let data = json;
-            let check = false;
+            let check = false; // Check if the phone exist
             data.forEach(function(value: object) {
                 console.log(value.phoneNumber);
+                // Return true if checked the phone number
                 if(value.phoneNumber == ("+84" + phoneNumber.substring(1))) 
                     check = true;
             }); 
+            // Add user if not
             if(!check) {
                     const user = firebase.auth().currentUser;
                     const user_info = {
                         phoneNumber: "+84" + phoneNumber.substring(1),
                         name: "",
                         gender: "",
+                        review: "",
                         urlAvatar: ""
                     }
                     firebase.firestore().collection("users").doc(user?.uid).set(user_info);
@@ -36,24 +40,6 @@ const Login: React.FC <Props> = (props) => {
         })
         .catch((err) => console.error(err));
     }
-
-    const socialMedia = [
-        {
-            id: 1,
-            title: "FB"
-        },
-        {
-            id: 2,
-            title: "GG"
-        }
-    ];
-    
-    const [emailValue, setTextValue] = useState<string>("");
-	const [passwordValue, setPasswordValue] = useState<string>("");
-
-    const handleTextChange = (newText: string) => {
-		setTextValue(newText);
-	};
 
     const recaptchaVerifier = React.useRef(null);
     const [phoneNumber, setPhoneNumber] = React.useState<string>("");
@@ -75,15 +61,13 @@ const Login: React.FC <Props> = (props) => {
             : undefined
   );
 
-  const attemptInvisibleVerification = true;
-
     return (
         <View style={styles.container}>
             <AppLogo />
             <FirebaseRecaptchaVerifierModal
                 ref={recaptchaVerifier}
+                attemptInvisibleVerification={true}
                 firebaseConfig={firebaseConfig}
-                attemptInvisibleVerification={attemptInvisibleVerification}
             />
             <KeyboardAvoidingView
                 style={styles.containerForm}
@@ -152,30 +136,10 @@ const Login: React.FC <Props> = (props) => {
             ) : (
                 undefined
             )}
-            {false && attemptInvisibleVerification && <FirebaseRecaptchaBanner />} 
-            <FlatList style={{flexGrow: 0}}
-                data={socialMedia}
-                numColumns={2}
-                renderItem={({ item }) => 
-                    <View style={(item.id==1)?{ width: 100 }:{}}>
-                    <RoundedImage 
-                        title={item.title} 
-                        onPress={() => (item.title == "FB" ? alert("FB") : alert("GG"))} />
-                    </View>
-                }
-                keyExtractor={(item) => item.id.toString()}
-            />
+            {false && true && <FirebaseRecaptchaBanner />} 
             <Text style={styles.text}>
                 ___________________________
             </Text>
-            <View style={{flexDirection: 'row', marginTop: 20}}>
-                <Text style={styles.text}>
-                    Don’t have an account?
-                </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('phoneAuth')}>
-                        <Text style={styles.textLogin}> Sign up</Text>
-                </TouchableOpacity> 
-            </View>
         </View>
     )
 }
