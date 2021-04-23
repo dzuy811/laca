@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Platform } from "react-native";
 import FormUserProfile from "../components/FormUserProfile";
 import { RadioButton } from "react-native-paper";
 import firebase from "firebase";
 import { AntDesign } from "@expo/vector-icons";
 import { Header } from "react-native-elements";
 import 'firebase/firestore';
-
+import * as ImagePicker from 'expo-image-picker';
+import 'firebase/storage';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
-
-const user_avatar = require("../assets/user_avatar.jpg");
 
 function UserProfile(props: any) {
 	
@@ -26,22 +25,21 @@ function UserProfile(props: any) {
 
     useEffect(() => {
 		async function getUserInfo() {
-			firebase.firestore().collection("users").doc(user.uid).get().then((user_info) => { 
-			setData(user_info.data()) 
-			setPhoneNumber("0" + user_info.data().phoneNumber.substring(3));
-			setName(user_info.data().name);
-			setGender(user_info.data().gender);
-			setUrlAvatar(user_info.data().urlAvatar);
+			// Get user's information from collection
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
+			let dataInfo = user_info.data();
+			setData(dataInfo) 
+			setPhoneNumber("0" + dataInfo.phoneNumber.substring(3));
+			setName(dataInfo.name);
+			setGender(dataInfo.gender);
+			setUrlAvatar(dataInfo.urlAvatar);
 		})
 		.catch((error) => { console.log("error:", error) });
 		}
-
 		getUserInfo();
-
     },[])
 
 	let regEx = /^\s*([A-Za-z]{1,}([-']| ))+[A-Za-z]+?\s*$/;
-    
 
 	const handleNameChange = (newText: string) => {
 		setName(newText);
@@ -75,6 +73,7 @@ function UserProfile(props: any) {
 		checkGender();
 	}, [gender]);
 
+	// Sign out function
 	const signOut = () => {
 		firebase.auth().signOut();
 	};
@@ -90,6 +89,55 @@ function UserProfile(props: any) {
 	useEffect(() => {
 		bootstrap();
 	}, []);
+
+	useEffect(() => {
+		(async () => {
+			// Give permission to use device library
+			if (Platform.OS !== 'web') {
+				const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+				if (status !== 'granted') {
+					alert('Sorry, we need camera roll permissions to make this work!');
+				}
+			}
+		})();
+  	}, []);
+
+	// Get image from library function
+	const pickImage = async () => {
+		let result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+
+		if (!result.cancelled) {
+			setUrlAvatar(result.uri);
+			await uploadImage(result);
+		}
+	};
+
+	// Upload image to storage + save URL into firestore collection
+	const uploadImage = async (image: any) => {
+		const { uri } = image;
+
+		const response = await fetch(uri);
+		const blob = await response.blob();
+
+		const filename = "avatars/";
+		const uploadUri = user.uid;
+
+		var ref = firebase.storage().ref(filename).child(uploadUri);
+		return ref.put(blob).then(() => {
+  			console.log('Uploaded a blob or file!');
+			ref.getDownloadURL().then((url) => {
+				// Save url to the user collection
+				setUrlAvatar(url);
+				firebase.firestore().collection("users").doc(user?.uid).set({urlAvatar: url}, { merge: true });
+  			})
+		})
+  		.catch((e: any) => console.log('uploading image error => ', e));
+		};
 
 	const styles = StyleSheet.create({
 		container: {
@@ -150,6 +198,9 @@ function UserProfile(props: any) {
 			marginRight: 15,
 			fontWeight: checkValidation ? "bold" : "normal",
 		},
+		progressBarContainer: {
+    		marginTop: 20
+  		},
 	});
 
 	return (
@@ -170,8 +221,7 @@ function UserProfile(props: any) {
 								const new_info = {
 									phoneNumber: "+84" + phoneNumber.substring(1),
 									name: name,
-									gender: gender,
-									urlAvatar: urlAvatar
+									gender: gender
 								};
 								firebase.firestore().collection("users").doc(user?.uid).set(new_info, { merge: true });
 								setData(new_info);
@@ -186,11 +236,9 @@ function UserProfile(props: any) {
 
 			{/* Image */}
 			<View style={styles.container}>
-				<Image style={styles.image} source={user_avatar} resizeMode={"cover"} />
+				<Image style={styles.image} source={{ uri: urlAvatar }} resizeMode={"cover"} />
 				<View style={styles.infoContainer}>
-					<TouchableOpacity onPress={() => {
-						alert("Seulgi");
-					}}>
+					<TouchableOpacity onPress={pickImage}>
 						<Text style={styles.textAvatar}> Change avatar</Text>
 					</TouchableOpacity>
 				</View>

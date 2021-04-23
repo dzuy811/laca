@@ -10,7 +10,7 @@ const ProfileHeader = ({navigation}) => {
     const user = firebase.auth().currentUser;
 
     useEffect(() => {
-		async function getUserInfo() {
+		function getUserInfo() {
 			firebase.firestore().collection("users").doc(user?.uid).get().then((user_info) => { 
 			setData(user_info.data()) 
 		})
@@ -23,7 +23,7 @@ const ProfileHeader = ({navigation}) => {
         <View style={{flexGrow: 1}}>
             <Image
             style={styles.tinyLogo}
-            source={{uri: 'https://sotaydoanhtri.com/wp-content/uploads/2019/11/Monkey-Test-It.jpg'}}
+            source={{uri: data.urlAvatar }}
             />   
         </View>
         <View style={{flexGrow: 2}}>
