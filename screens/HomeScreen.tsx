@@ -1,108 +1,155 @@
-import React, { Component, useState, useEffect, JSXElementConstructor } from 'react'
-import { StyleSheet, Text, View, Alert} from 'react-native'
-import { Header } from 'react-native-elements'
-import * as Location from 'expo-location';
-import LoadingHomeScreen from '../screens/LoadingHomeScreen';
-import AttractionList from '../components/AttractionList'
+import React, { Component, useState, useEffect, JSXElementConstructor } from "react";
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
+import { Header } from "react-native-elements";
+import * as Location from "expo-location";
+import LoadingHomeScreen from "../screens/LoadingHomeScreen";
+import AttractionList from "../components/AttractionList";
+import GGLogo from "../assets/gg_logo.jpg";
+import * as ImagePicker from "expo-image-picker";
+import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
+import * as firebase from "firebase";
 
 type homeScreenProps = {
-    navigation: any,
-}
+	navigation: any;
+};
 
-const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
+const HomeScreen: React.FC<homeScreenProps> = ({ navigation }, props) => {
+	const [data, setData] = useState([]);
+	const [pickerResult, setPickerResult] = useState<any>();
+	const [imageUri, setImageUri] = useState<string>();
 
+	useEffect(() => {
+		fetch("https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions")
+			.then((response) => response.json())
+			.then((json) => {
+				setData(json);
+				console.log("Attraction list"); // For debugging. Check if the effect is called multiple times or not
+			})
+			.catch((err) => console.error(err));
+	}, []);
 
-    const [data, setData] = useState([])
+	const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+	const [address, setAddress] = useState("");
+	useEffect(() => {
+		CheckIfLocationEnabled();
+		GetCurrentLocation();
+	}, [address]);
 
-    useEffect(() => {
-        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
-        .then((response) => response.json())
-        .then((json) => {
-            setData(json)
-            console.log("Attraction list" ) // For debugging. Check if the effect is called multiple times or not
-        })
-        .catch((err) => console.error(err))
-    },[])
+	const GetCurrentLocation = async () => {
+		let { status } = await Location.requestPermissionsAsync();
 
-  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
-  const [address, setAddress] = useState("")
-useEffect(() => {
-    CheckIfLocationEnabled();
-    GetCurrentLocation();
-  },[address]);
+		if (status !== "granted") {
+			Alert.alert(
+				"Permission not granted",
+				"Allow the app to use location service.",
+				[{ text: "OK" }],
+				{ cancelable: false }
+			);
+		}
 
+		let { coords } = await Location.getCurrentPositionAsync();
 
-  const GetCurrentLocation = async () => {
-    let { status } = await Location.requestPermissionsAsync();
-  
-    if (status !== 'granted') {
-      Alert.alert(
-        'Permission not granted',
-        'Allow the app to use location service.',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    }
-  
-    let { coords } = await Location.getCurrentPositionAsync();
-  
-    if (coords) {
-      const { latitude, longitude } = coords;
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude
-      });
-  
+		if (coords) {
+			const { latitude, longitude } = coords;
+			let response = await Location.reverseGeocodeAsync({
+				latitude,
+				longitude,
+			});
 
-      for (let item of response) {
-        setAddress(`${item.street}`);
-      }
+			for (let item of response) {
+				setAddress(`${item.street}`);
+			}
+		}
+	};
 
-    }
-  };
+	const CheckIfLocationEnabled = async () => {
+		let enabled = await Location.hasServicesEnabledAsync();
 
+		if (!enabled) {
+			Alert.alert(
+				"Location Service not enabled",
+				"Please enable your location services to continue",
+				[{ text: "OK" }],
+				{ cancelable: false }
+			);
+		} else {
+			setLocationServiceEnabled(enabled);
+		}
+	};
 
-  const CheckIfLocationEnabled = async () => {
-    let enabled = await Location.hasServicesEnabledAsync();
+	if (address == "") {
+		return <LoadingHomeScreen />;
+	}
 
-    if (!enabled) {
-      Alert.alert(
-        'Location Service not enabled',
-        'Please enable your location services to continue',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    } else {
-      setLocationServiceEnabled(enabled);
-    }
-  };
+	const item = address;
 
-  if (address=="") {
-    return (
-      <LoadingHomeScreen/>
-    )
-  }
+	const openImagePickerAsync = async () => {
+		try {
+			let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
+			if (permissionResult.granted === false) {
+				alert("Permission to access camera roll is required");
+				return;
+			}
 
-    const item  = address
+			let pickerResult = await ImagePicker.launchImageLibraryAsync();
+			console.log(pickerResult);
+			setPickerResult(pickerResult);
+			if (!pickerResult.cancelled) {
+				const { uri } = pickerResult as ImageInfo;
+				setImageUri(uri);
+				console.log(uri);
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
-    return (
-        <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
-                <Header
-                leftComponent={
-                    <Text style={{color: '#fff'}}>{item || "Location not available"}</Text>
-                }
-                leftContainerStyle={{flex:4}}
-                />
-                <View style={style.cardList}>
-                    <AttractionList navigation={navigation} attractions={data}/>
-                </View>
-                
-        </View>
-    )
-}
+	const uploadImageAsync = async () => {
+		try {
+			const name = `picture.jpg`;
+			const body = new FormData();
+			const bodyPost = JSON.parse(JSON.stringify({ uri: imageUri, name, type: "image/jpeg" }));
+			body.append("picture", bodyPost);
 
-export default HomeScreen
+			const res = await fetch(
+				"https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/upload",
+				{
+					method: "POST",
+					body,
+					headers: {
+						Accepts: "application/json",
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
+
+			const url = await firebase.storage().ref().child("images/undefined.jpg").fullPath;
+			console.log(url);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+	return (
+		<View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
+			<Header
+				leftComponent={<Text style={{ color: "#fff" }}>{item || "Location not available"}</Text>}
+				leftContainerStyle={{ flex: 4 }}
+			/>
+			<View style={style.cardList}>
+				<AttractionList navigation={navigation} attractions={data} />
+			</View>
+			<TouchableOpacity onPress={openImagePickerAsync} style={style.button}>
+				<Text style={style.buttonText}>Pick a photo</Text>
+			</TouchableOpacity>
+			<TouchableOpacity onPress={uploadImageAsync} style={style.button}>
+				<Text style={style.buttonText}>Upload a photo</Text>
+			</TouchableOpacity>
+		</View>
+	);
+};
+
+export default HomeScreen;
 
 const style = StyleSheet.create({
 	header: {
@@ -119,5 +166,14 @@ const style = StyleSheet.create({
 		marginTop: 100,
 		alignItems: "stretch",
 		justifyContent: "center",
+	},
+	button: {
+		backgroundColor: "blue",
+		padding: 20,
+		borderRadius: 5,
+	},
+	buttonText: {
+		fontSize: 20,
+		color: "#fff",
 	},
 });
