@@ -91,17 +91,16 @@ app.get("/users/search", async (req, res) => {
 	try {
 		// create reference for User collection on Firestore
 		const usersRef = admin.firestore().collection("users");
-		const { phone } = req.query;
 		const country = "Vietnam";
-		let phoneNorm;
+		let phone;
 
 		// Normalize Vietnam's phone format for international code format
 		if (country == "Vietnam") {
-			phoneNorm = "+84" + phone.replace("0", "");
+			phone = "+84" + req.query.phone.replace("0", "");
 		}
 
 		// Query for finding users by phone's number
-		const searchQuery = await usersRef.where("phoneNumber", "==", phoneNorm).get();
+		const searchQuery = await usersRef.where("phoneNumber", "==", phone).get();
 		if (searchQuery.empty) {
 			console.log(req.query.phone);
 			res.status(200).json({});
@@ -130,27 +129,29 @@ app.get("/users/histories", async (req, res) => {
 		let histories = [];
 
 		for await (let history of historiesQuery.docs) {
-			const attractionRef = await history.data().attraction.get();
-			const attractionQuery = db.doc(attractionRef.ref.path);
-			const attraction = await attractionQuery.get();
-
+			// Retrieve user's object from document's reference
 			const userRef = await history.data().user.get();
-			const userQuery = db.doc(userRef.ref.path);
-			const user = await userQuery.get();
-
-			if (attraction.exists && user.exists) {
+			const user = userRef.data();
+			// Retrieve attraction's from document's reference
+			const attractionRef = await history.data().attraction.get();
+			const attraction = attractionRef.data();
+			// Check if the attraction and user are available or not
+			if (attraction && user && typeof attraction !== "undefined" && typeof user !== "undefined") {
 				console.log("Document User and Attraction exist!");
 			} else {
 				throw new Error("Not found error");
 			}
+			// Push well-structured (including detailed user, detailed attraction) History object to the list
 			histories.push({
 				id: history.id,
 				createdAt: history.data().createdAt,
 				user: {
-					...user.data(),
+					id: userRef.id,
+					...user,
 				},
 				attraction: {
-					...attraction.data(),
+					id: attractionRef.id,
+					...attraction,
 				},
 			});
 		}
@@ -164,14 +165,12 @@ app.post("/users/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
 		const db = admin.firestore();
-
 		// Declare schema for post request object of History
 		const newHistory = {
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
 			user: db.doc("users/" + req.body.userID),
 			attraction: db.doc("attractions/" + req.body.attractionID),
 		};
-
 		// Add new History object to Firestore (POST Method)
 		db.collection("histories")
 			.add(newHistory)
@@ -192,38 +191,32 @@ app.get("/user/:id/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
 		const db = admin.firestore();
-
 		// Queries to collections
 		const userQuery = db.collection("users").doc(req.params.id);
-
 		// Compare the the reference between the stored value in 'history' collection and the 'user' collection
 		const historyQuery = await db
 			.collection("histories")
 			.where("user", "==", userQuery)
 			.get()
 			.then();
-
 		// Check if the query matches any document
 		if (historyQuery.empty) {
 			return res.status(204).json({ message: "user's histories not found" });
 		}
-
 		// read the reference from user's query
 		const userRef = await userQuery.get();
-
 		// declare reference to detailed object
 		let user = {
 			id: userRef.id,
 			...userRef.data(),
 		};
-		console.log(user);
 		let histories = [];
-
 		for await (let history of historyQuery.docs) {
+			// Retrieve attraction's object from document reference
 			const attractionRef = await history.data().attraction.get();
-			const attractionQuery = db.doc(attractionRef.ref.path);
-			const attraction = await attractionQuery.get();
-			if (attraction.exists) {
+			const attraction = attractionRef.data();
+			// Check if there's any empty query
+			if (attraction || typeof attraction !== "undefined") {
 				console.log("Attraction exist");
 			} else {
 				console.log(`Attraction not exist`);
@@ -236,8 +229,8 @@ app.get("/user/:id/histories", async (req, res) => {
 					...user,
 				},
 				attraction: {
-					attraction: attraction.id,
-					...attraction.data(),
+					attraction: attractionRef.id,
+					...attraction,
 				},
 			});
 		}
