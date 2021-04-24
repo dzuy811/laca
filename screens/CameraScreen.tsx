@@ -5,6 +5,7 @@ import * as firebase from 'firebase'
 import { ScrollView, TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import LottieView from 'lottie-react-native'
 import { Rating, Button } from 'react-native-elements'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Upload to firebase cloudstore function
 async function uploadImage(uriArray: string[], rating:number) {
@@ -45,75 +46,6 @@ interface reviewSectionProps {
 
 const CameraScreen = () => {
 
-    const ReviewSection:React.FC<reviewSectionProps> = ({image, setReview,setRating}) => {
-
-        return (
-    
-            <View>
-                <View style={{flexDirection:'row', flexWrap:'wrap'}}>
-                    {image.map(i => 
-                    <View key={i} style={{marginRight: 10}}>
-                    <Image
-                        style={{
-                            width: 80,
-                            height: 80
-                        }}
-                        source={{ uri: i }}
-                    />
-                    </View>
-    
-                        
-                    )}
-                    <View style={{backgroundColor: '#efefef' ,width: 80, height: 80, borderStyle: 'dashed', borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
-        
-                            <Image
-                                source={require('../assets/photo-camera.png')}
-                                style={{width: 30, height: 30}}
-                            />
-
-                    </View>
-                </View>
-
-                
-                <View>
-                    <Rating
-                    onFinishRating={(ratings) => setRating((ratings))}
-                    defaultRating
-                    
-                    />
-                    </View>
-                    <View>
-                        <TextInput
-                            style={styles.textArea}
-                            underlineColorAndroid="transparent"
-                            placeholder={"Leave your review about the attraction..."}
-                            placeholderTextColor={"#9E9E9E"}
-                            numberOfLines={10}
-                            multiline={true}
-                            onChangeText={reviews=>setReview(reviews)}
-                        />
-                    </View>
-                    {image.length < 3?
-                     <Button title="Take another picture"
-                     onPress={() => pickImage()}
-                    />
-                    :
-                    <Text>
-                        You reached limit of 3 photos for 1 review
-                    </Text>
-                    }
-                   
-                    <Button
-                    title="Submit"
-                    onPress={() => uploadImage(image, rating)}
-                    />
-                        
-          
-            </View>
-    
-        )
-    }
-    
     const CameraButton:React.FC = () => {
     
         return (
@@ -169,17 +101,20 @@ const CameraScreen = () => {
 
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback style={{height: '100%'}} onPress={Keyboard.dismiss} accessible={false}>
 
-            <View style={{justifyContent:'center', alignItems:'center', height: '100%', width:'100%',backgroundColor:'#fff' }}>
+            <SafeAreaView style={{height: '100%', width:'100%',backgroundColor:'#fff' }}>
                 {image.length==0? 
+                <View style={{height: '100%', justifyContent: 'center', alignItems: 'center'}}>
                     <TouchableOpacity onPress={() => pickImage()}>
                         {console.log(image)}
                         <CameraButton />
                     </TouchableOpacity>
+                </View>
+                    
                     :
-                    <View>
-                <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+            <View style={{height: '100%',justifyContent: 'center'}}>
+                <View style={{flexDirection:'row', flexWrap:'wrap', marginLeft: 55}}>
                     {image.map(i => 
                     <View key={i} style={{marginRight: 10}}>
                     <Image
@@ -193,14 +128,27 @@ const CameraScreen = () => {
     
                         
                     )}
-                    <View style={{backgroundColor: '#efefef' ,width: 80, height: 80, borderStyle: 'dashed', borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
-        
-                            <Image
-                                source={require('../assets/photo-camera.png')}
-                                style={{width: 30, height: 30}}
-                            />
 
-                    </View>
+                    {image.length < 3?
+
+                        <View style={{backgroundColor: '#efefef' ,width: 80, height: 80, borderStyle: 'dashed', borderRadius: 1, borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => pickImage()}>
+                            <Image
+                                    source={require('../assets/photo-camera.png')}
+                                    style={{width: 30, height: 30}}
+                                
+                                />
+                        </TouchableOpacity>
+                        
+
+                        </View>
+                    :
+                    <Text>
+                        You reached limit of 3 photos for 1 review
+                    </Text>
+                    }
+
+                   
                 </View>
 
                 
@@ -208,10 +156,11 @@ const CameraScreen = () => {
                     <Rating
                     onFinishRating={(ratings) => setRating((ratings))}
                     defaultRating
+                    imageSize={30}
                     
                     />
-                    </View>
-                    <View>
+                </View>
+                    <View style={{alignItems: 'center'}}>
                         <TextInput
                             style={styles.textArea}
                             underlineColorAndroid="transparent"
@@ -222,27 +171,23 @@ const CameraScreen = () => {
                             onChangeText={reviews=>setReview(reviews)}
                         />
                     </View>
-                    {image.length < 3?
-                     <Button title="Take another picture"
-                     onPress={() => pickImage()}
-                    />
-                    :
-                    <Text>
-                        You reached limit of 3 photos for 1 review
-                    </Text>
-                    }
-                   
-                    <Button
-                    title="Submit"
-                    onPress={() => uploadImage(image, rating)}
-                    />
-                        
+                    <View style={styles.submitContainer}>
+                        <Button
+                        buttonStyle={styles.submitButton}
+                        title="Submit"
+                        titleStyle={styles.submitButtonText}
+                        onPress={() => uploadImage(image, rating)}
+                        />  
+                    </View>
+                    
           
             </View>
     
                 }
+         
 
-            </View>
+            </SafeAreaView>
+            
         </TouchableWithoutFeedback>
     )
 }
@@ -263,11 +208,31 @@ const styles = StyleSheet.create({
     },
     textArea: {
         height: 200,
-        borderWidth: 1,
-        borderColor: '#9E9E9E',
         borderRadius: 20 ,
-        backgroundColor : "#FFFFFF",
+        borderColor: '#f1f1f1',
+        borderWidth: 2,
+        backgroundColor : "#fff",
         width: 300,
         padding: 20
+    },
+    submitContainer: {
+        marginTop: 20,
+        width: '100%',
+        alignItems:'center'
+    },
+    submitButton: {
+        alignItems: 'center',
+        textAlign: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 126,
+        borderRadius: 50,
+        borderColor: '#8DBAE2',
+        backgroundColor: '#DFEBF7',
+        borderWidth: 1,
+    },
+    submitButtonText: {
+        color: '#4B8FD2',
+        fontSize: 16,
+        fontWeight: '300'
     }
 })
