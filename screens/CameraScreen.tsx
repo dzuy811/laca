@@ -4,8 +4,9 @@ import * as ImagePicker from 'expo-image-picker'
 import * as firebase from 'firebase'
 import { ScrollView, TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import LottieView from 'lottie-react-native'
-import { Rating, Button } from 'react-native-elements'
+import { Rating, Button, Overlay } from 'react-native-elements'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AntDesign } from '@expo/vector-icons'
 
 // Upload to firebase cloudstore function
 async function uploadImage(uriArray: string[], rating:number) {
@@ -19,12 +20,12 @@ async function uploadImage(uriArray: string[], rating:number) {
         let uriSplitString = uri.split("/")
         let filename = uriSplitString[uriSplitString.length - 1].split('.')[0]
         console.log("name: ", filename)
-        // var ref = firebase.storage().ref().child("images/" + filename);
-        // await ref.put(blob)
-        // ref.getDownloadURL()
-        //     .then((url) => {
-        //         console.log(url.toString())
-        //     })
+        var ref = firebase.storage().ref().child("images/" + filename);
+        await ref.put(blob)
+        ref.getDownloadURL()
+            .then((url) => {
+                console.log(url.toString())
+            })
     }
     
 }
@@ -67,6 +68,12 @@ const CameraScreen = () => {
     const [image, setImage] = useState<string[]>([]);
     const [rating, setRating] = useState<number>(0)
     const [review, setReview] = useState<string>();
+    const [visible, setVisible] = useState(false);
+
+    const toggleOverlay = () => {
+      setVisible(!visible);
+    };
+  
     
     console.log("image: ", image)
 
@@ -81,11 +88,15 @@ const CameraScreen = () => {
         })();
     }, []);
 
+    const removeImage = (e:string) => {
+        let arr = image.filter(item => item!=e)
+        setImage(arr)
+    }
 
     // launch camera and capture function
     const pickImage = async () => {
         let result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
             aspect: [4, 3],
             quality: 0.8,
         });
@@ -94,6 +105,34 @@ const CameraScreen = () => {
             setImage([...image,result.uri])
         }
     };
+
+
+        // launch camera and capture function
+        const pickVideo = async () => {
+            let result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                aspect: [4, 3],
+                quality: 0.8,
+                videoMaxDuration: 5,
+            });
+    
+            if (!result.cancelled) {
+                setImage([...image,result.uri])
+            }
+        };
+
+        const pickImageFromLibrary = async () => {
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                aspect: [4, 3],
+                quality: 0.8,
+            });
+    
+            if (!result.cancelled) {
+                setImage([...image,result.uri])
+            }
+        }
+
 
     useEffect(() => {
         console.log("rating:", rating)
@@ -106,10 +145,33 @@ const CameraScreen = () => {
             <SafeAreaView style={{height: '100%', width:'100%',backgroundColor:'#fff' }}>
                 {image.length==0? 
                 <View style={{height: '100%', justifyContent: 'center', alignItems: 'center'}}>
-                    <TouchableOpacity onPress={() => pickImage()}>
+                    <TouchableOpacity onPress={() => toggleOverlay()}>
                         {console.log(image)}
                         <CameraButton />
                     </TouchableOpacity>
+                    <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                        <View style={{width: 300, paddingTop: 10, paddingRight: 20, paddingLeft: 10, paddingBottom: 20}}>
+                            <View style={styles.overlayTextContainer}>
+                                <Text style={{fontWeight: 'bold'}}>Select Image</Text>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickImage()}>Take Photo...</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickVideo()}>Record Video...</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickImageFromLibrary()}>Choose from Lirabry...</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Overlay>
+
                 </View>
                     
                     :
@@ -124,6 +186,7 @@ const CameraScreen = () => {
                         }}
                         source={{ uri: i }}
                     />
+                    <AntDesign onPress={() => removeImage(i)} name="closecircle" size={24} color="#f2f2f2"  style={{ position: 'absolute', right: 0}} />
                     </View>
     
                         
@@ -132,13 +195,35 @@ const CameraScreen = () => {
                     {image.length < 3?
 
                         <View style={{backgroundColor: '#efefef' ,width: 80, height: 80, borderStyle: 'dashed', borderRadius: 1, borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => pickImage()}>
+                        <TouchableOpacity onPress={() => toggleOverlay()}>
                             <Image
                                     source={require('../assets/photo-camera.png')}
                                     style={{width: 30, height: 30}}
                                 
                                 />
                         </TouchableOpacity>
+                        <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                        <View style={{width: 300, paddingTop: 10, paddingRight: 20, paddingLeft: 10, paddingBottom: 20}}>
+                            <View style={styles.overlayTextContainer}>
+                                <Text style={{fontWeight: 'bold'}}>Select Image</Text>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickImage()}>Take Photo...</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickVideo()}>Record Video...</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.overlayTextContainer}>
+                                <TouchableOpacity>
+                                    <Text onPress={() => pickImageFromLibrary()}>Choose from Lirabry...</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Overlay>
                         
 
                         </View>
@@ -234,5 +319,8 @@ const styles = StyleSheet.create({
         color: '#4B8FD2',
         fontSize: 16,
         fontWeight: '300'
+    },
+    overlayTextContainer: {
+        marginBottom: 20
     }
 })
