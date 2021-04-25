@@ -196,15 +196,14 @@ const CameraScreen = () => {
                             )}
 
                             {image.length < 3 ?
+                                    <TouchableOpacity onPress={() => toggleOverlay()}>
 
                                 <View style={{ backgroundColor: '#efefef', width: 80, height: 80, borderStyle: 'dashed', borderRadius: 1, borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
-                                    <TouchableOpacity onPress={() => toggleOverlay()}>
                                         <Image
                                             source={require('../assets/photo-camera.png')}
-                                            style={{ width: 30, height: 30 }}
+                                            style={{ tintColor:'#b6b6b6' ,width: 30, height: 30 }}
 
                                         />
-                                    </TouchableOpacity>
                                     <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
                                         <View style={{ width: 300, paddingTop: 10, paddingRight: 20, paddingLeft: 10, paddingBottom: 20 }}>
                                             <View style={styles.overlayTextContainer}>
@@ -230,6 +229,8 @@ const CameraScreen = () => {
 
 
                                 </View>
+                                </TouchableOpacity>
+
                                 :
                                 <Text>
                                     You reached limit of 3 photos for 1 review
