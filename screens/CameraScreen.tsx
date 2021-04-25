@@ -9,8 +9,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons'
 
 // Upload to firebase cloudstore function
-async function uploadImage(uriArray: string[], rating: number) {
-    console.log(rating)
+async function uploadReview(uriArray: string[], rating: number, review: string) {
+    console.log("review: ", review)
+    console.log("rating:", rating)
     for (let i = 0; i < uriArray.length; i++) {
         let uri = uriArray[i]
         const response = await fetch(uri);
@@ -20,27 +21,112 @@ async function uploadImage(uriArray: string[], rating: number) {
         let uriSplitString = uri.split("/")
         let filename = uriSplitString[uriSplitString.length - 1].split('.')[0]
         console.log("name: ", filename)
-        var ref = firebase.storage().ref().child("images/" + filename);
-        await ref.put(blob)
-        ref.getDownloadURL()
-            .then((url) => {
-                console.log(url.toString())
-            })
+
+        // var ref = firebase.storage().ref().child("images/" + filename);
+        // await ref.put(blob)
+        // ref.getDownloadURL()
+        //     .then((url) => {
+        //         console.log(url.toString())
+        //     })
     }
+    
 
 }
 
 type propsSetRating = (rating: number) => void
 type propsSetReview = (review: string) => void
 
-interface reviewSectionProps {
+interface imageSectionProps {
     image: string[],
-    setReview: propsSetReview,
-    review: string,
-    setRating: propsSetRating,
+    pickImage: () => void,
+    removeImage: (item: string) => void,
+    toggleOverlay: () => void,
+    pickVideo: () => void,
+    pickImageFromLibrary: () => void,
+    visible: boolean
 }
 // type of the react hook set state
 
+const ImageSection:React.FC<imageSectionProps> = ({image, pickImage, removeImage, toggleOverlay, pickVideo, pickImageFromLibrary, visible}) => {
+    return (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 55 }}>
+        {image.map(i =>
+            <View key={i} style={{ marginRight: 10 }}>
+                <Image
+                    style={{
+                        width: 80,
+                        height: 80
+                    }}
+                    source={{ uri: i }}
+                />
+                <AntDesign onPress={() => removeImage(i)} name="closecircle" size={24} color="#f2f2f2" style={{ position: 'absolute', right: 0 }} />
+            </View>
+
+
+        )}
+
+        {image.length < 3 ?
+                <TouchableOpacity onPress={() => toggleOverlay()}>
+
+            <View style={{ backgroundColor: '#efefef', width: 80, height: 80, borderStyle: 'dashed', borderRadius: 1, borderWidth: 1, borderColor: '#d6d6d6', justifyContent: 'center', alignItems: 'center' }}>
+                    <Image
+                        source={require('../assets/photo-camera.png')}
+                        style={{ tintColor:'#b6b6b6' ,width: 30, height: 30 }}
+
+                    />
+                <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+                    <View style={{ width: 300, paddingTop: 10, paddingRight: 20, paddingLeft: 10, paddingBottom: 20 }}>
+                        <View style={styles.overlayTextContainer}>
+                            <Text style={{ fontWeight: 'bold' }}>Select Image</Text>
+                        </View>
+                        <View style={styles.overlayTextContainer}>
+                            <TouchableOpacity>
+                                <Text onPress={() => pickImage()}>Take Photo...</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.overlayTextContainer}>
+                            <TouchableOpacity>
+                                <Text onPress={() => pickVideo()}>Record Video...</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.overlayTextContainer}>
+                            <TouchableOpacity>
+                                <Text onPress={() => pickImageFromLibrary()}>Choose from Lirabry...</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Overlay>
+
+
+            </View>
+            </TouchableOpacity>
+
+            :
+            <Text>
+                You reached limit of 3 photos for 1 review
+            </Text>
+        }
+
+
+    </View>
+    )
+}
+
+const ReviewSection = ({handleReview}) => {
+    return (
+        <View style={{ alignItems: 'center' }}>
+                            <TextInput
+                                style={styles.textArea}
+                                underlineColorAndroid="transparent"
+                                placeholder={"Leave your review about the attraction..."}
+                                placeholderTextColor={"#9E9E9E"}
+                                numberOfLines={10}
+                                multiline={true}
+                                onChangeText={reviews => handleReview(reviews)}
+                            />
+        </View>
+    )
+}
 
 // Hide keyboard when tapping outside
 
@@ -67,15 +153,17 @@ const CameraScreen = () => {
 
     const [image, setImage] = useState<string[]>([]);
     const [rating, setRating] = useState<number>(0)
-    const [review, setReview] = useState<string>();
+    const [review, setReview] = useState<string>("");
     const [visible, setVisible] = useState(false);
 
     const toggleOverlay = () => {
         setVisible(!visible);
     };
 
-
-    console.log("image: ", image)
+    function handleReview(e:string) {
+        setReview(e)
+        console.log(e)
+    }
 
     useEffect(() => {
         (async () => {
@@ -136,12 +224,6 @@ const CameraScreen = () => {
         }
     };
 
-
-    useEffect(() => {
-        console.log("rating:", rating)
-    }, [rating])
-
-
     return (
         <TouchableWithoutFeedback style={{ height: '100%' }} onPress={Keyboard.dismiss} accessible={false}>
 
@@ -149,7 +231,6 @@ const CameraScreen = () => {
                 {image.length == 0 ?
                     <View style={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}>
                         <TouchableOpacity onPress={() => toggleOverlay()}>
-                            {console.log(image)}
                             <CameraButton />
                         </TouchableOpacity>
                         <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
@@ -179,7 +260,16 @@ const CameraScreen = () => {
 
                     :
                     <View style={{ height: '100%', justifyContent: 'center' }}>
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 55 }}>
+                        <ImageSection
+                        pickImage={pickImage}
+                        pickVideo={pickVideo}
+                        pickImageFromLibrary={pickImageFromLibrary}
+                        visible={visible}
+                        removeImage={removeImage}
+                        image={image}
+                        toggleOverlay={toggleOverlay}
+                        />
+                        {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginLeft: 55 }}>
                             {image.map(i =>
                                 <View key={i} style={{ marginRight: 10 }}>
                                     <Image
@@ -234,22 +324,21 @@ const CameraScreen = () => {
                                 :
                                 <Text>
                                     You reached limit of 3 photos for 1 review
-                    </Text>
+                                </Text>
                             }
 
 
-                        </View>
+                        </View> */}
 
 
                         <View>
                             <Rating
                                 onFinishRating={(ratings) => setRating((ratings))}
-                                defaultRating={0}
                                 imageSize={30}
 
                             />
                         </View>
-                        <View style={{ alignItems: 'center' }}>
+                        {/* <View style={{ alignItems: 'center' }}>
                             <TextInput
                                 style={styles.textArea}
                                 underlineColorAndroid="transparent"
@@ -259,13 +348,14 @@ const CameraScreen = () => {
                                 multiline={true}
                                 onChangeText={reviews => setReview(reviews)}
                             />
-                        </View>
+                        </View> */}
+                        <ReviewSection handleReview={handleReview}/>
                         <View style={styles.submitContainer}>
                             <Button
                                 buttonStyle={styles.submitButton}
                                 title="Submit"
                                 titleStyle={styles.submitButtonText}
-                                onPress={() => uploadImage(image, rating)}
+                                onPress={() => uploadReview(image, rating, review)}
                             />
                         </View>
 
