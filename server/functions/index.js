@@ -187,7 +187,7 @@ app.post("/users/histories", async (req, res) => {
 	}
 });
 
-app.get("/user/:id/histories", async (req, res) => {
+app.get("/users/:id/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
 		const db = admin.firestore();
@@ -229,7 +229,7 @@ app.get("/user/:id/histories", async (req, res) => {
 					...user,
 				},
 				attraction: {
-					attraction: attractionRef.id,
+					id: attractionRef.id,
 					...attraction,
 				},
 			});

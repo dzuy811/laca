@@ -83,53 +83,6 @@ const HomeScreen: React.FC<homeScreenProps> = ({ navigation }, props) => {
 
 	const item = address;
 
-	const openImagePickerAsync = async () => {
-		try {
-			let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-			if (permissionResult.granted === false) {
-				alert("Permission to access camera roll is required");
-				return;
-			}
-
-			let pickerResult = await ImagePicker.launchImageLibraryAsync();
-			console.log(pickerResult);
-			setPickerResult(pickerResult);
-			if (!pickerResult.cancelled) {
-				const { uri } = pickerResult as ImageInfo;
-				setImageUri(uri);
-				console.log(uri);
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	};
-
-	const uploadImageAsync = async () => {
-		try {
-			const name = `picture.jpg`;
-			const body = new FormData();
-			const bodyPost = JSON.parse(JSON.stringify({ uri: imageUri, name, type: "image/jpeg" }));
-			body.append("picture", bodyPost);
-
-			const res = await fetch(
-				"https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/upload",
-				{
-					method: "POST",
-					body,
-					headers: {
-						Accepts: "application/json",
-						"Content-Type": "multipart/form-data",
-					},
-				}
-			);
-
-			const url = await firebase.storage().ref().child("images/undefined.jpg").fullPath;
-			console.log(url);
-		} catch (error) {
-			console.log(error);
-		}
-	};
 	return (
 		<View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
 			<Header
@@ -139,12 +92,6 @@ const HomeScreen: React.FC<homeScreenProps> = ({ navigation }, props) => {
 			<View style={style.cardList}>
 				<AttractionList navigation={navigation} attractions={data} />
 			</View>
-			<TouchableOpacity onPress={openImagePickerAsync} style={style.button}>
-				<Text style={style.buttonText}>Pick a photo</Text>
-			</TouchableOpacity>
-			<TouchableOpacity onPress={uploadImageAsync} style={style.button}>
-				<Text style={style.buttonText}>Upload a photo</Text>
-			</TouchableOpacity>
 		</View>
 	);
 };
