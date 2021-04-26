@@ -10,93 +10,104 @@ import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
 import * as firebase from "firebase";
 
 type homeScreenProps = {
-	navigation: any;
-};
 
-const HomeScreen: React.FC<homeScreenProps> = ({ navigation }, props) => {
-	const [data, setData] = useState([]);
-	const [pickerResult, setPickerResult] = useState<any>();
-	const [imageUri, setImageUri] = useState<string>();
+    navigation: any,
+}
 
-	useEffect(() => {
-		fetch("https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions")
-			.then((response) => response.json())
-			.then((json) => {
-				setData(json);
-				console.log("Attraction list"); // For debugging. Check if the effect is called multiple times or not
-			})
-			.catch((err) => console.error(err));
-	}, []);
+const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
 
-	const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
-	const [address, setAddress] = useState("");
-	useEffect(() => {
-		CheckIfLocationEnabled();
-		GetCurrentLocation();
-	}, [address]);
 
-	const GetCurrentLocation = async () => {
-		let { status } = await Location.requestPermissionsAsync();
+    const [data, setData] = useState([])
 
-		if (status !== "granted") {
-			Alert.alert(
-				"Permission not granted",
-				"Allow the app to use location service.",
-				[{ text: "OK" }],
-				{ cancelable: false }
-			);
-		}
+    useEffect(() => {
+        fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions')
+        .then((response) => response.json())
+        .then((json) => {
+            setData(json)
+            console.log("Attraction list" ) // For debugging. Check if the effect is called multiple times or not
+        })
+        .catch((err) => console.error(err))
+    },[])
 
-		let { coords } = await Location.getCurrentPositionAsync();
+  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
+  const [address, setAddress] = useState("")
+useEffect(() => {
+    CheckIfLocationEnabled();
+    GetCurrentLocation();
+  },[address]);
 
-		if (coords) {
-			const { latitude, longitude } = coords;
-			let response = await Location.reverseGeocodeAsync({
-				latitude,
-				longitude,
-			});
 
-			for (let item of response) {
-				setAddress(`${item.street}`);
-			}
-		}
-	};
+  const GetCurrentLocation = async () => {
+    let { status } = await Location.requestPermissionsAsync();
+  
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission not granted',
+        'Allow the app to use location service.',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    }
+  
+    let { coords } = await Location.getCurrentPositionAsync();
+  
+    if (coords) {
+      const { latitude, longitude } = coords;
+      let response = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude
+      });
+  
 
-	const CheckIfLocationEnabled = async () => {
-		let enabled = await Location.hasServicesEnabledAsync();
+      for (let item of response) {
+        setAddress(`${item.street}`);
+      }
 
-		if (!enabled) {
-			Alert.alert(
-				"Location Service not enabled",
-				"Please enable your location services to continue",
-				[{ text: "OK" }],
-				{ cancelable: false }
-			);
-		} else {
-			setLocationServiceEnabled(enabled);
-		}
-	};
+    }
+  };
 
-	if (address == "") {
-		return <LoadingHomeScreen />;
-	}
 
-	const item = address;
+  const CheckIfLocationEnabled = async () => {
+    let enabled = await Location.hasServicesEnabledAsync();
 
-	return (
-		<View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
-			<Header
-				leftComponent={<Text style={{ color: "#fff" }}>{item || "Location not available"}</Text>}
-				leftContainerStyle={{ flex: 4 }}
-			/>
-			<View style={style.cardList}>
-				<AttractionList navigation={navigation} attractions={data} />
-			</View>
-		</View>
-	);
-};
+    if (!enabled) {
+      Alert.alert(
+        'Location Service not enabled',
+        'Please enable your location services to continue',
+        [{ text: 'OK' }],
+        { cancelable: false }
+      );
+    } else {
+      setLocationServiceEnabled(enabled);
+    }
+  };
 
-export default HomeScreen;
+  if (address=="") {
+    return (
+      <LoadingHomeScreen/>
+    )
+  }
+
+
+    const item  = address
+
+    return (
+        <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
+                <Header
+                leftComponent={
+                    <Text style={{color: '#fff'}}>{item || "Location not available"}</Text>
+                }
+                leftContainerStyle={{flex:4}}
+                />
+                <View style={style.cardList}>
+                    <AttractionList navigation={navigation} attractions={data}/>
+                </View>
+                
+        </View>
+    )
+}
+
+export default HomeScreen
 
 const style = StyleSheet.create({
 	header: {

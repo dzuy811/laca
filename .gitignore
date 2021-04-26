@@ -10,6 +10,7 @@ npm-debug.*
 web-build/
 .env
 types/env.d.ts
+constants/firebase.ts
 
 # macOS
 .DS_Store

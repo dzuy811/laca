@@ -7,6 +7,7 @@ import DescriptionTab from '../screens/DescriptionTab';
 import * as Location from 'expo-location';
 import LoadingHomeScreen from '../screens/LoadingHomeScreen';
 import { MapScreen } from '../screens';
+import CameraScreen from '../screens/CameraScreen';
 
 const Stack = createStackNavigator();
 
@@ -27,6 +28,7 @@ const AttractionNavigator:React.FC<props> = ({navigation}) => {
         />
         <Stack.Screen name="Attraction detail" component={DescriptionTab}/>
         <Stack.Screen name="Journey Map" component={MapScreen} />
+        <Stack.Screen name="Camera screen" component={CameraScreen}/>
       </Stack.Navigator>
 
   )}

@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import UserLogo from "../assets/fb_logo.png";
 
 import { LoginButton } from "../components";
-// import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
 
 type IItem = {
@@ -167,29 +167,33 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					</View>
 				</View>
 				<LinearGradient
-					colors={["rgba(255,255,355,0.02)", "rgba(255,255,355,1)"]}
+					colors={["rgba(255,255,355,0.8)", "rgba(255,255,355,1)"]}
 					style={{
 						position: "absolute",
 						alignItems: "center",
-						marginTop: "0%",
+                        justifyContent: "center",
 						left: 0,
 						right: 0,
 						bottom: 0,
-						marginBottom: 0,
 						zIndex: 2,
+                        
 					}}
 				>
-					<LoginButton
+                    <View style={{paddingBottom: 15}}>
+                    <LoginButton
 						title="Take the journey"
 						onPress={() => {
 							navigation.navigate("Journey Map", {
-								latitude: latitude,
-								longitude: longitude,
+								latitude: "10.79103732064115", // Hard code for testing
+								longitude: "106.6839277220927", // Hard code for testing
 							});
 						}}
 						color="#4B8FD2"
 						textColor="#E2D0A2"
 					/>
+                    </View>
+                    
+					
 				</LinearGradient>
 			</View>
 		</>
