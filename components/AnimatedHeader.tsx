@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Animated, View, Text, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -14,25 +14,40 @@ const HEADER_HEIGHT = 150;
 const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
 	const insets = useSafeAreaInsets();
 
+
 	const headerHeight = animatedValue.interpolate({
 		inputRange: [0, HEADER_HEIGHT + insets.top],
-		outputRange: [HEADER_HEIGHT + insets.top, insets.top + 44],
+		outputRange: [HEADER_HEIGHT + insets.top, insets.top + 45],
+		extrapolate: "clamp",
+	});
+
+
+	// useEffect(() => {
+	// 	for (var key in headerHeight) {
+	// 		var value = headerHeight[key]
+	// 		console.log(value)
+	// 	}
+	// },[headerHeight]);
+
+	const iconPadding = animatedValue.interpolate({
+		inputRange: [10, HEADER_HEIGHT + insets.top],
+		outputRange: [50, insets.top],
 		extrapolate: "clamp",
 	});
 
 	const textPlaceMargin = animatedValue.interpolate({
 		inputRange: [0, HEADER_HEIGHT + insets.top],
-		outputRange: [60, 25],
+		outputRange: [60, headerHeight["_config"]['outputRange'][1]/2],
 		extrapolate: "clamp",
 	});
 
 	const textAddressMargin = animatedValue.interpolate({
 		inputRange: [0, HEADER_HEIGHT + insets.top],
-		outputRange: [5, 20],
+		outputRange: [5, 50],
 	});
 
 	return (
-		<View style={{ backgroundColor: "white" }}>
+		<View style={{ backgroundColor: "white"}}>
 			<Animated.View
 				style={{
 					position: "relative",
@@ -47,46 +62,35 @@ const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
 				}}
 			>
 				{/* Container for all elements inside header */}
-				<Animated.View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+				<Animated.View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: 'space-evenly' }}>
 					{/* Left Arrow icon container */}
 					<TouchableOpacity
 						style={{
-							paddingTop: 30,
-							paddingLeft: 30,
+							paddingTop: headerHeight["_config"]['outputRange'][1]/2,
+							paddingBottom: headerHeight["_config"]['outputRange'][1]/2,
+
 						}}
 						onPress={() => {
-							navigation.navigate("Home");
+							navigation.goBack();
 						}}
 					>
 						<AntDesign name="arrowleft" size={24} color="white" />
 					</TouchableOpacity>
 
 					{/* Text container */}
-					<Animated.View
-						style={{
-							paddingTop: textPlaceMargin,
-							justifyContent: "center",
-							alignItems: "center",
-							marginLeft: 53,
-						}}
-					>
-						<Text style={{ color: "#fff", fontSize: 24 }}>{headerName}</Text>
-					</Animated.View>
-
-					{/* Info icon container*/}
-					<TouchableOpacity
-						style={{
-							paddingTop: 30,
-							paddingLeft: 58,
-						}}
-					>
-						<AntDesign name="infocirlceo" size={24} color="white" />
-					</TouchableOpacity>
-					{/* Address - Distance container */}
-					<Animated.View
+					<Animated.View style={{}}>
+						<Animated.View
+							style={{
+								paddingTop: textPlaceMargin,
+								alignSelf:'center'
+							}}
+						>
+							<Text style={{ color: "#fff", fontSize: 24, }}>{headerName}</Text>
+						</Animated.View>
+						<Animated.View
 						style={{
 							marginTop: textAddressMargin,
-							marginLeft: 108,
+							
 						}}
 					>
 						<Animated.Text
@@ -99,6 +103,19 @@ const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
 							6.9km, 01 Nguyễn Tất Thành, Quận 4
 						</Animated.Text>
 					</Animated.View>
+					</Animated.View>
+					
+
+					{/* Info icon container*/}
+					<TouchableOpacity
+						style={{
+							paddingTop: headerHeight["_config"]['outputRange'][1]/2,
+						}}
+					>
+						<AntDesign name="infocirlceo" size={24} color="white" />
+					</TouchableOpacity>
+					{/* Address - Distance container */}
+					
 				</Animated.View>
 			</Animated.View>
 		</View>

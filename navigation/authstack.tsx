@@ -1,8 +1,6 @@
 import React, { FC } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Login, PhoneAuth } from "../screens";
-import DescriptionTab from "../screens/DescriptionTab";
-import AttractionMap from "../screens/AttractionMap";
+import { Login } from "../screens";
 const { Navigator, Screen } = createStackNavigator();
 
 const AuthStack: FC = () => {
@@ -13,7 +11,6 @@ const AuthStack: FC = () => {
 			}}
 		>
 			<Screen name="login" component={Login} />
-			<Screen name="phoneAuth" component={PhoneAuth} />
 		</Navigator>
 	);
 };

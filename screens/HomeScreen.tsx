@@ -1,11 +1,16 @@
-import React, { Component, useState, useEffect, JSXElementConstructor } from 'react'
-import { StyleSheet, Text, View, Alert} from 'react-native'
-import { Header } from 'react-native-elements'
-import * as Location from 'expo-location';
-import LoadingHomeScreen from '../screens/LoadingHomeScreen';
-import AttractionList from '../components/AttractionList'
+import React, { Component, useState, useEffect, JSXElementConstructor } from "react";
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
+import { Header } from "react-native-elements";
+import * as Location from "expo-location";
+import LoadingHomeScreen from "../screens/LoadingHomeScreen";
+import AttractionList from "../components/AttractionList";
+import GGLogo from "../assets/gg_logo.jpg";
+import * as ImagePicker from "expo-image-picker";
+import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
+import * as firebase from "firebase";
 
 type homeScreenProps = {
+
     navigation: any,
 }
 
@@ -15,7 +20,7 @@ const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
     const [data, setData] = useState([])
 
     useEffect(() => {
-        fetch('http://192.168.2.104:5001/laca-59b8c/us-central1/api/attractions')
+        fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions')
         .then((response) => response.json())
         .then((json) => {
             setData(json)
@@ -119,5 +124,14 @@ const style = StyleSheet.create({
 		marginTop: 100,
 		alignItems: "stretch",
 		justifyContent: "center",
+	},
+	button: {
+		backgroundColor: "blue",
+		padding: 20,
+		borderRadius: 5,
+	},
+	buttonText: {
+		fontSize: 20,
+		color: "#fff",
 	},
 });

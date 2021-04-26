@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ActivityIndicator, Dimensions } from "react-native";
+import {
+	View,
+	StyleSheet,
+	ActivityIndicator,
+	Dimensions,
+	ImageBackground,
+	Image,
+	Text,
+} from "react-native";
 import MapView, { PROVIDER_GOOGLE, Polyline, Marker } from "react-native-maps";
 import axios from "axios";
-import * as Svg from "react-native-svg";
+import Svg, { Circle, Rect } from "react-native-svg";
+import UserAvatar from "../assets/user_avatar.jpg";
+import FBLogo from "../assets/fb_logo.png";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -20,6 +30,8 @@ interface Props {
 
 const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigation }) => {
 	const [coordinates, setCoordinates] = useState<Coordinate[]>();
+	const [isBlinking, setIsBlinking] = useState<boolean>(false);
+	let blinkingInterval: any = false;
 
 	const mode = "driving";
 
@@ -114,6 +126,40 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 		},
 	]);
 
+	useEffect(() => {
+		if (!blinkingInterval) {
+			blinkingInterval = setInterval(() => {
+				setIsBlinking(!isBlinking);
+			}, 800);
+		}
+		return () => {
+			clearInterval(blinkingInterval);
+			blinkingInterval = false;
+		};
+	});
+
+	// STYLES Defined
+	const styles = StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: "#fff",
+			alignItems: "center",
+			justifyContent: "center",
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			position: "absolute",
+		},
+		map: {
+			...StyleSheet.absoluteFillObject,
+			// flex: 1,
+			// width: windowWidth,
+			// height: windowHeight,
+			// zIndex: -1,
+		},
+	});
+
 	return (
 		<View style={styles.container}>
 			{coordinates ? (
@@ -126,13 +172,46 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 								longitude: parseFloat(startGeoLocation.split(",")[1]),
 							}}
 							pinColor={"#4B8FD2"}
-						/>
+						>
+							<View
+								style={{
+									width: 35,
+									height: 35,
+									marginRight: 5,
+								}}
+							>
+								<Svg width={25} height={50}>
+									<Image
+										style={{
+											width: 35,
+											height: 35,
+											borderBottomLeftRadius: 30,
+											borderBottomRightRadius: 30,
+											borderTopRightRadius: 30,
+											borderTopLeftRadius: 30,
+											overflow: "hidden",
+											borderWidth: isBlinking ? 2 : 0,
+											borderColor: "#4B8FD2",
+										}}
+										source={{
+											uri:
+												"https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FuSfiylphMIO0mv8BI2GDLnj1rz32?alt=media&token=2fc26d6c-eebf-47f5-8280-4dcdaeeee151",
+										}}
+									/>
+								</Svg>
+								<View
+									style={{
+										paddingRight: 10,
+									}}
+								></View>
+							</View>
+						</Marker>
 						<Marker
 							coordinate={{
 								latitude: parseFloat(finishGeoLocation.split(",")[0]),
 								longitude: parseFloat(finishGeoLocation.split(",")[1]),
 							}}
-						/>
+						></Marker>
 					</MapView>
 				</React.Fragment>
 			) : (
@@ -141,26 +220,5 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 		</View>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#fff",
-		alignItems: "center",
-		justifyContent: "center",
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		position: "absolute",
-	},
-	map: {
-		...StyleSheet.absoluteFillObject,
-		// flex: 1,
-		// width: windowWidth,
-		// height: windowHeight,
-		// zIndex: -1,
-	},
-});
 
 export default MapTile;
