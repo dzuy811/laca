@@ -77,7 +77,8 @@ const MainNav: FC = () => {
                         inactiveTintColor: '#8DBAE2',
                         style: {
                             backgroundColor: '#4B8FD2'
-                        }
+                        },
+                        keyboardHidesTabBar: true
                     }}
 
                 >
