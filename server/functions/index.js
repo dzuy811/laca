@@ -187,6 +187,66 @@ app.post("/users/histories", async (req, res) => {
 	}
 });
 
+// Delete ALL Histories of a user
+app.delete("/users/:id/histories", async (req, res) => {
+	try {
+		// Declare firestore authentication
+		const db = admin.firestore();
+
+		const userRef = db.collection("users").doc(req.params.id);
+		userRef.de;
+
+		const historiesQuery = await db.collection("histories").where("user", "==", userRef).get();
+		if (historiesQuery.empty) {
+			return res.status(400).json({
+				message: "No histories found",
+			});
+		}
+
+		let deleteCount = 0;
+
+		for await (let history of historiesQuery.docs) {
+			const historyRef = db.collection("histories").doc(history.id);
+			historyRef.delete();
+			deleteCount++;
+		}
+		return res.status(200).json({
+			message: `Successfully deleted ${deleteCount} Histories documents`,
+		});
+		// Declare schema
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR 400`,
+		});
+		console.log(error);
+	}
+});
+
+// Delete ONE history
+app.delete("/users/histories/:id", async (req, res) => {
+	try {
+		const db = admin.firestore();
+
+		const historyRef = db.collection("histories").doc(req.params.id);
+
+		if (typeof historyRef == "undefined") {
+			return res.status(400).json({
+				message: `ERROR 400`,
+			});
+		}
+		// Delete history by reference
+		historyRef.delete();
+		res.json({
+			message: `History document ${historyRef.id} deleted successfully`,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR 400`,
+		});
+		console.log(error);
+	}
+});
+
 app.get("/users/:id/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
@@ -244,28 +304,28 @@ app.get("/users/:id/histories", async (req, res) => {
 });
 
 app.post("/users", (req, res) => {
-  const newUser = {
-    phoneNumber: req.body.phoneNumber,
-    name: "",
-    gender: "",
-    urlAvatar: ""
-  };
+	const newUser = {
+		phoneNumber: req.body.phoneNumber,
+		name: "",
+		gender: "",
+		urlAvatar: "",
+	};
 
-  admin
-    .firestore()
-    .collection("users")
-    .add(newUser)
-    .then((doc) => {
-      res.json({
-        message: `document ${doc.id} created successfully.`,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        error: err,
-      });
-      console.error(err);
-    });
+	admin
+		.firestore()
+		.collection("users")
+		.add(newUser)
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} created successfully.`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+			});
+			console.error(err);
+		});
 });
 
 // Exports API
