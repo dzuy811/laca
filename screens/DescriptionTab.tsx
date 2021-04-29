@@ -167,33 +167,31 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					</View>
 				</View>
 				<LinearGradient
-					colors={["rgba(255,255,355,0.8)", "rgba(255,255,355,1)"]}
+					colors={["rgba(255,255,355,0.2)", "rgba(255,255,355,1)"]}
 					style={{
 						position: "absolute",
 						alignItems: "center",
-                        justifyContent: "center",
+						justifyContent: "center",
 						left: 0,
 						right: 0,
 						bottom: 0,
 						zIndex: 2,
-                        
 					}}
 				>
-                    <View style={{paddingBottom: 15}}>
-                    <LoginButton
-						title="Take the journey"
-						onPress={() => {
-							navigation.navigate("Journey Map", {
-								latitude: "10.79103732064115", // Hard code for testing
-								longitude: "106.6839277220927", // Hard code for testing
-							});
-						}}
-						color="#4B8FD2"
-						textColor="#E2D0A2"
-					/>
-                    </View>
-                    
-					
+					<View style={{ paddingBottom: 15 }}>
+						<LoginButton
+							title="Take the journey"
+							onPress={() => {
+								navigation.navigate("Journey Map", {
+									// 10.729143987889637, 106.69574603243902
+									latitude: latitude, // Hard code for testing
+									longitude: longitude, // Hard code for testing
+								});
+							}}
+							color="#4B8FD2"
+							textColor="#E2D0A2"
+						/>
+					</View>
 				</LinearGradient>
 			</View>
 		</>

@@ -63,7 +63,31 @@ app.post("/attractions", (req, res) => {
 		});
 });
 
+app.delete("/attractions/:id", async (req, res) => {
+	try {
+		const db = admin.firestore();
+
+		const attractionRef = db.collection("attractions").doc(req.params.id);
+
+		if (typeof attractionRef == "undefined") {
+			return res.status(400).json({
+				message: "ERROR 400",
+			});
+		}
+		attractionRef.delete();
+		return res.status(200).json({
+			message: `Attraction document ${attractionRef.id} deleted successfully`,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: "ERROR 400",
+		});
+		console.log(error);
+	}
+});
+
 // ---- API for User Collection ----- //
+// Get ALL Users
 app.get("/users", (req, res) => {
 	admin
 		.firestore()
@@ -81,10 +105,32 @@ app.get("/users", (req, res) => {
 		})
 		.catch((error) => {
 			res.status(400).json({
-				message: `ERROR ${error}`,
+				message: `ERROR 400`,
 			});
 			console.log(error);
 		});
+});
+
+// Get ONE User
+app.get("/users/:id", async (req, res) => {
+	try {
+		// Declare DB reference
+		const db = admin.firestore();
+
+		// Reference to collection of the user
+		const userRef = await db.collection("users").doc(req.params.id).get();
+
+		const user = {
+			id: userRef.id,
+			...userRef.data(),
+		};
+
+		res.status(200).json(user);
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR 400`,
+		});
+	}
 });
 
 app.get("/users/search", async (req, res) => {
@@ -194,7 +240,6 @@ app.delete("/users/:id/histories", async (req, res) => {
 		const db = admin.firestore();
 
 		const userRef = db.collection("users").doc(req.params.id);
-		userRef.de;
 
 		const historiesQuery = await db.collection("histories").where("user", "==", userRef).get();
 		if (historiesQuery.empty) {
