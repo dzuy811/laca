@@ -13,6 +13,8 @@ admin.initializeApp();
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
 // ---- API for Attraction Collection ----- //
+
+// tested 
 app.get("/attractions", (req, res) => {
 	admin
 		.firestore()
@@ -33,6 +35,7 @@ app.get("/attractions", (req, res) => {
 		});
 });
 
+// tested 
 app.post("/attractions", (req, res) => {
 	const newAttraction = {
 		description: req.body.description,
@@ -63,6 +66,8 @@ app.post("/attractions", (req, res) => {
 		});
 });
 
+
+// tested 
 app.get("/attractions/:id", async (req, res) => {
     try {
         let db = admin.firestore();
@@ -85,28 +90,7 @@ app.get("/attractions/:id", async (req, res) => {
 
 })
 
-
-app.put("/attractions/:id", (req, res) => {
-    admin.firestore()
-        .collection("attractions")
-        .doc(req.params.id)
-        .update({
-            count: admin.firestore.FieldValue.increment(req.body.num),
-        })
-        .then((doc) => {
-            res.json({
-                message: `document ${doc.id} updated successfully`
-
-            })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                error: err
-            })
-            console.error(err)
-        })
-})
-
+// tested 
 app.put("/attractions/:id", (req, res) => {
     admin.firestore()
         .collection("attractions")
@@ -114,7 +98,8 @@ app.put("/attractions/:id", (req, res) => {
         .update({
             count: admin.firestore.FieldValue.increment(req.body.num),
 			name: req.body.name,
-			description : req.body.description
+			description : req.body.description,
+            rating : req.body.rating
         })
         .then((doc) => {
             res.json({
@@ -124,12 +109,16 @@ app.put("/attractions/:id", (req, res) => {
         })
         .catch((err) => {
             res.status(500).json({
-                error: err
+                error: err,
+                message : "problem occcured"
             })
             console.error(err)
         })
 })
 
+// 
+
+// tested
 app.get("/attractions/pages/:page", (req, res) => {
     const begin = req.params.page - 1
     const pagesize = 3
@@ -365,8 +354,8 @@ app.post("/users", (req, res) => {
     });
 });
 
-// reviews 
-
+// reviews API 
+// tested
 app.post("/reviews", (req, res) => {
     const newReview = {
         content: req.body.content,
@@ -394,6 +383,7 @@ app.post("/reviews", (req, res) => {
         })
 })
 
+// tested
 app.get("/reviews/:id", async (req, res) => {
     try {
         let db = admin.firestore();
@@ -415,6 +405,7 @@ app.get("/reviews/:id", async (req, res) => {
     }
 })
 
+// tested
 app.get("/reviews/attractions/:id", async (req,res) => {
     try {
         let db = admin.firestore();
@@ -436,6 +427,8 @@ app.get("/reviews/attractions/:id", async (req,res) => {
     }
 })
 
+
+// tested
 app.put("/reviews/:id", (req,res) => {
 	admin.firestore()
         .collection("reviews")
@@ -462,6 +455,8 @@ app.put("/reviews/:id", (req,res) => {
 
 // like api  
 
+
+// tested
 app.post("/like", (req,res) =>{
     const newLike = {
         uid : req.body.uid,
@@ -470,7 +465,7 @@ app.post("/like", (req,res) =>{
 
     admin.firestore()
     .collection("like")
-    .add(newlike)
+    .add(newLike)
     .then((doc) => {
         res.json({
             message:`document ${doc.id} created successfully`
@@ -484,11 +479,13 @@ app.post("/like", (req,res) =>{
     })
 })
 
-app.get("/like", async (req,res) =>{
+
+// tested
+app.get("/like/reviews/:id", async (req,res) =>{
     try {
         let db = admin.firestore();
 
-        let attractionRef = await db.collection('like').where("aid","==",`${req.body.rid}`).get();
+        let attractionRef = await db.collection('like').where("rid","==",`${req.params.id}`).get();
         if (!attractionRef.empty) {
             let attraction = []
             attractionRef.forEach(a => {
@@ -505,6 +502,8 @@ app.get("/like", async (req,res) =>{
     }
 })
 
+
+// tested
 app.get("/like/:id", async (req,res) =>{
     try {
         let db = admin.firestore();
@@ -526,23 +525,41 @@ app.get("/like/:id", async (req,res) =>{
     }
 })
 
+
+// tested
 app.delete("/like/:id", async (req,res) => {
-	admin.firestore()
-	.collection("like")
-	.doc(req.params.id)
-	.delete()
-	.then(() => {
-		message : `document ${req.params.id} deleted`
-	})
-	.catch((err) =>{
-        res.status(500).json({
+    try {
+        const LikeRef = admin.firestore().collection("like").doc(req.params.id)
+        LikeRef.get()
+        .then((snap) => {
+            if(snap.exists){
+                LikeRef.delete()
+                .then(() => {
+                    res.json({
+                        message : `document ${req.params.id} deleted`
+                    })
+                })
+            }
+            else {
+                res.json({
+                    message : "document not exist"
+                })
+            }
+        })
+	
+    }
+    catch (err) {
+        res.status(400).json({
             error: err
         })
         console.error(err)
-    })
+    }
+	
 })
 
 // reply api
+
+// tested
 app.post("/reply", (req, res) => {
     const newReply = {
         rid: req.body.rid,
@@ -566,11 +583,13 @@ app.post("/reply", (req, res) => {
     })
 })
 
-app.get("/reply", async (req,res) => {
+
+//
+app.get("/reply/reviews/:id", async (req,res) => {
     try {
         let db = admin.firestore();
 
-        let attractionRef = await db.collection('reply').where("rid","==",`${req.body.rid}`).get();
+        let attractionRef = await db.collection('reply').where("rid","==",`${req.params.id}`).get();
         if (!attractionRef.empty) {
             let attraction = []
             attractionRef.forEach(a => {
@@ -587,12 +606,12 @@ app.get("/reply", async (req,res) => {
     }
 })
 
-
+// tested
 app.get("/reply/:id", async (req,res) => {
     try {
         let db = admin.firestore();
 
-        let attractionRef = await db.collection('reply').where("__name__","==",`${req.params.aid}`).get();
+        let attractionRef = await db.collection('reply').where("__name__","==",`${req.params.id}`).get();
         if (!attractionRef.empty) {
             let attraction = []
             attractionRef.forEach(a => {
@@ -609,6 +628,7 @@ app.get("/reply/:id", async (req,res) => {
     }
 })
 
+// tested
 app.put("/reply/:id",(req,res) => {
     try {
         let db = admin.firestore();
@@ -630,22 +650,35 @@ app.put("/reply/:id",(req,res) => {
     }
 })
 
+
+// tested
 app.delete("/reply/:id",(req,res) => {
-    admin.firestore()
-    .collection("reply")
-    .doc(req.params.id)
-    .delete()
-    .then(() => {
-        res.json({
-            message : `document ${req.params.id} deleted`
+    try {
+        const LikeRef = admin.firestore().collection("reply").doc(req.params.id)
+        LikeRef.get()
+        .then((snap) => {
+            if(snap.exists){
+                LikeRef.delete()
+                .then(() => {
+                    res.json({
+                        message : `document ${req.params.id} deleted`
+                    })
+                })
+            }
+            else {
+                res.json({
+                    message : "document not exist"
+                })
+            }
         })
-    })
-    .catch((err) => {
-        res.status(500).json({
+	
+    }
+    catch (err) {
+        res.status(400).json({
             error: err
         })
         console.error(err)
-    })
+    }
 })
 
 // Exports API
