@@ -13,6 +13,8 @@ admin.initializeApp();
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 
 // ---- API for Attraction Collection ----- //
+
+// tested 
 app.get("/attractions", (req, res) => {
 	admin
 		.firestore()
@@ -33,6 +35,7 @@ app.get("/attractions", (req, res) => {
 		});
 });
 
+// tested 
 app.post("/attractions", (req, res) => {
 	const newAttraction = {
 		description: req.body.description,
@@ -62,6 +65,89 @@ app.post("/attractions", (req, res) => {
 			console.error(err);
 		});
 });
+
+
+// tested 
+app.get("/attractions/:id", async (req, res) => {
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('attractions').where('__name__', '==', `${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction);
+        }
+        return res.json({ "error": "haizza " })
+    } catch (err) {
+        console.log(err)
+    }
+
+})
+
+// tested 
+app.put("/attractions/:id", (req, res) => {
+    admin.firestore()
+        .collection("attractions")
+        .doc(req.params.id)
+        .update({
+            count: admin.firestore.FieldValue.increment(req.body.num),
+			name: req.body.name,
+			description : req.body.description,
+            rating : req.body.rating
+        })
+        .then((doc) => {
+            res.json({
+                message: `document ${doc.id} updated successfully`
+
+            })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: err,
+                message : "problem occcured"
+            })
+            console.error(err)
+        })
+})
+
+// 
+
+// tested
+app.get("/attractions/pages/:page", (req, res) => {
+    const begin = req.params.page - 1
+    const pagesize = 3
+    const end = req.params.page
+    admin.firestore().collection('attractions').get()
+        .then((data) => {
+            let i = 0
+            let attractions = []
+            data.forEach((doc) => {
+                if (i >= begin * pagesize && i <= end * pagesize) {
+                    attractions.push({
+                        id: doc.id,
+                        ...doc.data()
+                    })
+                }
+                i++;
+            })
+            console.log(begin * pagesize)
+            console.log(end * pagesize)
+            return res.json(attractions);
+        })
+        .catch(err => {
+            console.error(err)
+        })
+
+})
+
+
+
 
 // ---- API for User Collection ----- //
 app.get("/users", (req, res) => {
@@ -267,6 +353,333 @@ app.post("/users", (req, res) => {
       console.error(err);
     });
 });
+
+// reviews API 
+// tested
+app.post("/reviews", (req, res) => {
+    const newReview = {
+        content: req.body.content,
+        rating: req.body.rating,
+        uid: req.body.uid,
+        timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
+        aid: req.body.aid,
+        likeCount: 0
+
+    }
+
+    admin.firestore()
+        .collection("reviews")
+        .add(newReview)
+        .then((doc) => {
+            res.json({
+                message: `document ${doc.id} created successfully`
+            })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: err
+            })
+            console.error(err)
+        })
+})
+
+// tested
+app.get("/reviews/:id", async (req, res) => {
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('reviews').where('__name__', '==', `${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction[0]);
+        }
+        return res.json({ "error": "dumaduy" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// tested
+app.get("/reviews/attractions/:id", async (req,res) => {
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('reviews').where('aid', '==', `${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction);
+        }
+        return res.json({ "error": "dumaduy" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+
+// tested
+app.put("/reviews/:id", (req,res) => {
+	admin.firestore()
+        .collection("reviews")
+        .doc(req.params.id)
+        .update({
+            content: req.body.content,
+			rating : req.body.rating
+
+        })
+        .then((doc) => {
+            res.json({
+                message: `document ${doc.id} updated successfully`
+
+            })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: err
+            })
+            console.error(err)
+        })
+    
+})
+
+// like api  
+
+
+// tested
+app.post("/like", (req,res) =>{
+    const newLike = {
+        uid : req.body.uid,
+        rid: req.body.rid
+    }
+
+    admin.firestore()
+    .collection("like")
+    .add(newLike)
+    .then((doc) => {
+        res.json({
+            message:`document ${doc.id} created successfully`
+        })
+    })
+    .catch((err) =>{
+        res.status(500).json({
+            error: err
+        })
+        console.error(err)
+    })
+})
+
+
+// tested
+app.get("/like/reviews/:id", async (req,res) =>{
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('like').where("rid","==",`${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction);
+        }
+        return res.json({ "error": "haizza" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+
+// tested
+app.get("/like/:id", async (req,res) =>{
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('like').where('__name__', '==', `${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction[0]);
+        }
+        return res.json({ "error": "haizza" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+
+// tested
+app.delete("/like/:id", async (req,res) => {
+    try {
+        const LikeRef = admin.firestore().collection("like").doc(req.params.id)
+        LikeRef.get()
+        .then((snap) => {
+            if(snap.exists){
+                LikeRef.delete()
+                .then(() => {
+                    res.json({
+                        message : `document ${req.params.id} deleted`
+                    })
+                })
+            }
+            else {
+                res.json({
+                    message : "document not exist"
+                })
+            }
+        })
+	
+    }
+    catch (err) {
+        res.status(400).json({
+            error: err
+        })
+        console.error(err)
+    }
+	
+})
+
+// reply api
+
+// tested
+app.post("/reply", (req, res) => {
+    const newReply = {
+        rid: req.body.rid,
+        content: req.body.content,
+        timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
+        uid: req.body.uid
+    }
+    admin.firestore()
+    .collection("reply")
+    .add(newReply)
+    .then((doc) => {
+        res.json({
+            message: `document ${doc.id} created successfully`
+        })
+    })
+    .catch((err) => {
+        res.status(500).json({
+            error: err
+        })
+        console.error(err)
+    })
+})
+
+
+//
+app.get("/reply/reviews/:id", async (req,res) => {
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('reply').where("rid","==",`${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction);
+        }
+        return res.json({ "error": "haizza" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// tested
+app.get("/reply/:id", async (req,res) => {
+    try {
+        let db = admin.firestore();
+
+        let attractionRef = await db.collection('reply').where("__name__","==",`${req.params.id}`).get();
+        if (!attractionRef.empty) {
+            let attraction = []
+            attractionRef.forEach(a => {
+                attraction.push({
+                    id: a.id,
+                    ...a.data()
+                })
+            })
+            return res.json(attraction[0]);
+        }
+        return res.json({ "error": "haizza" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+// tested
+app.put("/reply/:id",(req,res) => {
+    try {
+        let db = admin.firestore();
+
+        db.collection("reply")
+        .doc(`${req.params.id}`)
+        .update({
+            content: req.body.content
+        })
+        .then(() => {
+            res.json({
+                message : `document ${req.params.id} updated successfully `
+            })
+        })
+
+        
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+
+// tested
+app.delete("/reply/:id",(req,res) => {
+    try {
+        const LikeRef = admin.firestore().collection("reply").doc(req.params.id)
+        LikeRef.get()
+        .then((snap) => {
+            if(snap.exists){
+                LikeRef.delete()
+                .then(() => {
+                    res.json({
+                        message : `document ${req.params.id} deleted`
+                    })
+                })
+            }
+            else {
+                res.json({
+                    message : "document not exist"
+                })
+            }
+        })
+	
+    }
+    catch (err) {
+        res.status(400).json({
+            error: err
+        })
+        console.error(err)
+    }
+})
 
 // Exports API
 exports.api = functions.region("asia-east2").https.onRequest(app);
