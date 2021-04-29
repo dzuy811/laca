@@ -9,6 +9,7 @@ import AttractionNavigator from '../navigator/AttractionNavigator'
 import ProfileNavigator from '../navigator/ProfileNavigator'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../screens/ProfileScreen';
+import RankingScreen from '../screens/RankingScreen'
 
 // Function to hide tab bar for some screen
 // docs: https://reactnavigation.org/docs/screen-options-resolution/
@@ -95,7 +96,7 @@ const MainNav: FC = () => {
                     />
                     <Tab.Screen
                         name="Ranking"
-                        component={ProfileScreen}
+                        component={RankingScreen}
                     />
                     <Tab.Screen
                         name="Profile"
