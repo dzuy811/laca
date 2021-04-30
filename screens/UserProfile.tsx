@@ -13,6 +13,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+const default_user_avatar = require("../assets/default_avatar.jpg");
 
 const location = require('../components/location.json');
 
@@ -28,12 +29,12 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	const [provinces, setProvinces] = useState<any>({});
 	const [districts, setDistricts] = useState<any>({});
 	const [phoneNumber] = useState<string>(data.phoneNumber != "" ? "0" + data.phoneNumber.substring(3) : "");
-	const [name, setName] = useState<string>(data.name);
-	const [gender, setGender] = useState<string>(data.gender);
-	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar);
+	const [name, setName] = useState<string>(data.name != "" ? data.name : "");
+	const [gender, setGender] = useState<string>(data.gender != "" ? data.gender : "");
+	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar != "" ? data.gender : "");
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
-	const [addressStatus, setAddressStatus] = useState<number>(0);
+	const [addressStatus, setAddressStatus] = useState<number>(-1);
 
 	let province = [];
 
@@ -52,13 +53,8 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		return 0;
 	}
 
-	console.log("+++++++++");
-	// console.log(province);
-
 	function getDistrictArray(index:number):any {
 		let arr: { label: string, value: string}[] = [];
-		// console.log(">>>>>>>>>>>>>>>")
-		// console.log(location[index].Districts)
 		for(let i = 0; i < location[index].Districts.length; i++) {
 			let objDis = {
 				label: location[index].Districts[i].Name,
@@ -267,7 +263,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 
 			{/* Image */}
 			<View style={styles.container}>
-				<Image style={styles.image} source={{ uri: urlAvatar }} resizeMode={"cover"} />
+				<Image style={styles.image} source={{ uri: (urlAvatar == "" ? default_user_avatar : urlAvatar) }} resizeMode={"cover"} />
 				<View style={styles.infoContainer}>
 					<TouchableOpacity onPress={pickImage}>
 						<Text style={styles.textAvatar}> Change avatar</Text>
@@ -317,7 +313,9 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 						</View>
 					</View>
 				</View>
+
 				{/* Dropdown List for location */}
+				{/* Provinces */}
 				<DropDownPicker
 					items={province}
 					defaultValue={provinces}
@@ -330,15 +328,15 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 					onChangeItem={
 						item => {
 							setProvinces(item.value);
-							console.log(takeAddressIndex(item.value));
 							setAddressStatus(takeAddressIndex(item.value));
-							console.log(province);
-							console.log(getDistrictArray(takeAddressIndex(item.value)));
 						}
 					}
 				/>
+
+				{/* Districts */}
 				<DropDownPicker
-					items={getDistrictArray(addressStatus)}
+					disabled={addressStatus == -1 ? true : false}
+					items={getDistrictArray(addressStatus == -1 ? 0 : addressStatus)}
 					defaultValue={districts}
 					containerStyle={{height: 40}}
 					style={{backgroundColor: '#fafafa'}}
