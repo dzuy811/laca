@@ -83,8 +83,7 @@ const renderScene = SceneMap({
   });
 
 
-
-const renderTabBar = (props) => {
+const renderTabBar = (props: any) => {
     const indicatorWidth = 120
 
     return (

@@ -8,9 +8,8 @@ import firebase from "firebase";
 import AttractionNavigator from '../navigator/AttractionNavigator'
 import ProfileNavigator from '../navigator/ProfileNavigator'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import ProfileScreen from '../screens/ProfileScreen';
 import RankingScreen from '../screens/RankingScreen'
-
+import FriendScreen from '../screens/FriendScreen'
 // Function to hide tab bar for some screen
 // docs: https://reactnavigation.org/docs/screen-options-resolution/
 // stackoverflow: https://stackoverflow.com/questions/60177053/react-navigation-5-hide-tab-bar-from-stack-navigator
@@ -92,7 +91,7 @@ const MainNav: FC = () => {
                     />
                     <Tab.Screen
                         name="Shop"
-                        component={ProfileScreen}
+                        component={FriendScreen}
                     />
                     <Tab.Screen
                         name="Ranking"
