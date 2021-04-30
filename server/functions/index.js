@@ -332,9 +332,9 @@ app.get("/users/:id/histories", async (req, res) => {
 app.post("/users", (req, res) => {
   const newUser = {
     phoneNumber: req.body.phoneNumber,
-    name: "",
-    gender: "",
-    urlAvatar: ""
+    name: req.body.name,
+    gender: req.body.gender,
+    urlAvatar: req.body.urlAvatar
   };
 
   admin
@@ -360,9 +360,9 @@ app.post("/reviews", (req, res) => {
     const newReview = {
         content: req.body.content,
         rating: req.body.rating,
-        uid: req.body.uid,
+        uid: admin.firestore().doc(`users/${req.body.uid}`),
         timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
-        aid: req.body.aid,
+        aid:admin.firestore().doc(`attractions/${req.body.aid}`),
         likeCount: 0
 
     }
@@ -459,8 +459,8 @@ app.put("/reviews/:id", (req,res) => {
 // tested
 app.post("/like", (req,res) =>{
     const newLike = {
-        uid : req.body.uid,
-        rid: req.body.rid
+        uid :admin.firestore().doc(`users/${req.body.uid}`),
+        rid: admin.firestore().doc(`reviews/${req.body.rid}`)
     }
 
     admin.firestore()
@@ -562,10 +562,10 @@ app.delete("/like/:id", async (req,res) => {
 // tested
 app.post("/reply", (req, res) => {
     const newReply = {
-        rid: req.body.rid,
+        rid: admin.firestore().doc(`reviews/${req.body.rid}`),
         content: req.body.content,
         timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
-        uid: req.body.uid
+        uid: admin.firestore().doc(`users/${req.body.uid}`)
     }
     admin.firestore()
     .collection("reply")
