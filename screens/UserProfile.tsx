@@ -8,36 +8,63 @@ import { Header } from "react-native-elements";
 import 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
+import DropDownPicker from 'react-native-dropdown-picker';
+
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
-function UserProfile(props: any) {
+const location = require('../components/location.json');
+
+type UserProfile = {
+    navigation?: any;
+    route: any;
+}
+
+const UserProfile = ({route, navigation}: UserProfile) => {
 	
-	const [user, setUser] = useState<any>(firebase.auth().currentUser);
-	const [data, setData] = useState({});
-	const [phoneNumber, setPhoneNumber] = useState<string>("");
-	const [name, setName] = useState<string>("");
-	const [gender, setGender] = useState<string>("");
-	const [urlAvatar, setUrlAvatar] = useState<string>("");
+	const { data, setData } = route.params;
+	const [user, setUser] = useState<any>();
+	const [address, setAddress] = useState<any>({country: 'UK'});
+	const [phoneNumber] = useState<string>("0" + data.phoneNumber.substring(3));
+	const [name, setName] = useState<string>(data.name);
+	const [gender, setGender] = useState<string>(data.gender);
+	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar);
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
+	const [addressStatus, setAddressStatus] = useState<number>(0);
 
-    useEffect(() => {
-		async function getUserInfo() {
-			// Get user's information from collection
-			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
-			let dataInfo = user_info.data();
-			setData(dataInfo) 
-			setPhoneNumber("0" + dataInfo.phoneNumber.substring(3));
-			setName(dataInfo.name);
-			setGender(dataInfo.gender);
-			setUrlAvatar(dataInfo.urlAvatar);
-		})
-		.catch((error) => { console.log("error:", error) });
+	let province = [];
+
+	for (let i = 0; i < location.length; i++) {
+		let objPro = {
+			label: location[i].Name,
+			value: location[i].Name,
 		}
-		getUserInfo();
-    },[])
+		province.push(objPro);
+	}
+
+	function takeAddressIndex(address: string):number {
+		for (let i = 0; i < location.length; i++) {
+			if(location[i].Name == address) return i;
+		}
+		return 0;
+	}
+
+	console.log("+++++++++");
+	console.log(province);
+
+	function getDistrictArray(index:number):object {
+		let arr:object = [];
+		for(let i = 0; i < location[index].length; i++) {
+			let objDis = {
+				label: location[index][i].Name,
+				value: location[index][i].Name
+			}
+			arr.push(objDis)
+		}
+		return arr;
+	}
 
 	let regEx = /^\s*([A-Za-z]{1,}([-']| ))+[A-Za-z]+?\s*$/;
 
@@ -69,7 +96,7 @@ function UserProfile(props: any) {
 	}
 
 	useEffect(() => {
-		console.log(gender)
+		// console.log(gender)
 		checkGender();
 	}, [gender]);
 
@@ -208,7 +235,7 @@ function UserProfile(props: any) {
 			{/* Navigation */}
 			<Header
 				leftComponent={
-					<TouchableOpacity onPress={() => props.navigation.goBack()}>
+					<TouchableOpacity onPress={() => navigation.goBack()}>
 						<AntDesign name="arrowleft" size={24} color="#fff" />
 					</TouchableOpacity>
 				}
@@ -221,7 +248,8 @@ function UserProfile(props: any) {
 								const new_info = {
 									phoneNumber: "+84" + phoneNumber.substring(1),
 									name: name,
-									gender: gender
+									gender: gender,
+									urlAvatar: urlAvatar
 								};
 								firebase.firestore().collection("users").doc(user?.uid).set(new_info, { merge: true });
 								setData(new_info);
@@ -286,6 +314,35 @@ function UserProfile(props: any) {
 						</View>
 					</View>
 				</View>
+				{/* Dropdown List for location */}
+				<DropDownPicker
+					items={province}
+					defaultValue={address}
+					containerStyle={{height: 40}}
+					style={{backgroundColor: '#fafafa'}}
+					itemStyle={{
+						justifyContent: 'flex-start'
+					}}
+					dropDownStyle={{backgroundColor: '#fafafa'}}
+					onChangeItem={
+						item => {
+							setAddress(item.value);
+							console.log(takeAddressIndex(item.value))
+							setAddressStatus(takeAddressIndex(item.value));
+						}
+					}
+				/>
+				<DropDownPicker
+					items={province}
+					defaultValue={address}
+					containerStyle={{height: 40}}
+					style={{backgroundColor: '#fafafa'}}
+					itemStyle={{
+						justifyContent: 'flex-start'
+					}}
+					dropDownStyle={{backgroundColor: '#fafafa'}}
+					onChangeItem={item => setAddress(item.value)}
+				/>
 
 				{/* Sign out */}
 				<View style={styles.signOutButton}>

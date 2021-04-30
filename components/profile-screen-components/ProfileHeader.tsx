@@ -1,23 +1,18 @@
-import React, {useEffect, useState} from 'react'
-import firebase from "firebase";
+import React from 'react'
 import 'firebase/firestore';
 import { View, Text, StyleSheet, Image } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { NavigationContainer } from '@react-navigation/native'
 
-const ProfileHeader = ({navigation}) => {
-    const [data, setData] = useState({});
-    const user = firebase.auth().currentUser;
+type ProfileProps = {
+    navigation?: any;
+    data: {
+        urlAvatar: string,
+        name: string
+    };
+    setData: any
+}
 
-    useEffect(() => {
-		function getUserInfo() {
-			firebase.firestore().collection("users").doc(user?.uid).get().then((user_info) => { 
-			setData(user_info.data()) 
-		})
-		.catch((error) => { console.log("error:", error) });
-		}
-		getUserInfo();
-    },[])
+const ProfileHeader = ({navigation, data, setData}: ProfileProps) => {
 
     return <View style={styles.profileHeaderContainer}>
         <View style={{flexGrow: 1}}>
@@ -35,7 +30,7 @@ const ProfileHeader = ({navigation}) => {
             </View>
         </View>
         <View>
-            <MaterialIcons onPress={() => navigation.navigate('Edit profile')} name="keyboard-arrow-right" size={24} color="#fff" />
+            <MaterialIcons onPress={() => navigation.navigate('Edit profile', {setData: setData, data: data})} name="keyboard-arrow-right" size={24} color="#fff" />
         </View>
     </View>
 }
