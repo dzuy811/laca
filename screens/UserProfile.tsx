@@ -25,8 +25,9 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	
 	const { data, setData } = route.params;
 	const [user, setUser] = useState<any>();
-	const [address, setAddress] = useState<any>({country: 'UK'});
-	const [phoneNumber] = useState<string>("0" + data.phoneNumber.substring(3));
+	const [provinces, setProvinces] = useState<any>({});
+	const [districts, setDistricts] = useState<any>({});
+	const [phoneNumber] = useState<string>(data.phoneNumber != "" ? "0" + data.phoneNumber.substring(3) : "");
 	const [name, setName] = useState<string>(data.name);
 	const [gender, setGender] = useState<string>(data.gender);
 	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar);
@@ -52,16 +53,18 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	}
 
 	console.log("+++++++++");
-	console.log(province);
+	// console.log(province);
 
-	function getDistrictArray(index:number):object {
-		let arr:object = [];
-		for(let i = 0; i < location[index].length; i++) {
+	function getDistrictArray(index:number):any {
+		let arr: { label: string, value: string}[] = [];
+		// console.log(">>>>>>>>>>>>>>>")
+		// console.log(location[index].Districts)
+		for(let i = 0; i < location[index].Districts.length; i++) {
 			let objDis = {
-				label: location[index][i].Name,
-				value: location[index][i].Name
+				label: location[index].Districts[i].Name,
+				value: location[index].Districts[i].Name
 			}
-			arr.push(objDis)
+			arr.push(objDis);
 		}
 		return arr;
 	}
@@ -317,7 +320,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 				{/* Dropdown List for location */}
 				<DropDownPicker
 					items={province}
-					defaultValue={address}
+					defaultValue={provinces}
 					containerStyle={{height: 40}}
 					style={{backgroundColor: '#fafafa'}}
 					itemStyle={{
@@ -326,22 +329,24 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 					dropDownStyle={{backgroundColor: '#fafafa'}}
 					onChangeItem={
 						item => {
-							setAddress(item.value);
-							console.log(takeAddressIndex(item.value))
+							setProvinces(item.value);
+							console.log(takeAddressIndex(item.value));
 							setAddressStatus(takeAddressIndex(item.value));
+							console.log(province);
+							console.log(getDistrictArray(takeAddressIndex(item.value)));
 						}
 					}
 				/>
 				<DropDownPicker
-					items={province}
-					defaultValue={address}
+					items={getDistrictArray(addressStatus)}
+					defaultValue={districts}
 					containerStyle={{height: 40}}
 					style={{backgroundColor: '#fafafa'}}
 					itemStyle={{
 						justifyContent: 'flex-start'
 					}}
 					dropDownStyle={{backgroundColor: '#fafafa'}}
-					onChangeItem={item => setAddress(item.value)}
+					onChangeItem={item => setDistricts(item.value)}
 				/>
 
 				{/* Sign out */}
