@@ -9,9 +9,6 @@ const app = express().use(Cors({ origin: true }));
 
 admin.initializeApp();
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-
 // ---- API for Attraction Collection ----- //
 app.get("/attractions", (req, res) => {
 	admin
@@ -133,6 +130,7 @@ app.get("/users/:id", async (req, res) => {
 	}
 });
 
+// Search user by phone
 app.get("/users/search", async (req, res) => {
 	try {
 		// create reference for User collection on Firestore
@@ -167,6 +165,7 @@ app.get("/users/search", async (req, res) => {
 	}
 });
 
+// Get all histories of all users
 app.get("/users/histories", async (req, res) => {
 	try {
 		const db = admin.firestore();
@@ -207,24 +206,52 @@ app.get("/users/histories", async (req, res) => {
 	}
 });
 
+// Post a new history to Histories collection
 app.post("/users/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
 		const db = admin.firestore();
+
+		// Declare reference values
+		const userRef = db.doc("users/" + req.body.userID);
+		const attractionRef = db.doc("attractions/" + req.body.attractionID);
+		const attractionData = await attractionRef.get();
+		// Get attraction's reward point on reference
+		const attractionReward = attractionData.get("reward");
+		// Check if the references of user and attraction are existing or NOT?
+		if (
+			!userRef &&
+			!attractionRef &&
+			typeof userRef === "undefined" &&
+			typeof attractionRef === "undefined" &&
+			!attractionReward &&
+			typeof attractionReward === "undefined"
+		) {
+			return res.status(204).json({
+				message: "No User or Attraction found",
+			});
+		}
+
 		// Declare schema for post request object of History
 		const newHistory = {
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
-			user: db.doc("users/" + req.body.userID),
-			attraction: db.doc("attractions/" + req.body.attractionID),
+			user: userRef,
+			attraction: attractionRef,
 		};
+
 		// Add new History object to Firestore (POST Method)
 		db.collection("histories")
 			.add(newHistory)
 			.then((doc) => {
+				userRef.update({
+					journeyCount: admin.firestore.FieldValue.increment(1),
+					totalReward: admin.firestore.FieldValue.increment(attractionReward),
+				});
 				res.json({
 					message: `History ${doc.id} created successfully`,
 				});
 			});
+		// Increase journey's count by 1
 	} catch (error) {
 		res.status(400).json({
 			message: `ERROR 400`,
@@ -243,7 +270,7 @@ app.delete("/users/:id/histories", async (req, res) => {
 
 		const historiesQuery = await db.collection("histories").where("user", "==", userRef).get();
 		if (historiesQuery.empty) {
-			return res.status(400).json({
+			return res.status(204).json({
 				message: "No histories found",
 			});
 		}
@@ -275,8 +302,8 @@ app.delete("/users/histories/:id", async (req, res) => {
 		const historyRef = db.collection("histories").doc(req.params.id);
 
 		if (typeof historyRef == "undefined") {
-			return res.status(400).json({
-				message: `ERROR 400`,
+			return res.status(204).json({
+				message: `No History found`,
 			});
 		}
 		// Delete history by reference
@@ -292,6 +319,7 @@ app.delete("/users/histories/:id", async (req, res) => {
 	}
 });
 
+// Get user's histories by user's ID
 app.get("/users/:id/histories", async (req, res) => {
 	try {
 		// Declare firestore authentication
@@ -348,6 +376,7 @@ app.get("/users/:id/histories", async (req, res) => {
 	}
 });
 
+// Create a new user
 app.post("/users", (req, res) => {
 	const newUser = {
 		phoneNumber: req.body.phoneNumber,
