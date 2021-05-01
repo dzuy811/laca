@@ -3,11 +3,15 @@ import 'firebase/firestore';
 import { View, Text, StyleSheet, Image } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
 
+const default_user_avatar = require("../../assets/default_avatar.jpg");
+
+
 type ProfileProps = {
     navigation?: any;
     data: {
         urlAvatar: string,
-        name: string
+        name: string,
+        address: string
     };
     setData: any
 }
@@ -18,7 +22,7 @@ const ProfileHeader = ({navigation, data, setData}: ProfileProps) => {
         <View style={{flexGrow: 1}}>
             <Image
             style={styles.tinyLogo}
-            source={{uri: data.urlAvatar }}
+            source={data.urlAvatar == "" ? default_user_avatar : ({uri: data.urlAvatar})}
             />   
         </View>
         <View style={{flexGrow: 2}}>
@@ -26,7 +30,7 @@ const ProfileHeader = ({navigation, data, setData}: ProfileProps) => {
                 <Text style={styles.name}>{data.name}</Text>
             </View>
             <View>
-                <Text style={styles.city}>Hồ Chí Minh city</Text>
+                <Text style={styles.city}>{data.address[0]}</Text>
             </View>
         </View>
         <View>

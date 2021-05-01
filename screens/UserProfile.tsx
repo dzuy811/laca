@@ -14,8 +14,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 const default_user_avatar = require("../assets/default_avatar.jpg");
-
 const location = require('../components/location.json');
+
 
 type UserProfile = {
     navigation?: any;
@@ -26,15 +26,16 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	
 	const { data, setData } = route.params;
 	const [user, setUser] = useState<any>();
-	const [provinces, setProvinces] = useState<any>({});
-	const [districts, setDistricts] = useState<any>({});
+	const [provinces, setProvinces] = useState<any>(data.address[0] != "" ? data.address[0] : "");
+	const [districts, setDistricts] = useState<any>(data.address[1] != "" ? data.address[1] : "");
 	const [phoneNumber] = useState<string>(data.phoneNumber != "" ? "0" + data.phoneNumber.substring(3) : "");
 	const [name, setName] = useState<string>(data.name != "" ? data.name : "");
 	const [gender, setGender] = useState<string>(data.gender != "" ? data.gender : "");
-	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar != "" ? data.gender : "");
+	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar != "" ? data.urlAvatar : "");
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
 	const [addressStatus, setAddressStatus] = useState<number>(-1);
+
 
 	let province = [];
 
@@ -227,6 +228,10 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		progressBarContainer: {
     		marginTop: 20
   		},
+		dropDownListContainer: {
+			backgroundColor: '#fafafa',
+			width: windowWidth - 70, 
+		}
 	});
 
 	return (
@@ -245,10 +250,13 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 						onPress={() => {
 							if (checkValidation) {
 								const new_info = {
-									phoneNumber: "+84" + phoneNumber.substring(1),
 									name: name,
 									gender: gender,
-									urlAvatar: urlAvatar
+									urlAvatar: urlAvatar,
+									address: [
+										provinces, 
+										districts
+									]
 								};
 								firebase.firestore().collection("users").doc(user?.uid).set(new_info, { merge: true });
 								setData(new_info);
@@ -263,7 +271,11 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 
 			{/* Image */}
 			<View style={styles.container}>
-				<Image style={styles.image} source={{ uri: (urlAvatar == "" ? default_user_avatar : urlAvatar) }} resizeMode={"cover"} />
+				<Image 
+					style={styles.image} 
+					source={data.urlAvatar == "" ? default_user_avatar : ({uri: data.urlAvatar})} 
+					resizeMode={"cover"} 
+				/>
 				<View style={styles.infoContainer}>
 					<TouchableOpacity onPress={pickImage}>
 						<Text style={styles.textAvatar}> Change avatar</Text>
@@ -315,37 +327,61 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 				</View>
 
 				{/* Dropdown List for location */}
-				{/* Provinces */}
-				<DropDownPicker
-					items={province}
-					defaultValue={provinces}
-					containerStyle={{height: 40}}
-					style={{backgroundColor: '#fafafa'}}
-					itemStyle={{
-						justifyContent: 'flex-start'
-					}}
-					dropDownStyle={{backgroundColor: '#fafafa'}}
-					onChangeItem={
-						item => {
-							setProvinces(item.value);
-							setAddressStatus(takeAddressIndex(item.value));
+				<View style={styles.genderContainer}>
+					<Text
+						style={{
+							height: 26,
+							fontSize: 14,
+							color: "#BDBDBD",
+						}}
+					>
+						Address
+					</Text>
+					<View style={{paddingTop:10}} />
+					{/* Provinces */}
+					<DropDownPicker
+						style={styles.dropDownListContainer}
+						items={province}
+						containerStyle={{height: 40}}
+						itemStyle={{
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{backgroundColor: '#fafafa', width: windowWidth - 70}}
+						placeholder={provinces != "" ? provinces : "City/Province"}
+						onChangeItem={
+							item => {
+								setProvinces(item.value);
+								setAddressStatus(takeAddressIndex(item.value));
+								setValidation(false);
+								setDistricts("");
+							}
 						}
-					}
-				/>
-
-				{/* Districts */}
-				<DropDownPicker
-					disabled={addressStatus == -1 ? true : false}
-					items={getDistrictArray(addressStatus == -1 ? 0 : addressStatus)}
-					defaultValue={districts}
-					containerStyle={{height: 40}}
-					style={{backgroundColor: '#fafafa'}}
-					itemStyle={{
-						justifyContent: 'flex-start'
-					}}
-					dropDownStyle={{backgroundColor: '#fafafa'}}
-					onChangeItem={item => setDistricts(item.value)}
-				/>
+					/>
+					<View style={{paddingTop:10}} />
+					{/* Districts */}
+					<DropDownPicker
+						style={styles.dropDownListContainer}
+						disabled={addressStatus == -1 && districts == "" ? true : false}
+						items={getDistrictArray(addressStatus == -1 && provinces == "" ? 0 : takeAddressIndex(provinces))}
+						containerStyle={{height: 40}}
+						itemStyle={{
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{backgroundColor: '#fafafa', width: windowWidth - 70}}
+						placeholder={districts == "" ? "Ward/District" : districts}
+						onChangeItem={item => {
+							setDistricts(item.value)
+							setValidation(true);
+						}}
+					/>
+				</View>
+				{/*  */}
+				{districts == "" && provinces != "" ? (
+					<View style={styles.container}>
+						<Text style={{color: "red"}}>Choose the Ward/District</Text>
+					</View>
+				):(<></>)}
+				
 
 				{/* Sign out */}
 				<View style={styles.signOutButton}>
