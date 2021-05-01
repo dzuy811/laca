@@ -5,13 +5,12 @@ import { MaterialIcons } from '@expo/vector-icons'
 
 const default_user_avatar = require("../../assets/default_avatar.jpg");
 
-
 type ProfileProps = {
     navigation?: any;
     data: {
         urlAvatar: string,
         name: string,
-        address: string
+        address: Array<string>
     };
     setData: any
 }
@@ -30,7 +29,7 @@ const ProfileHeader = ({navigation, data, setData}: ProfileProps) => {
                 <Text style={styles.name}>{data.name}</Text>
             </View>
             <View>
-                <Text style={styles.city}>{data.address[0]}</Text>
+                <Text style={styles.city}>{data.address != null ? data.address[0] : ""}</Text>
             </View>
         </View>
         <View>

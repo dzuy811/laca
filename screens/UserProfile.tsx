@@ -10,12 +10,10 @@ import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 const default_user_avatar = require("../assets/default_avatar.jpg");
 const location = require('../components/location.json');
-
 
 type UserProfile = {
     navigation?: any;
@@ -26,19 +24,20 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	
 	const { data, setData } = route.params;
 	const [user, setUser] = useState<any>();
-	const [provinces, setProvinces] = useState<any>(data.address[0] != "" ? data.address[0] : "");
-	const [districts, setDistricts] = useState<any>(data.address[1] != "" ? data.address[1] : "");
+	const [provinces, setProvinces] = useState<any>(data.address[0]);
+	const [districts, setDistricts] = useState<any>(data.address[1]);
 	const [phoneNumber] = useState<string>(data.phoneNumber != "" ? "0" + data.phoneNumber.substring(3) : "");
-	const [name, setName] = useState<string>(data.name != "" ? data.name : "");
-	const [gender, setGender] = useState<string>(data.gender != "" ? data.gender : "");
-	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar != "" ? data.urlAvatar : "");
+	const [name, setName] = useState<string>(data.name);
+	const [gender, setGender] = useState<string>(data.gender);
+	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar);
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
 	const [addressStatus, setAddressStatus] = useState<number>(-1);
 
-
+	// Generate the data for Vietnam's Administrative Division
 	let province = [];
 
+	// Get the Provinces
 	for (let i = 0; i < location.length; i++) {
 		let objPro = {
 			label: location[i].Name,
@@ -47,6 +46,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		province.push(objPro);
 	}
 
+	// Take the index of Province in the array
 	function takeAddressIndex(address: string):number {
 		for (let i = 0; i < location.length; i++) {
 			if(location[i].Name == address) return i;
@@ -54,6 +54,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		return 0;
 	}
 
+	// Get the District array based on the Province index
 	function getDistrictArray(index:number):any {
 		let arr: { label: string, value: string}[] = [];
 		for(let i = 0; i < location[index].Districts.length; i++) {
@@ -66,24 +67,20 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		return arr;
 	}
 
+	// Regular Expression for Name Validation
 	let regEx = /^\s*([A-Za-z]{1,}([-']| ))+[A-Za-z]+?\s*$/;
 
 	const handleNameChange = (newText: string) => {
 		setName(newText);
 		// Check if the new name is the old name or not
 		if (newText.trimEnd() == data.name) {
-			if(checkValidationGender) {
-				setValidation(true);
-			}
-			else {
-				setValidation(false);
-			}
+			if(checkValidationGender) setValidation(true);	
+			else setValidation(false);
+			
 		}
 		// Validate the new name
 		else {
-			if(true) {
-				setValidation(regEx.test(newText) ? true : false)
-			}
+			if(true) setValidation(regEx.test(newText) ? true : false)
 		}
 	};
 
@@ -117,9 +114,9 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		bootstrap();
 	}, []);
 
+	// Give permission to use device library
 	useEffect(() => {
 		(async () => {
-			// Give permission to use device library
 			if (Platform.OS !== 'web') {
 				const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 				if (status !== 'granted') {
@@ -137,20 +134,14 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 			aspect: [1, 1],
 			quality: 1,
 		});
-
-		if (!result.cancelled) {
-			setUrlAvatar(result.uri);
-			await uploadImage(result);
-		}
+		if (!result.cancelled) await uploadImage(result);
 	};
 
 	// Upload image to storage + save URL into firestore collection
 	const uploadImage = async (image: any) => {
 		const { uri } = image;
-
 		const response = await fetch(uri);
 		const blob = await response.blob();
-
 		const filename = "avatars/";
 		const uploadUri = user.uid;
 
@@ -158,9 +149,8 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		return ref.put(blob).then(() => {
   			console.log('Uploaded a blob or file!');
 			ref.getDownloadURL().then((url) => {
-				// Save url to the user collection
 				setUrlAvatar(url);
-				firebase.firestore().collection("users").doc(user?.uid).set({urlAvatar: url}, { merge: true });
+				setValidation(true);
   			})
 		})
   		.catch((e: any) => console.log('uploading image error => ', e));
@@ -247,9 +237,11 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 				rightComponent={
 					<TouchableOpacity
 						activeOpacity={checkValidation ? 0.4 : 1}
+						// Update the validation
 						onPress={() => {
 							if (checkValidation) {
 								const new_info = {
+									phoneNumber: "+84" + phoneNumber.substring(1),
 									name: name,
 									gender: gender,
 									urlAvatar: urlAvatar,
@@ -273,7 +265,8 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 			<View style={styles.container}>
 				<Image 
 					style={styles.image} 
-					source={data.urlAvatar == "" ? default_user_avatar : ({uri: data.urlAvatar})} 
+					// Display the default image if not image found
+					source={urlAvatar != "" ? ({uri: urlAvatar}) : default_user_avatar} 
 					resizeMode={"cover"} 
 				/>
 				<View style={styles.infoContainer}>
@@ -294,8 +287,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 							fontSize: 14,
 							color: "#BDBDBD",
 						}}
-					>
-						Gender
+					>Gender
 					</Text>
 					<View style={{ flexDirection: "row", width: "100%" }}>
 						<View style={{ flexDirection: "row", marginRight: 30 }}>
@@ -306,8 +298,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 								onPress={() => {
 									console.log(">>>>>>>")
 									setGender("M");
-								}
-									}
+								}}
 							/>
 							<Text style={{ fontSize: 16, paddingTop: 7 }}>Male</Text>
 						</View>
@@ -375,13 +366,16 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 						}}
 					/>
 				</View>
-				{/*  */}
+				{/* Announcement for choosing the Ward/District */}
 				{districts == "" && provinces != "" ? (
 					<View style={styles.container}>
 						<Text style={{color: "red"}}>Choose the Ward/District</Text>
 					</View>
-				):(<></>)}
-				
+				):
+				(
+					<>
+					</>
+				)}
 
 				{/* Sign out */}
 				<View style={styles.signOutButton}>
