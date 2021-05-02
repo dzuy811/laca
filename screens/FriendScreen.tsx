@@ -59,7 +59,7 @@ const FriendScreen = ({navigation}) => {
                 />
             </View>
             {user? 
-            <TouchableOpacity onPress={() => navigation.navigate("User Profile")}>
+            <TouchableOpacity onPress={() => navigation.navigate("User Profile", { data: user})}>
                 <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginBottom: 20}}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{marginHorizontal: 15}}>

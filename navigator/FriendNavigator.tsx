@@ -2,9 +2,8 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import FriendScreen from '../screens/FriendScreen'
-import JourneyHistoryScreen from '../screens/JourneyHistoryScreen'
 import {RootStackParamList} from './FriendStackParams'
-import UserProfile from '../screens/UserProfile';
+import OtherProfileScreen from '../screens/OtherProfileScreen';
 
 const FriendStack = createStackNavigator<RootStackParamList>();
 
@@ -20,7 +19,7 @@ const FriendNavigator = () => {
             />
             <FriendStack.Screen
             name="User Profile"
-            component={UserProfile}
+            component={OtherProfileScreen}
             />
         </FriendStack.Navigator>
     )
