@@ -903,9 +903,9 @@ app.get("/users/:id/histories", async (req, res) => {
 app.post("/users", (req, res) => {
 	const newUser = {
 		phoneNumber: req.body.phoneNumber,
-		name: "",
-		gender: "",
-		urlAvatar: "",
+		name: req.body.name,
+		gender: req.body.gender,
+		urlAvatar: req.body.urlAvatar,
 	};
 
 	admin
@@ -928,31 +928,32 @@ app.post("/users", (req, res) => {
 // reviews API
 // tested
 app.post("/reviews", (req, res) => {
-	const newReview = {
-		content: req.body.content,
-		rating: req.body.rating,
-		uid: admin.firestore().doc(`users/${req.body.uid}`),
-		timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
-		aid: admin.firestore().doc(`attractions/${req.body.aid}`),
-		likeCount: 0,
-	};
 
-	admin
-		.firestore()
-		.collection("reviews")
-		.add(newReview)
-		.then((doc) => {
-			res.json({
-				message: `document ${doc.id} created successfully`,
-			});
-		})
-		.catch((err) => {
-			res.status(500).json({
-				error: err,
-			});
-			console.error(err);
-		});
-});
+    let newReview = {
+        content: req.body.content,
+        rating: req.body.rating,
+        uid: admin.firestore().doc(`users/${req.body.uid}`),
+        timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
+        aid:req.body.aid,
+        likeCount: 0,
+		images: []
+    }
+
+    admin.firestore()
+        .collection("reviews")
+        .add(newReview)
+        .then((doc) => {
+            res.json({
+                message: `document ${doc.id} created successfully`
+            })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: err,
+            })
+            console.error(err)
+        })
+})
 
 // tested
 app.get("/reviews/:id", async (req, res) => {
@@ -980,26 +981,96 @@ app.get("/reviews/:id", async (req, res) => {
 });
 
 // tested
-app.get("/reviews/attractions/:id", async (req, res) => {
-	try {
-		let db = admin.firestore();
 
-		let attractionRef = await db.collection("reviews").where("aid", "==", `${req.params.id}`).get();
-		if (!attractionRef.empty) {
-			let attraction = [];
-			attractionRef.forEach((a) => {
+app.get("/reviews/attractions/:id", async (req,res) => {
+    try {
+        let db = admin.firestore();
+        let attractionRef = await db.collection('reviews').where('aid', '==', `${req.params.id}`).get();
+
+        if (!attractionRef.empty) {
+            let attraction = []
+
+			for await (let a of attractionRef.docs){
+				const userRef = await a.data().uid.get();
+				const useInfo = await userRef.data();
+				if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a ){
+					console.log("it wworked bae uhh")
+				}
+				else {
+					throw new Error("one of the data is not found")
+				}
 				attraction.push({
-					id: a.id,
-					...a.data(),
-				});
-			});
-			return res.json(attraction);
-		}
-		return res.json({ error: "dumaduy" });
-	} catch (err) {
-		console.log(err);
-	}
-});
+					id:a.id,
+					comment : {
+						id: a.id,
+						...a.data()
+					},
+					userInfo : {
+						id : userRef.id, 
+						...useInfo
+					}
+				})
+			}
+            // attractionRef.forEach(a => {
+            //     attraction.push({
+            //         id: a.id,
+            //         ...a.data()
+            //     })
+            // })
+            return res.json(attraction);
+        }
+        return res.json({ "error": "dumaduy" })
+    } catch (err) {
+        console.log(err)
+    }
+})
+
+
+
+// app.get("/reviews/attractions/:id", async (req,res) => {
+//     try {
+//         let db = admin.firestore();
+
+//         let attractionRef = await db.collection('reviews').where('aid', '==', `${req.params.id}`).get();
+//         if (!attractionRef.empty) {
+//             let attraction = []
+
+// 			for await (let a of attractionRef){
+// 				// const useRef = a.data().uid.get();
+// 				// const user = useRef.data();
+// 				// if (user &&  typeof user != "undefined"){
+// 				// 	console.log("user exist bruh")
+// 				// 	attraction.push({
+// 				// 		id : a.id,
+// 				// 		user: {
+// 				// 			id : user.id,
+// 				// 			...user
+// 				// 		},
+// 				// 		review : {
+// 				// 			id:a.id,
+// 				// 			...a
+// 				// 		}
+// 				// 	})
+// 				// }
+// 				// else {
+// 				// 	throw new Error("Not found user");
+// 				// }
+
+// 				attraction.push({
+// 					id : a.id,
+// 					...a
+// 				})
+// 			}
+			
+            
+//             return res.json(attraction);
+//         }
+//         return res.json({ "error": "dumaduy" })
+//     } catch (err) {
+//         console.log(err)
+//     }
+// })
+
 
 // tested
 app.put("/reviews/:id", (req, res) => {
