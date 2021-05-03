@@ -8,6 +8,7 @@ import { Button, Header } from "react-native-elements";
 import 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
+import axios from "axios";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -15,6 +16,23 @@ const windowHeight = Dimensions.get("window").height;
 function OtherProfileScreen({ route, navigation }) {
 
     const [data, setData] = useState(route.params.data);
+
+    function checkUserRelationship(data: {}) {
+        let user = firebase.auth().currentUser
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/get?userID=${user?.uid}&otherUserID=${data.id}`
+        console.log(url);
+        axios.get(url)
+        .then(res => {
+            console.log(res)
+        })
+    }
+
+    useEffect(() => {
+        checkUserRelationship(data)
+        console.log(data)
+        
+    }, [])
+
 
     return (
         <View>

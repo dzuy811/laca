@@ -154,23 +154,22 @@ const FriendScreen = ({navigation}) => {
             </View>
             {friendRequests != [] ?
             <View style={{marginTop: 15}}>
-                {friendRequests.map((request, uid) => 
-                    <View key={uid}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 20}}>
-                        <View style={{  }}>
-                            <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => navigation.navigate("User Profile", { data: request.sendUser})}>
+                {friendRequests.map((request, id) => 
+                    <View key={id} style={{width: '100%',flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 50}}>
+                        <TouchableOpacity activeOpacity={0.8} style={{width: '100%'}} onPress={() => navigation.navigate("User Profile", { data: request.sendUser})}>
+                            <View style={{flexDirection: 'row', width: '100%'}}>
                                 <View style={{marginHorizontal: 15}}>
                                     <Image
                                         source={{ uri: request.sendUser.urlAvatar }}
                                         style={styles.logo}
                                     />
                                 </View>
-                                <View>
+                                <View style={{width: '100%'}}>
                                     <Text>{request.sendUser.name}</Text>
                                 </View>
-                            </TouchableOpacity>
-                          
-                            <View style={{flexDirection: 'row', marginHorizontal: 80}}>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={{position:'absolute', top:30, left: 10 ,flexDirection: 'row', marginHorizontal: 80}}>
                                 <View style={{marginHorizontal: 10}}>
                                     <Button
                                     title="Accept"
@@ -186,10 +185,7 @@ const FriendScreen = ({navigation}) => {
                                     onPress={() => removeRequest(request.id)}
                                     />
                                 </View>
-                            </View>
-                           
                         </View>
-                    </View>
                 </View>
                 )}
             </View>
