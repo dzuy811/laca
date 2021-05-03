@@ -21,29 +21,33 @@ const FriendScreen = ({navigation}) => {
     // fetching user's friend requests
 
     function fetchRequest(userID: string) {
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/users/${userID}/`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/users/${userID}/`
         const promise = axios.get(url)
         const data = promise.then(res => res.data)
         return data
     }
 
     useEffect(() => {
-        fetchRequest(user?.uid)
-        .then(data => {
-            setFriendRequests(data)
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchRequest(user?.uid)
+            .then(data => {
+                setFriendRequests(data)
+            })
         })
-    }, [])
+        console.log('fetch friend request')
+    }, [navigation])
 
     function searchUser(phone: string) {
         // localhost-home: http://192.168.2.105:5001/laca-59b8c/asia-east2/api
         // deploy: https://asia-east2-laca-59b8c.cloudfunctions.net/api 
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/search/details?phone=${phone}`
+        const url = `http://localhost:5000/laca-59b8c/asia-east2/api/users/search/details?phone=${phone}`
         fetch(url)
         .then(res => res.json())
         .then(data => {
             if (data.id == undefined) {
                 setFoundUser(null)
             } else {
+                console.log("--------------")                
                 setFoundUser(data)
             }
         })
@@ -85,7 +89,9 @@ const FriendScreen = ({navigation}) => {
                 padding: 20
                 }}>
                 <SearchBar
-                keyboardType='number-pad'
+                    keyboardType='number-pad'
+                    textContentType={'telephoneNumber'}
+                    enablesReturnKeyAutomatically={true}
                     placeholder="Search a user"
                     onChangeText={(value) => setText(value)}
                     value={text}
@@ -103,6 +109,7 @@ const FriendScreen = ({navigation}) => {
                     inputContainerStyle={{
                         backgroundColor: '#fff',                        
                     }}
+                    onSubmitEditing={() => searchUser(text)}
                     placeholderTextColor='#dfebf7'                    
                 />
             </View>
@@ -156,7 +163,14 @@ const FriendScreen = ({navigation}) => {
             <View style={{marginTop: 15}}>
                 {friendRequests.map((request, id) => 
                     <View key={id} style={{width: '100%',flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 50}}>
-                        <TouchableOpacity activeOpacity={0.8} style={{width: '100%'}} onPress={() => navigation.navigate("User Profile", { data: request.sendUser})}>
+                        <TouchableOpacity 
+                        activeOpacity={0.8} 
+                        style={{width: '100%'}} 
+                        onPress={() => navigation.navigate("User Profile",
+                                            {  data: request.sendUser,
+                                                requestID: request.id,
+                                                
+                                            })}>
                             <View style={{flexDirection: 'row', width: '100%'}}>
                                 <View style={{marginHorizontal: 15}}>
                                     <Image

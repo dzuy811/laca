@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import UserLogo from "../assets/fb_logo.png";
 
 import { LoginButton } from "../components";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+// import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
 
 type IItem = {
@@ -19,10 +19,30 @@ type Props = {
 			longitude: number;
 			description: string;
 			name: string;
+			id : string;
 		};
 	};
 	navigation: any;
 };
+
+type typeImageData = { id: string; source: string };
+
+type DescriptionType = { id: string; name: string; avatar: string; content: string };
+type dataDescrip = {
+	item: DescriptionType;
+};
+
+interface uniqueReviews  {
+	comment: comment,
+	userInfo : InforUser
+
+}
+
+
+
+
+
+
 
 const Data = [
 	{
@@ -46,6 +66,33 @@ const Data = [
 		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
 	},
 ];
+
+type comment = {
+	id:string,
+	timeCreated:any,
+	likeCount: number,
+	images:string[], 
+	uid: any,
+	content: string,
+	aid: string,
+	rating : number 
+}
+
+type InforUser = {
+	id:string,
+	gender : string,
+	address : string[],
+	name:string,
+	phoneNumber: string,
+	friendsCount : number,
+	totalReward : number,
+	journeyCount : number,
+	urlAvatar : string
+}
+
+
+type ListData = DescriptionType[]
+
 
 const descriptionData = [
 	{
@@ -85,22 +132,54 @@ const descriptionData = [
 		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	},
 ];
+
+
 const DescriptionTab = ({ route, navigation }: Props) => {
+	console.log("it ran")
 	const offset = useRef(new Animated.Value(0)).current;
-	const { latitude, longitude, description, name } = route.params;
-	// useEffect(() => {
-	// 	console.log(latitude, longitude);
-	// }, [latitude, longitude]);
+	const { latitude, longitude, description, name, id } = route.params;
+	const [data, setData] = useState<uniqueReviews[]>([]);
+
+	// fetch list of reviews 
+	useEffect(() => {
+		console.log("effect called")
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`)
+		.then((response) => response.json())
+		.then((json) => {
+            setData(json)
+			console.log("==============================")
+            console.log(json) // For debugging. Check if the effect is called multiple times or not
+        })
+		.catch((err) => console.error(err))
+	},[])
+
+	let dataPoint = 0
+	let dataCombine = [] as ListData
+
+	data.forEach((review) => {
+		let ThisData = {} as DescriptionType  
+		ThisData.id = dataPoint.toString()
+		dataPoint ++
+		ThisData.content = review.comment.content
+		ThisData.avatar = review.userInfo.urlAvatar
+		ThisData.name = review.userInfo.name
+		dataCombine.push(ThisData)
+	})
+
+	// useEffect(()=>{
+	// 	console.log("data below")
+	// 	console.log(dataCombine)
+	// })
 
 	// Render list of descriptions for Flatlist
 	const renderDescription = ({ item }: dataDescrip) => (
 		<View>
 			<View style={{ flexDirection: "row" }}>
-				<Image source={UserLogo} style={styles.profileImage} />
+				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<Text style={styles.profileName}>{item.name}</Text>
 			</View>
 			<View style={styles.DescriptionBox}>
-				<Text style={{ fontSize: 12 }}>{item.textComment}</Text>
+				<Text style={{ fontSize: 12 }}>{item.content}</Text>
 			</View>
 		</View>
 	);
@@ -158,7 +237,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							<View style={{ paddingBottom: 100 }}>
 								<Text style={styles.DescriptionTitle}>Reviews</Text>
 								<FlatList
-									data={descriptionData}
+									data={dataCombine}
 									renderItem={renderDescription}
 									keyExtractor={(item) => item.id}
 								></FlatList>
@@ -167,45 +246,36 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					</View>
 				</View>
 				<LinearGradient
-					colors={["rgba(255,255,355,0.8)", "rgba(255,255,355,1)"]}
+					colors={["rgba(255,255,355,0.02)", "rgba(255,255,355,1)"]}
 					style={{
 						position: "absolute",
 						alignItems: "center",
-                        justifyContent: "center",
+						marginTop: "0%",
 						left: 0,
 						right: 0,
 						bottom: 0,
+						marginBottom: 0,
 						zIndex: 2,
-                        
 					}}
-				>
-                    <View style={{paddingBottom: 15}}>
-                    <LoginButton
+				>					
+				<LoginButton
 						title="Take the journey"
 						onPress={() => {
 							navigation.navigate("Journey Map", {
-								latitude: "10.79103732064115", // Hard code for testing
-								longitude: "106.6839277220927", // Hard code for testing
+								latitude: latitude,
+								longitude: longitude,
 							});
 						}}
 						color="#4B8FD2"
 						textColor="#E2D0A2"
 					/>
-                    </View>
-                    
-					
 				</LinearGradient>
 			</View>
 		</>
 	);
 };
 
-type typeImageData = { id: string; source: string };
 
-type DescriptionType = { id: string; name: string; avatar: string; textComment: string };
-type dataDescrip = {
-	item: DescriptionType;
-};
 
 const styles = StyleSheet.create({
 	header: {
@@ -290,3 +360,4 @@ const styles = StyleSheet.create({
 });
 
 export default DescriptionTab;
+

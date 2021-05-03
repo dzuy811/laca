@@ -16,20 +16,51 @@ const windowHeight = Dimensions.get("window").height;
 function OtherProfileScreen({ route, navigation }) {
 
     const [data, setData] = useState(route.params.data);
+    const [isRequested, setIsRequested] = useState<boolean>();
+    const requestID = route.params.requestID
+    
+    function acceptRequest(requestID: string) {
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/accept`
+        let body = {
+            friendRequestID: requestID
+        }
+        console.log(body)
+        axios.post(url, body)
+        .then(res => {
+            navigation.goBack()
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function removeRequest(requestID: string) {
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/${requestID}/remove`
+        axios.delete(url)
+        .then(res => {
+            console.log(res)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }
+
 
     function checkUserRelationship(data: {}) {
         let user = firebase.auth().currentUser
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/get?userID=${user?.uid}&otherUserID=${data.id}`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/get?userID=${user?.uid}&otherUserID=${data.id}`
         console.log(url);
         axios.get(url)
         .then(res => {
-            console.log(res)
+            setIsRequested(true)
+        })
+        .catch(err => {
+            setIsRequested(false)
         })
     }
 
     useEffect(() => {
         checkUserRelationship(data)
-        console.log(data)
         
     }, [])
 
@@ -93,19 +124,40 @@ function OtherProfileScreen({ route, navigation }) {
                 </View>
 
             </View>
-            <View>
+            <View style={{marginTop: 80}}>
+                {isRequested? 
+                <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <View style={{marginHorizontal: 10}}>
+                        <Button
+                        title="Accept"
+                        buttonStyle={styles.buttonRequest}
+                        onPress={() => acceptRequest(requestID)}
+                        />                                        
+                    </View>
+                    <View>
+                        <Button
+                        title="Remove"
+                        type="outline"
+                        buttonStyle={styles.buttonRequest}
+                        onPress={() => removeRequest(requestID)}
+                        />
+                    </View>
+                </View>
+                :
                 <Button
-                    title="Connect"
+                title="Connect"
 
-                    buttonStyle={{
-                        width: '90%', 
-                        alignSelf: 'center', 
-                        backgroundColor: '#8dbae2',
-                        paddingHorizontal: 50,
-                        paddingVertical: 18,
-                        borderRadius: 30
-                    }}
+                buttonStyle={{
+                    width: '90%', 
+                    alignSelf: 'center', 
+                    backgroundColor: '#8dbae2',
+                    paddingHorizontal: 50,
+                    paddingVertical: 18,
+                    borderRadius: 30
+                }}
                 />
+                }
+               
             </View>
         </View>
     );
@@ -167,5 +219,10 @@ const styles = StyleSheet.create({
     progressBarContainer: {
         marginTop: 20
     },
+    buttonRequest: {
+        paddingHorizontal: 50,
+        paddingVertical: 16,
+    }
+
 });
 export default OtherProfileScreen;
