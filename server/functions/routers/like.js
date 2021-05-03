@@ -9,7 +9,7 @@ const admin = require("../constants/firebase");
 router.post("/", (req, res) => {
 	const newLike = {
 		uid: admin.firestore().doc(`users/${req.body.uid}`),
-		rid: admin.firestore().doc(`reviews/${req.body.rid}`),
+		rid: req.body.rid,
 	};
 
 	admin

@@ -34,9 +34,9 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
 	const newUser = {
 		phoneNumber: req.body.phoneNumber,
-		name: "",
-		gender: "",
-		urlAvatar: "",
+		name: req.body.name,
+		gender: req.body.gender,
+		urlAvatar: req.body.urlAvatar,
 	};
 
 	admin
