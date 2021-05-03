@@ -30,7 +30,10 @@ router.get("/users/:id", async (req, res) => {
 			const sendUserRef = await fr.data().sendUser.get();
 			friendRequests.push({
 				id: fr.id,
-				sendUser: sendUserRef.data(),
+				sendUser: {
+					id: sendUserRef.id,
+					...sendUserRef.data(),
+				},
 				status: fr.data().status,
 			});
 		}
