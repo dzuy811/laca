@@ -539,7 +539,6 @@ app.get("/reviews/:id", async (req, res) => {
 })
 
 // tested
-
 app.get("/reviews/attractions/:id", async (req,res) => {
     try {
         let db = admin.firestore();

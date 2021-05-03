@@ -135,6 +135,7 @@ const descriptionData = [
 
 
 const DescriptionTab = ({ route, navigation }: Props) => {
+	console.log("it ran")
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
@@ -145,7 +146,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`)
 		.then((response) => response.json())
 		.then((json) => {
-			console.log(json)
             setData(json)
 			console.log("==============================")
             console.log(json) // For debugging. Check if the effect is called multiple times or not
@@ -166,14 +166,9 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		dataCombine.push(ThisData)
 	})
 
-	useEffect(()=>{
-		console.log("data below")
-		console.log(dataCombine)
-	})
-
-	// console.log(data)
-
-
+	// useEffect(()=>{
+	// 	console.log("data below")
+	// 	console.log(dataCombine)
 	// })
 
 	// Render list of descriptions for Flatlist
@@ -262,7 +257,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						marginBottom: 0,
 						zIndex: 2,
 					}}
-				>					<LoginButton
+				>					
+				<LoginButton
 						title="Take the journey"
 						onPress={() => {
 							navigation.navigate("Journey Map", {
