@@ -137,7 +137,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 		if (!result.cancelled) await uploadImage(result);
 	};
 
-	// Upload image to storage + save URL into firestore collection
+	// Upload image to storage
 	const uploadImage = async (image: any) => {
 		const { uri } = image;
 		const response = await fetch(uri);
@@ -348,6 +348,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 							}
 						}
 					/>
+
 					<View style={{paddingTop:10}} />
 					{/* Districts */}
 					<DropDownPicker
