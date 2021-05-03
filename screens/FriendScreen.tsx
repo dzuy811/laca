@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Input, Button, SearchBar } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import firebase from 'firebase';
+import axios from 'axios';
 
 const FriendScreen = ({navigation}) => {
 
@@ -13,25 +14,30 @@ const FriendScreen = ({navigation}) => {
 
     const [user, setUser] = useState(firebase.auth().currentUser);
 
-    const [friendRequests, setFriendRequests] = useState([])
+    const [friendRequests, setFriendRequests]: any[] = useState([])
+
+    const [state, getState] = useState('')
 
     // fetching user's friend requests
+
+    function fetchRequest(userID: string) {
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/users/${userID}/`
+        const promise = axios.get(url)
+        const data = promise.then(res => res.data)
+        return data
+    }
+
     useEffect(() => {
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/users/${user?.uid}/`
-        console.log(url)
-        fetch(url)
-        .then(res => res.json())
+        fetchRequest(user?.uid)
         .then(data => {
-            console.log(data)
-            setFriendRequests(data);
+            setFriendRequests(data)
         })
-    }, [friendRequests])
+    }, [])
 
     function searchUser(phone: string) {
         // localhost-home: http://192.168.2.105:5001/laca-59b8c/asia-east2/api
         // deploy: https://asia-east2-laca-59b8c.cloudfunctions.net/api 
         const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/search/details?phone=${phone}`
-        console.log(url)
         fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -40,6 +46,34 @@ const FriendScreen = ({navigation}) => {
             } else {
                 setFoundUser(data)
             }
+        })
+    }
+
+    function acceptRequest(requestID: string) {
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/accept`
+        let body = {
+            friendRequestID: requestID
+        }
+        axios.post(url, body)
+        .then(res => {
+            fetchRequest(user?.uid)
+            .then(data => {
+                setFriendRequests(data)
+            })
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function removeRequest(requestID: string) {
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/${requestID}/remove`
+        axios.delete(url)
+        .then(res => {
+            fetchRequest(user?.uid)
+            .then(data => {
+                setFriendRequests(data)
+            })
         })
     }
 
@@ -124,7 +158,7 @@ const FriendScreen = ({navigation}) => {
                     <View key={uid}>
                     <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, marginBottom: 20}}>
                         <View style={{  }}>
-                            <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center'}} onPress={() => navigation.navigate("User Profile", { data: request.sendUser})}>
+                            <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => navigation.navigate("User Profile", { data: request.sendUser})}>
                                 <View style={{marginHorizontal: 15}}>
                                     <Image
                                         source={{ uri: request.sendUser.urlAvatar }}
@@ -136,18 +170,20 @@ const FriendScreen = ({navigation}) => {
                                 </View>
                             </TouchableOpacity>
                           
-                            <View style={{flexDirection: 'row', marginHorizontal: 80, }}>
+                            <View style={{flexDirection: 'row', marginHorizontal: 80}}>
                                 <View style={{marginHorizontal: 10}}>
                                     <Button
                                     title="Accept"
                                     buttonStyle={styles.requestAcceptButton}
+                                    onPress={() => acceptRequest(request.id)}
                                     />                                        
                                 </View>
                                 <View>
                                     <Button
-                                    title="Decline"
+                                    title="Remove"
                                     type="outline"
-                                    buttonStyle={styles.requestDeclineButton}
+                                    buttonStyle={styles.requestRemoveButton}
+                                    onPress={() => removeRequest(request.id)}
                                     />
                                 </View>
                             </View>
@@ -179,7 +215,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         paddingVertical: 8,
     },
-    requestDeclineButton: {
+    requestRemoveButton: {
         paddingHorizontal: 15,
         paddingVertical: 8,
     }
