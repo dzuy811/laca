@@ -1,17 +1,17 @@
 const functions = require("firebase-functions");
-
 const admin = require("firebase-admin");
-
 const express = require("express");
 const Cors = require("cors");
-const { user } = require("firebase-functions/lib/providers/auth");
 const app = express().use(Cors({ origin: true }));
 
 admin.initializeApp();
 
-// ---- API for Attraction Collection ----- //
+/* LIST OF STATUS CODES AND ITS USAGE 
+	200: Request was processed and sent successfully, reponse was also returned correctly
+	400: Bad request, incorrect syntax, information provided to the body of the request
+*/
 
-// tested 
+// ---- API for Attraction Collection ----- //
 app.get("/attractions", (req, res) => {
 	admin
 		.firestore()
@@ -28,11 +28,11 @@ app.get("/attractions", (req, res) => {
 			return res.json(attractions);
 		})
 		.catch((error) => {
-			console.log("Error: ", err);
+			console.log("Error: ", error);
 		});
 });
 
-// tested 
+// tested
 app.post("/attractions", (req, res) => {
 	const newAttraction = {
 		description: req.body.description,
@@ -55,11 +55,11 @@ app.post("/attractions", (req, res) => {
 				message: `Attraction ${doc.id} created successfully.`,
 			});
 		})
-		.catch((err) => {
+		.catch((error) => {
 			res.status(400).json({
 				message: `ERROR 400`,
 			});
-			console.error(err);
+			console.error(error);
 		});
 });
 
@@ -86,86 +86,88 @@ app.delete("/attractions/:id", async (req, res) => {
 	}
 });
 
-// tested 
+// tested
 app.get("/attractions/:id", async (req, res) => {
-    try {
-        let db = admin.firestore();
+	try {
+		let db = admin.firestore();
 
-        let attractionRef = await db.collection('attractions').where('__name__', '==', `${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction);
-        }
-        return res.json({ "error": "haizza " })
-    } catch (err) {
-        console.log(err)
-    }
+		let attractionRef = await db
+			.collection("attractions")
+			.where("__name__", "==", `${req.params.id}`)
+			.get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction);
+		}
+		return res.json({ error: "haizza " });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
-})
-
-// tested 
+// tested
 app.put("/attractions/:id", (req, res) => {
-    admin.firestore()
-        .collection("attractions")
-        .doc(req.params.id)
-        .update({
-            count: admin.firestore.FieldValue.increment(req.body.num),
+	admin
+		.firestore()
+		.collection("attractions")
+		.doc(req.params.id)
+		.update({
+			count: admin.firestore.FieldValue.increment(req.body.num),
 			name: req.body.name,
-			description : req.body.description,
-            rating : req.body.rating
-        })
-        .then((doc) => {
-            res.json({
-                message: `document ${doc.id} updated successfully`
+			description: req.body.description,
+			rating: req.body.rating,
+		})
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} updated successfully`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+				message: "problem occcured",
+			});
+			console.error(err);
+		});
+});
 
-            })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                error: err,
-                message : "problem occcured"
-            })
-            console.error(err)
-        })
-})
-
-// 
+//
 
 // tested
 app.get("/attractions/pages/:page", (req, res) => {
-    const begin = req.params.page - 1
-    const pagesize = 3
-    const end = req.params.page
-    admin.firestore().collection('attractions').get()
-        .then((data) => {
-            let i = 0
-            let attractions = []
-            data.forEach((doc) => {
-                if (i >= begin * pagesize && i <= end * pagesize) {
-                    attractions.push({
-                        id: doc.id,
-                        ...doc.data()
-                    })
-                }
-                i++;
-            })
-            console.log(begin * pagesize)
-            console.log(end * pagesize)
-            return res.json(attractions);
-        })
-        .catch(err => {
-            console.error(err)
-        })
-
-})
-
-
+	const begin = req.params.page - 1;
+	const pagesize = 3;
+	const end = req.params.page;
+	admin
+		.firestore()
+		.collection("attractions")
+		.get()
+		.then((data) => {
+			let i = 0;
+			let attractions = [];
+			data.forEach((doc) => {
+				if (i >= begin * pagesize && i <= end * pagesize) {
+					attractions.push({
+						id: doc.id,
+						...doc.data(),
+					});
+				}
+				i++;
+			});
+			console.log(begin * pagesize);
+			console.log(end * pagesize);
+			return res.json(attractions);
+		})
+		.catch((err) => {
+			console.error(err);
+		});
+});
 
 // ---- API for User Collection ----- //
 // Get ALL Users
@@ -199,11 +201,10 @@ app.get("/users/:id", async (req, res) => {
 		const db = admin.firestore();
 
 		// Reference to collection of the user
-		const userRef = await db.collection("users").doc(req.params.id).get();
-
+		const userSnapshot = await db.collection("users").doc(req.params.id).get();
 		const user = {
-			id: userRef.id,
-			...userRef.data(),
+			id: userSnapshot.id,
+			...userSnapshot.data(),
 		};
 
 		res.status(200).json(user);
@@ -215,7 +216,7 @@ app.get("/users/:id", async (req, res) => {
 });
 
 // Search user by phone
-app.get("/users/search", async (req, res) => {
+app.get("/users/search/details", async (req, res) => {
 	try {
 		// create reference for User collection on Firestore
 		const usersRef = admin.firestore().collection("users");
@@ -225,6 +226,7 @@ app.get("/users/search", async (req, res) => {
 		// Normalize Vietnam's phone format for international code format
 		if (country == "Vietnam") {
 			phone = "+84" + req.query.phone.replace("0", "");
+			console.log(phone);
 		}
 
 		// Query for finding users by phone's number
@@ -249,6 +251,443 @@ app.get("/users/search", async (req, res) => {
 	}
 });
 
+// ======== FRIENDSHIP ========
+// Get all friends of a user
+app.get("/users/:id/friendships", async (req, res) => {
+	try {
+		// Declare DB Firebase
+		const db = admin.firestore();
+
+		// Retrieve user's reference
+		const userRef = db.doc("users/" + req.params.id);
+		const user = await userRef.get();
+
+		// Retrieve friendship reference from collections
+		const friendshipSnapshot = await db
+			.collection("friendships")
+			.where("user", "==", userRef)
+			.get();
+
+		if (friendshipSnapshot.empty) {
+			console.log("Empty Friendship for User's ID", userRef.id);
+			return res.status(200).json([]);
+		}
+
+		let response = [];
+		for await (let friendship of friendshipSnapshot.docs) {
+			let fsSnapshot = await friendship.data().otherUser.get();
+			response.push({
+				user: {
+					id: fsSnapshot.id,
+					...fsSnapshot.data(),
+				},
+				createdAt: friendship.data().createdAt,
+			});
+		}
+		return res.json({
+			friendsCount: user.data().friendsCount,
+			friends: response,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR 400`,
+		});
+		console.log(error);
+	}
+});
+
+// Get Friendship betweeen two users
+app.get("/friendships/get", async (req, res) => {
+	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+		// Acquire query route
+		const { userID, otherUserID } = req.query;
+		// Reference to user collection
+		const userRef = db.doc("users/" + userID);
+		const otherUserRef = db.doc("users/" + otherUserID);
+
+		const friendShipQuery_1 = await db
+			.collection("friendships")
+			.where("user", "==", userRef)
+			.where("otherUser", "==", otherUserRef)
+			.get();
+		const friendShipQuery_2 = await db
+			.collection("friendships")
+			.where("user", "==", otherUserRef)
+			.where("otherUser", "==", userRef)
+			.get();
+
+		const or_array = friendShipQuery_1.docs.concat(friendShipQuery_2.docs);
+
+		if (or_array.length <= 0) {
+			throw new Error("No friendship has been found");
+		}
+		const friendshipDoc = or_array[0];
+		const friendshipDocUser = await friendshipDoc.data().user.get();
+		const friendshipDocOtherUser = await friendshipDoc.data().otherUser.get();
+		return res.status(200).json({
+			id: friendshipDoc.id,
+			createdAt: friendshipDoc.data().createdAt,
+			user: friendshipDocUser.data(),
+			otherUser: friendshipDocOtherUser.data(),
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// Unfriend method
+app.delete("/friendships/:id/remove", async (req, res) => {
+	try {
+		// Declare DB reference
+		const db = admin.firestore();
+		const friendshipID = req.params.id;
+
+		// Declare reference
+		const fsRef = db.collection("friendships").doc(friendshipID);
+		const fsSnapshot = await fsRef.get();
+		const userRef = fsSnapshot.data().user;
+		const otherUserRef = fsSnapshot.data().otherUser;
+		const frRef = fsSnapshot.data().friendRequest;
+
+		// check existance
+		if (!fsRef && typeof fsRef === "undefined" && !frRef && typeof frRef === "undefined") {
+			throw new Error(
+				"Friendship & FriendRequest References not found, please check your ID again"
+			);
+		}
+
+		await fsRef.delete(); // delete friendship
+		await frRef.delete(); // delete attached friendRequest
+		const dbTransaction = db.runTransaction((t) => {
+			return t.getAll(userRef, otherUserRef).then((docs) => {
+				let user = docs[0];
+				let otherUser = docs[1];
+
+				// Read current count values of user and otherUser
+				let currentUserCount = user.data().friendsCount;
+				let currentOtherUserCount = otherUser.data().friendsCount;
+
+				// Perform update operations
+				if (currentUserCount == 0 || typeof currentUserCount === "undefined" || !currentUserCount) {
+					throw new Error("User does not have any friends!");
+				} else {
+					t.update(userRef, {
+						friendsCount: currentUserCount - 1,
+					});
+				}
+
+				if (
+					currentOtherUserCount == 0 ||
+					typeof currentOtherUserCount === "undefined" ||
+					!currentOtherUserCount
+				) {
+					throw new Error("OtherUser does not have any friends!");
+				} else {
+					t.update(otherUserRef, {
+						friendsCount: currentOtherUserCount - 1,
+					});
+				}
+				return res.status(200).json({
+					message: `${user.id} is no longer friend with ${otherUser.id}`,
+				});
+			});
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// ==== FRIEND REQUESTS ====
+// Get all friend's request of a user (by User's ID)
+app.get("/friendrequests/users/:id", async (req, res) => {
+	try {
+		// Declare DB reference
+		const db = admin.firestore();
+
+		// Retrieve a user's reference
+		const userID = req.params.id;
+		const userRef = db.collection("users").doc(userID);
+
+		// Query list of friend requests that were sent to the user
+		const friendRequestQuery = await db
+			.collection("friendRequests")
+			.where("receiveUser", "==", userRef)
+			.where("status", "==", "pending")
+			.get();
+		if (friendRequestQuery.empty) {
+			return res.status(200).json([]);
+		}
+
+		let friendRequests = [];
+		for await (let fr of friendRequestQuery.docs) {
+			const sendUserRef = await fr.data().sendUser.get();
+			friendRequests.push({
+				id: fr.id,
+				sendUser: sendUserRef.data(),
+				status: fr.data().status,
+			});
+		}
+		return res.status(200).json(friendRequests);
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// Get a friend request sent between two users
+app.get("/friendrequests/get", async (req, res) => {
+	try {
+		// Declare DB Firebase with Admin rights
+		const db = admin.firestore();
+		// Get users' references
+		const userRef = db.doc("users/" + req.query.userID);
+		const otherUserRef = db.doc("users/" + req.query.otherUserID);
+
+		// Query friendship request
+		const frQuerySnapshot = await db
+			.collection("friendRequests")
+			.where("sendUser", "==", userRef)
+			.where("receiveUser", "==", otherUserRef)
+			.where("status", "==", "pending")
+			.get();
+		const frQuerySnapshot_2 = await db
+			.collection("friendRequests")
+			.where("sendUser", "==", otherUserRef)
+			.where("receiveUser", "==", userRef)
+			.where("status", "==", "pending")
+			.get();
+
+		// Merge results for OR operator of the query
+		const or_array = frQuerySnapshot.docs.concat(frQuerySnapshot_2.docs);
+
+		if (or_array.length == 0) {
+			if (!or_array[0] && typeof or_array[0] === "undefined") {
+				throw new Error("Invalid Friend Request reference");
+			}
+			return res.status(200).json({});
+		}
+		const fr = or_array[0];
+		const sendUserSnapshot = await fr.data().sendUser.get();
+		const receiveUserSnapshot = await fr.data().receiveUser.get();
+		let frObj = {
+			id: fr.id,
+			createdAt: fr.data().createdAt,
+			sendUser: {
+				...sendUserSnapshot.data(),
+			},
+			receiveUser: {
+				...receiveUserSnapshot.data(),
+			},
+			status: fr.data().status,
+		};
+		return res.status(200).json(frObj);
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// Send a Friend Request to a User
+app.post("/friendrequests/send", async (req, res) => {
+	try {
+		// Declare DB Firebase by Admin rights
+		const db = admin.firestore();
+		const sendUserRef = db.doc("users/" + req.body.sendUserID);
+		const receiveUserRef = db.doc("users/" + req.body.receiveUserID);
+
+		// Check existence
+		if (
+			!sendUserRef &&
+			typeof sendUserRef === "undefined" &&
+			!receiveUserRef &&
+			typeof receiveUserRef === "undefined"
+		) {
+			return res.status(200).json({
+				message: "No user's reference found",
+			});
+		}
+
+		// Check duplicated friend request
+		const frQuery_1 = await db
+			.collection("friendRequests")
+			.where("sendUser", "==", sendUserRef)
+			.where("receiveUser", "==", receiveUserRef)
+			.where("status", "==", "pending")
+			.get();
+		const frQuery_2 = await db
+			.collection("friendRequests")
+			.where("sendUser", "==", receiveUserRef)
+			.where("receiveUser", "==", sendUserRef)
+			.where("status", "==", "pending")
+			.get();
+
+		const or_array = frQuery_1.docs.concat(frQuery_2.docs);
+		if (or_array.length > 0) {
+			return res.status(400).json({
+				message: "ERROR 400 Duplicated Friend Request",
+			});
+		}
+
+		// Create new friend's request schema
+		const newFriendRequest = {
+			sendUser: sendUserRef,
+			receiveUser: receiveUserRef,
+			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+			status: "pending",
+		};
+
+		// Add new request to the collection
+		const addedFriendRequest = await db.collection("friendRequests").add(newFriendRequest);
+
+		return res.status(200).json({
+			message: `friendRequest document ${addedFriendRequest.id} created successfully`,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: "ERROR 400",
+		});
+		console.log(error);
+	}
+});
+
+// Accept a Friend Request from a User
+app.post("/friendrequests/accept", async (req, res) => {
+	try {
+		const { friendRequestID } = req.body;
+		// Declare DB Firebase with Admin rights
+		const db = admin.firestore();
+
+		// Declare DB reference
+		const frRef = db.collection("friendRequests").doc(friendRequestID);
+		const frSnapshot = await frRef.get();
+		// Check existence
+		if (!frSnapshot.exists && typeof frSnapshot === "undefined") {
+			return res.status(400).json({
+				message: "No friendRequest's reference found",
+			});
+		}
+
+		// Else if 'accept' the friend's request
+		const sendUserRef = frSnapshot.data().sendUser;
+		const receiveUserRef = frSnapshot.data().receiveUser;
+
+		if (
+			!sendUserRef &&
+			typeof sendUserRef === "undefined" &&
+			!receiveUserRef &&
+			typeof receiveUserRef === "undefined"
+		) {
+			return res.status(400).json({
+				message: "Invalid send user OR receive user",
+			});
+		}
+
+		// Prepare schemas for added friendship document
+		const newFriendShip = {
+			user: sendUserRef,
+			otherUser: receiveUserRef,
+			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+			friendRequest: frRef,
+		};
+		// Add operations
+		await db
+			.collection("friendships")
+			.add(newFriendShip)
+			.then((doc) => {
+				console.log(`Friendship document ${doc.id} has been created successfully`);
+			});
+
+		// Transaction for multiple operations
+		const dbTransaction = db
+			.runTransaction(async (t) => {
+				const docs = await t.getAll(frRef, sendUserRef, receiveUserRef);
+				// Read Snapshots by references
+				let fr = docs[0];
+				let sendUser = docs[1];
+				let receiveUser = docs[2];
+				// Check existance
+				if (!fr.exists && !sendUser.exists && !receiveUser.exists) {
+					return res.status(400).json({
+						message: "Invalid send user OR receive user OR friend request",
+					});
+				}
+				// Update counter for both sender and receiver
+				let sendUserCount = sendUser.data().friendsCount;
+				let receiveUserCount = receiveUser.data().friendsCount;
+
+				// Perform update operations for Friend Request entity
+				t.update(frRef, { status: "accepted" });
+
+				// Perform update operations for the count of sendUser's entity
+				if (sendUserCount && typeof sendUserCount !== "undefined") {
+					t.update(sendUserRef, { friendsCount: sendUserCount + 1 });
+				} else {
+					t.update(sendUserRef, { friendsCount: 1 });
+				}
+
+				// Perform update operations for the count of receiveUser's entity
+				if (receiveUserCount && typeof receiveUserCount !== "undefined") {
+					t.update(receiveUserRef, { friendsCount: receiveUserCount + 1 });
+				} else {
+					t.update(receiveUserRef, { friendsCount: 1 });
+				}
+			})
+			.then(() => {
+				return res.status(200).json({
+					messasge: `SendUserID ${sendUserRef.id} has been friend with ReceiveUserID ${receiveUserRef.id}`,
+				});
+			})
+			.catch((error) => {
+				console.log("Transaction failed: ", error);
+			});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// Decline/Remove a friend request
+app.delete("/friendrequests/:id/remove", async (req, res) => {
+	try {
+		// Declare DB Firebase with Admin rights
+		const db = admin.firestore();
+
+		// Declare DB reference
+		const frRef = db.collection("friendRequests").doc(req.params.id);
+		const frSnapshot = await frRef.get();
+		// Check existence
+		if (!frSnapshot.exists && typeof frSnapshot === "undefined") {
+			return res.status(400).json({
+				message: "No friendRequest's reference found",
+			});
+		}
+		await frRef.delete();
+		return res.status(200).json({
+			message: `friendRequest document ${frSnapshot.id} has been deleted successfuly`,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: "ERROR 400",
+		});
+		console.log(error);
+	}
+});
+
+// ====== JOURNEY HISTORY ======
 // Get all histories of all users
 app.get("/users/histories", async (req, res) => {
 	try {
@@ -484,335 +923,323 @@ app.post("/users", (req, res) => {
 			});
 			console.error(err);
 		});
-
 });
 
-// reviews API 
+// reviews API
 // tested
 app.post("/reviews", (req, res) => {
-    const newReview = {
-        content: req.body.content,
-        rating: req.body.rating,
-        uid: admin.firestore().doc(`users/${req.body.uid}`),
-        timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
-        aid:admin.firestore().doc(`attractions/${req.body.aid}`),
-        likeCount: 0
+	const newReview = {
+		content: req.body.content,
+		rating: req.body.rating,
+		uid: admin.firestore().doc(`users/${req.body.uid}`),
+		timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
+		aid: admin.firestore().doc(`attractions/${req.body.aid}`),
+		likeCount: 0,
+	};
 
-    }
-
-    admin.firestore()
-        .collection("reviews")
-        .add(newReview)
-        .then((doc) => {
-            res.json({
-                message: `document ${doc.id} created successfully`
-            })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                error: err
-            })
-            console.error(err)
-        })
-})
+	admin
+		.firestore()
+		.collection("reviews")
+		.add(newReview)
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} created successfully`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+			});
+			console.error(err);
+		});
+});
 
 // tested
 app.get("/reviews/:id", async (req, res) => {
-    try {
-        let db = admin.firestore();
+	try {
+		let db = admin.firestore();
 
-        let attractionRef = await db.collection('reviews').where('__name__', '==', `${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction[0]);
-        }
-        return res.json({ "error": "dumaduy" })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
-// tested
-app.get("/reviews/attractions/:id", async (req,res) => {
-    try {
-        let db = admin.firestore();
-
-        let attractionRef = await db.collection('reviews').where('aid', '==', `${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction);
-        }
-        return res.json({ "error": "dumaduy" })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
+		let attractionRef = await db
+			.collection("reviews")
+			.where("__name__", "==", `${req.params.id}`)
+			.get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction[0]);
+		}
+		return res.json({ error: "dumaduy" });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
 // tested
-app.put("/reviews/:id", (req,res) => {
-	admin.firestore()
-        .collection("reviews")
-        .doc(req.params.id)
-        .update({
-            content: req.body.content,
-			rating : req.body.rating
+app.get("/reviews/attractions/:id", async (req, res) => {
+	try {
+		let db = admin.firestore();
 
-        })
-        .then((doc) => {
-            res.json({
-                message: `document ${doc.id} updated successfully`
-
-            })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                error: err
-            })
-            console.error(err)
-        })
-    
-})
-
-// like api  
-
+		let attractionRef = await db.collection("reviews").where("aid", "==", `${req.params.id}`).get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction);
+		}
+		return res.json({ error: "dumaduy" });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
 // tested
-app.post("/like", (req,res) =>{
-    const newLike = {
-        uid :admin.firestore().doc(`users/${req.body.uid}`),
-        rid: admin.firestore().doc(`reviews/${req.body.rid}`)
-    }
+app.put("/reviews/:id", (req, res) => {
+	admin
+		.firestore()
+		.collection("reviews")
+		.doc(req.params.id)
+		.update({
+			content: req.body.content,
+			rating: req.body.rating,
+		})
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} updated successfully`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+			});
+			console.error(err);
+		});
+});
 
-    admin.firestore()
-    .collection("like")
-    .add(newLike)
-    .then((doc) => {
-        res.json({
-            message:`document ${doc.id} created successfully`
-        })
-    })
-    .catch((err) =>{
-        res.status(500).json({
-            error: err
-        })
-        console.error(err)
-    })
-})
-
-
-// tested
-app.get("/like/reviews/:id", async (req,res) =>{
-    try {
-        let db = admin.firestore();
-
-        let attractionRef = await db.collection('like').where("rid","==",`${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction);
-        }
-        return res.json({ "error": "haizza" })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
+// like api
 
 // tested
-app.get("/like/:id", async (req,res) =>{
-    try {
-        let db = admin.firestore();
+app.post("/like", (req, res) => {
+	const newLike = {
+		uid: admin.firestore().doc(`users/${req.body.uid}`),
+		rid: admin.firestore().doc(`reviews/${req.body.rid}`),
+	};
 
-        let attractionRef = await db.collection('like').where('__name__', '==', `${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction[0]);
-        }
-        return res.json({ "error": "haizza" })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
+	admin
+		.firestore()
+		.collection("like")
+		.add(newLike)
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} created successfully`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+			});
+			console.error(err);
+		});
+});
 
 // tested
-app.delete("/like/:id", async (req,res) => {
-    try {
-        const LikeRef = admin.firestore().collection("like").doc(req.params.id)
-        LikeRef.get()
-        .then((snap) => {
-            if(snap.exists){
-                LikeRef.delete()
-                .then(() => {
-                    res.json({
-                        message : `document ${req.params.id} deleted`
-                    })
-                })
-            }
-            else {
-                res.json({
-                    message : "document not exist"
-                })
-            }
-        })
-	
-    }
-    catch (err) {
-        res.status(400).json({
-            error: err
-        })
-        console.error(err)
-    }
-	
-})
+app.get("/like/reviews/:id", async (req, res) => {
+	try {
+		let db = admin.firestore();
+
+		let attractionRef = await db.collection("like").where("rid", "==", `${req.params.id}`).get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction);
+		}
+		return res.json({ error: "haizza" });
+	} catch (err) {
+		console.log(err);
+	}
+});
+
+// tested
+app.get("/like/:id", async (req, res) => {
+	try {
+		let db = admin.firestore();
+
+		let attractionRef = await db
+			.collection("like")
+			.where("__name__", "==", `${req.params.id}`)
+			.get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction[0]);
+		}
+		return res.json({ error: "haizza" });
+	} catch (err) {
+		console.log(err);
+	}
+});
+
+// tested
+app.delete("/like/:id", async (req, res) => {
+	try {
+		const LikeRef = admin.firestore().collection("like").doc(req.params.id);
+		LikeRef.get().then((snap) => {
+			if (snap.exists) {
+				LikeRef.delete().then(() => {
+					res.json({
+						message: `document ${req.params.id} deleted`,
+					});
+				});
+			} else {
+				res.json({
+					message: "document not exist",
+				});
+			}
+		});
+	} catch (err) {
+		res.status(400).json({
+			error: err,
+		});
+		console.error(err);
+	}
+});
 
 // reply api
 
 // tested
 app.post("/reply", (req, res) => {
-    const newReply = {
-        rid: admin.firestore().doc(`reviews/${req.body.rid}`),
-        content: req.body.content,
-        timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
-        uid: admin.firestore().doc(`users/${req.body.uid}`)
-    }
-    admin.firestore()
-    .collection("reply")
-    .add(newReply)
-    .then((doc) => {
-        res.json({
-            message: `document ${doc.id} created successfully`
-        })
-    })
-    .catch((err) => {
-        res.status(500).json({
-            error: err
-        })
-        console.error(err)
-    })
-})
-
+	const newReply = {
+		rid: admin.firestore().doc(`reviews/${req.body.rid}`),
+		content: req.body.content,
+		timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
+		uid: admin.firestore().doc(`users/${req.body.uid}`),
+	};
+	admin
+		.firestore()
+		.collection("reply")
+		.add(newReply)
+		.then((doc) => {
+			res.json({
+				message: `document ${doc.id} created successfully`,
+			});
+		})
+		.catch((err) => {
+			res.status(500).json({
+				error: err,
+			});
+			console.error(err);
+		});
+});
 
 //
-app.get("/reply/reviews/:id", async (req,res) => {
-    try {
-        let db = admin.firestore();
+app.get("/reply/reviews/:id", async (req, res) => {
+	try {
+		let db = admin.firestore();
 
-        let attractionRef = await db.collection('reply').where("rid","==",`${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction);
-        }
-        return res.json({ "error": "haizza" })
-    } catch (err) {
-        console.log(err)
-    }
-})
-
-// tested
-app.get("/reply/:id", async (req,res) => {
-    try {
-        let db = admin.firestore();
-
-        let attractionRef = await db.collection('reply').where("__name__","==",`${req.params.id}`).get();
-        if (!attractionRef.empty) {
-            let attraction = []
-            attractionRef.forEach(a => {
-                attraction.push({
-                    id: a.id,
-                    ...a.data()
-                })
-            })
-            return res.json(attraction[0]);
-        }
-        return res.json({ "error": "haizza" })
-    } catch (err) {
-        console.log(err)
-    }
-})
+		let attractionRef = await db.collection("reply").where("rid", "==", `${req.params.id}`).get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction);
+		}
+		return res.json({ error: "haizza" });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
 // tested
-app.put("/reply/:id",(req,res) => {
-    try {
-        let db = admin.firestore();
+app.get("/reply/:id", async (req, res) => {
+	try {
+		let db = admin.firestore();
 
-        db.collection("reply")
-        .doc(`${req.params.id}`)
-        .update({
-            content: req.body.content
-        })
-        .then(() => {
-            res.json({
-                message : `document ${req.params.id} updated successfully `
-            })
-        })
-
-        
-    } catch (err) {
-        console.log(err)
-    }
-})
-
+		let attractionRef = await db
+			.collection("reply")
+			.where("__name__", "==", `${req.params.id}`)
+			.get();
+		if (!attractionRef.empty) {
+			let attraction = [];
+			attractionRef.forEach((a) => {
+				attraction.push({
+					id: a.id,
+					...a.data(),
+				});
+			});
+			return res.json(attraction[0]);
+		}
+		return res.json({ error: "haizza" });
+	} catch (err) {
+		console.log(err);
+	}
+});
 
 // tested
-app.delete("/reply/:id",(req,res) => {
-    try {
-        const LikeRef = admin.firestore().collection("reply").doc(req.params.id)
-        LikeRef.get()
-        .then((snap) => {
-            if(snap.exists){
-                LikeRef.delete()
-                .then(() => {
-                    res.json({
-                        message : `document ${req.params.id} deleted`
-                    })
-                })
-            }
-            else {
-                res.json({
-                    message : "document not exist"
-                })
-            }
-        })
-	
-    }
-    catch (err) {
-        res.status(400).json({
-            error: err
-        })
-        console.error(err)
-    }
-})
+app.put("/reply/:id", (req, res) => {
+	try {
+		let db = admin.firestore();
+
+		db.collection("reply")
+			.doc(`${req.params.id}`)
+			.update({
+				content: req.body.content,
+			})
+			.then(() => {
+				res.json({
+					message: `document ${req.params.id} updated successfully `,
+				});
+			});
+	} catch (err) {
+		console.log(err);
+	}
+});
+
+// tested
+app.delete("/reply/:id", (req, res) => {
+	try {
+		const LikeRef = admin.firestore().collection("reply").doc(req.params.id);
+		LikeRef.get().then((snap) => {
+			if (snap.exists) {
+				LikeRef.delete().then(() => {
+					res.json({
+						message: `document ${req.params.id} deleted`,
+					});
+				});
+			} else {
+				res.json({
+					message: "document not exist",
+				});
+			}
+		});
+	} catch (err) {
+		res.status(400).json({
+			error: err,
+		});
+		console.error(err);
+	}
+});
 
 // Exports API
 exports.api = functions.region("asia-east2").https.onRequest(app);
