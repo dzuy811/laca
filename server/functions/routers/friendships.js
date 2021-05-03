@@ -37,8 +37,14 @@ router.get("/get", async (req, res) => {
 		return res.status(200).json({
 			id: friendshipDoc.id,
 			createdAt: friendshipDoc.data().createdAt,
-			user: friendshipDocUser.data(),
-			otherUser: friendshipDocOtherUser.data(),
+			user: {
+				id: friendshipDocUser.id,
+				...friendshipDocUser.data(),
+			},
+			otherUser: {
+				id: friendshipDocOtherUser.id,
+				...friendshipDocOtherUser.data(),
+			},
 		});
 	} catch (error) {
 		res.status(400).json({

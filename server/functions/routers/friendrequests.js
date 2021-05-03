@@ -82,9 +82,11 @@ router.get("/get", async (req, res) => {
 			id: fr.id,
 			createdAt: fr.data().createdAt,
 			sendUser: {
+				id: sendUserSnapshot.id,
 				...sendUserSnapshot.data(),
 			},
 			receiveUser: {
+				id: sendUserSnapshot.id,
 				...receiveUserSnapshot.data(),
 			},
 			status: fr.data().status,
