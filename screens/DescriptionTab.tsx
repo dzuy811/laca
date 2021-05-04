@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 // import React from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, FlatList, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import UserLogo from "../assets/fb_logo.png";
-
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
+import moment from 'moment';
+import { Rating, AirbnbRating } from 'react-native-elements';
 
 type IItem = {
 	item: typeImageData;
 	index: number;
 };
+
 type Props = {
 	route: {
 		params: {
@@ -27,22 +28,17 @@ type Props = {
 
 type typeImageData = { id: string; source: string };
 
-type DescriptionType = { id: string; name: string; avatar: string; content: string };
-type dataDescrip = {
+type DescriptionType = { id: string; name: string; avatar: string; content: string; timeCreated: string; rating:number };
+
+type dataDescription = {
 	item: DescriptionType;
 };
 
 interface uniqueReviews  {
 	comment: comment,
-	userInfo : InforUser
+	userInfo : InfoUser
 
 }
-
-
-
-
-
-
 
 const Data = [
 	{
@@ -78,7 +74,7 @@ type comment = {
 	rating : number 
 }
 
-type InforUser = {
+type InfoUser = {
 	id:string,
 	gender : string,
 	address : string[],
@@ -90,65 +86,20 @@ type InforUser = {
 	urlAvatar : string
 }
 
-
 type ListData = DescriptionType[]
 
-
-const descriptionData = [
-	{
-		id: "01",
-		name: "Minh Nguyen",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "02",
-		name: "Hung Nguyen",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "03",
-		name: "Duy Vo",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "04",
-		name: "Dat Ngo",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "05",
-		name: "Data Science",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "06",
-		name: "Machine Learning",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-];
-
-
 const DescriptionTab = ({ route, navigation }: Props) => {
-	console.log("it ran")
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 
 	// fetch list of reviews 
 	useEffect(() => {
-		console.log("effect called")
 		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`)
 		.then((response) => response.json())
 		.then((json) => {
             setData(json)
-			console.log("==============================")
-            console.log(json) // For debugging. Check if the effect is called multiple times or not
+            // console.log(json) 
         })
 		.catch((err) => console.error(err))
 	},[])
@@ -157,29 +108,33 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	let dataCombine = [] as ListData
 
 	data.forEach((review) => {
-		let ThisData = {} as DescriptionType  
-		ThisData.id = dataPoint.toString()
-		dataPoint ++
-		ThisData.content = review.comment.content
-		ThisData.avatar = review.userInfo.urlAvatar
-		ThisData.name = review.userInfo.name
-		dataCombine.push(ThisData)
+		let ThisData = {} as DescriptionType;
+		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+
+		ThisData.id = dataPoint.toString();
+
+		ThisData.content = review.comment.content;
+		ThisData.avatar = review.userInfo.urlAvatar;
+		ThisData.name = review.userInfo.name;
+		ThisData.timeCreated = formattedDate;
+		ThisData.rating = review.comment.rating;
+	
+		dataCombine.push(ThisData);
 	})
 
-	// useEffect(()=>{
-	// 	console.log("data below")
-	// 	console.log(dataCombine)
-	// })
-
 	// Render list of descriptions for Flatlist
-	const renderDescription = ({ item }: dataDescrip) => (
-		<View>
+	const renderDescription = ({ item }: dataDescription) => (
+		<View style={{ marginBottom: 20}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				<Text style={styles.profileName}>{item.name}</Text>
+				<View style={{marginLeft: 10}}>
+					<Text style={styles.profileName}>{item.name}</Text>
+					<Text style={styles.timeStamp}>{item.timeCreated}</Text>
+				</View>
 			</View>
-			<View style={styles.DescriptionBox}>
-				<Text style={{ fontSize: 12 }}>{item.content}</Text>
+			<View style={{marginLeft: 80, marginRight: 30}}>
+				<Text style={{ fontSize: 15 }}>{item.content}</Text>
 			</View>
 		</View>
 	);
@@ -189,28 +144,12 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
 
-	// Button press handler
-	const onPressThing = () => {
-		Alert.alert("Alert Title", "My Alert Msg", [
-			{
-				text: "Ask me later",
-				onPress: () => console.log("Ask me later pressed"),
-			},
-			{
-				text: "Cancel",
-				onPress: () => console.log("Cancel Pressed"),
-				style: "cancel",
-			},
-			{ text: "OK", onPress: () => console.log("OK Pressed") },
-		]);
-	};
-
 	return (
 		<>
 			<View style={{ flex: 1 }}>
 				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} />
 
-				<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
+				<View style={{ flex: 1, backgroundColor: "white"}}>
 					<View>
 						<Animated.ScrollView
 							style={{ backgroundColor: "white" }}
@@ -221,9 +160,9 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								useNativeDriver: false,
 							})}
 						>
-							<Text style={styles.DescriptionTitle}>Description</Text>
-							<Text style={styles.DescriptionBox}>{description}</Text>
-							<Text style={styles.DescriptionTitle}>Gallery</Text>
+							<Text style={styles.descriptionTitle}>Description</Text>
+							<Text style={styles.descriptionBox}>{description}</Text>
+							<Text style={styles.descriptionTitle}>Gallery</Text>
 							<View style={{ marginLeft: "10%" }}>
 								<FlatList
 									data={Data}
@@ -235,7 +174,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								/>
 							</View>
 							<View style={{ paddingBottom: 100 }}>
-								<Text style={styles.DescriptionTitle}>Reviews</Text>
+								<Text style={styles.descriptionTitle}>Reviews</Text>
 								<FlatList
 									data={dataCombine}
 									renderItem={renderDescription}
@@ -275,8 +214,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	);
 };
 
-
-
 const styles = StyleSheet.create({
 	header: {
 		/* aero/dark */
@@ -290,40 +227,14 @@ const styles = StyleSheet.create({
 		borderBottomRightRadius: 30,
 		borderBottomLeftRadius: 30,
 	},
-	nameLocation: {
-		textAlign: "center",
-		textAlignVertical: "bottom",
-		paddingTop: "2%",
-		marginBottom: "2%",
-		lineHeight: 70,
-		fontSize: 30,
-	},
-	DistancePlace: {
-		textAlign: "center",
-		textAlignVertical: "center",
-		paddingTop: "2%",
-		fontSize: 10,
-		paddingBottom: "5%",
-	},
-	buttonBack: {
-		paddingTop: "2%",
-		marginRight: 120,
-		marginTop: "3%",
-	},
-	buttonInfo: {
-		paddingTop: "2%",
-		marginLeft: 120,
-		marginTop: "3%",
-	},
-
-	DescriptionTitle: {
+	descriptionTitle: {
 		marginTop: "4%",
 		fontSize: 25,
 		marginLeft: "10%",
 		color: "rgb(211,184,115)",
 		paddingBottom: "2%",
 	},
-	DescriptionBox: {
+	descriptionBox: {
 		paddingBottom: "5%",
 		paddingRight: "10%",
 		paddingLeft: "10%",
@@ -343,21 +254,22 @@ const styles = StyleSheet.create({
 		height: 250,
 		flexGrow: 0,
 	},
-
 	profileImage: {
-		marginLeft: "8%",
+		marginLeft: 30,
 		height: 40,
 		width: 40,
 		borderRadius: 40,
 		overflow: "hidden",
 	},
 	profileName: {
-		fontSize: 14,
+		fontSize: 16,
 		fontWeight: "400",
-		paddingLeft: "2%",
-		paddingTop: 10,
 	},
+	timeStamp: {
+		fontSize: 12,
+		color: "#959595",
+		fontWeight: "400",
+	}
 });
 
 export default DescriptionTab;
-
