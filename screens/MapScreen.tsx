@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Platform } from "react-native";
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	ActivityIndicator,
+	Alert,
+	Platform,
+} from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
@@ -22,7 +30,6 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [destinationStr, setDestinationStr] = useState<string>("");
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
-
 
 	// Fetch and Set the state of destination's geolocation
 	useEffect(() => {
@@ -88,7 +95,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			// if the user is within the radius of 100meters -> user has arrived!
 			if (dist <= 0.1) {
 				setIsArrived(true);
-				navigation.navigate('Camera screen')
+				navigation.navigate("Camera screen");
 				return;
 			}
 			setIsArrived(false);
@@ -106,22 +113,6 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			console.log("User has NOT arrived yet!");
 		}
 	}, [isArrived]);
-
-	// Create Alert Message upon arrival to the destination
-	// const createTwoButtonAlert = () =>
-	// 	Alert.alert(
-	// 		"Congratulations!",
-	// 		"You have arrived to the COOL place!",
-	// 		[
-	// 			{
-	// 				text: "Dismiss",
-	// 				onPress: () => console.log("Cancel Pressed"),
-	// 				style: "cancel",
-	// 			},
-	// 			{ text: "OK", onPress: pickImage },
-	// 		],
-	// 		{ cancelable: false }
-	// 	);
 
 	return (
 		<>

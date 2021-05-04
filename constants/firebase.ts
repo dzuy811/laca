@@ -1,7 +1,7 @@
 import firebase from 'firebase'
 
 export const firebaseConfig = {
-    apiKey: 'AIzaSyBuXWjyEF7GWQ3vqIOt1Q9PryDTWpyMR0o',
+    apiKey: "AIzaSyBuXWjyEF7GWQ3vqIOt1Q9PryDTWpyMR0o",
     authDomain: "laca-59b8c.firebaseapp.com",
     projectId: "laca-59b8c",
     storageBucket: "laca-59b8c.appspot.com",

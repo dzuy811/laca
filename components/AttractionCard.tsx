@@ -30,7 +30,7 @@ export default class AttractionCard extends Component<CardProps> {
 	}
 
 	componentDidMount() {
-		console.log(this.props.data);
+		// console.log(this.props.data);
 	}
 
 	render() {
