@@ -26,9 +26,19 @@ type Props = {
 	navigation: any;
 };
 
-type typeImageData = { id: string; source: string };
+type typeImageData = { 
+	id: string; 
+	source: string 
+};
 
-type DescriptionType = { id: string; name: string; avatar: string; content: string; timeCreated: string; rating:number };
+type DescriptionType = { 
+	id: string; 
+	name: string; 
+	avatar: string; 
+	content: string; 
+	timeCreated: string; 
+	rating: number 
+};
 
 type dataDescription = {
 	item: DescriptionType;
@@ -37,9 +47,9 @@ type dataDescription = {
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : InfoUser
-
 }
 
+// Mock data for Gallery Pictures
 const Data = [
 	{
 		id: "01",
@@ -64,10 +74,10 @@ const Data = [
 ];
 
 type comment = {
-	id:string,
-	timeCreated:any,
+	id: string,
+	timeCreated: any,
 	likeCount: number,
-	images:string[], 
+	images: string[], 
 	uid: any,
 	content: string,
 	aid: string,
@@ -75,10 +85,10 @@ type comment = {
 }
 
 type InfoUser = {
-	id:string,
+	id: string,
 	gender : string,
 	address : string[],
-	name:string,
+	name: string,
 	phoneNumber: string,
 	friendsCount : number,
 	totalReward : number,
@@ -104,8 +114,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.catch((err) => console.error(err))
 	},[])
 
-	let dataPoint = 0
-	let dataCombine = [] as ListData
+	let dataPoint = 0;
+	let dataCombine = [] as ListData;
 
 	data.forEach((review) => {
 		let ThisData = {} as DescriptionType;
@@ -128,9 +138,19 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		<View style={{ marginBottom: 20}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				<View style={{marginLeft: 10}}>
-					<Text style={styles.profileName}>{item.name}</Text>
-					<Text style={styles.timeStamp}>{item.timeCreated}</Text>
+				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
+					<View style={{width: '73%'}}>
+						<Text style={styles.profileName}>{item.name}</Text>
+						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
+					</View>
+					<View style={{width: '10%'}}>
+						<Rating 
+							imageSize={15} 
+							readonly 
+							startingValue={item.rating} 
+							style={styles.rating} 
+						/>
+					</View>
 				</View>
 			</View>
 			<View style={{marginLeft: 80, marginRight: 30}}>
@@ -147,6 +167,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	return (
 		<>
 			<View style={{ flex: 1 }}>
+				{/* Header */}
 				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} />
 
 				<View style={{ flex: 1, backgroundColor: "white"}}>
@@ -160,8 +181,11 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								useNativeDriver: false,
 							})}
 						>
+							{/* Description */}
 							<Text style={styles.descriptionTitle}>Description</Text>
 							<Text style={styles.descriptionBox}>{description}</Text>
+
+							{/* Gallery */}
 							<Text style={styles.descriptionTitle}>Gallery</Text>
 							<View style={{ marginLeft: "10%" }}>
 								<FlatList
@@ -173,6 +197,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									style={styles.flatList}
 								/>
 							</View>
+
+							{/* Reviews */}
 							<View style={{ paddingBottom: 100 }}>
 								<Text style={styles.descriptionTitle}>Reviews</Text>
 								<FlatList
@@ -184,6 +210,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						</Animated.ScrollView>
 					</View>
 				</View>
+
+				{/* Journey Starting Button */}
 				<LinearGradient
 					colors={["rgba(255,255,355,0.02)", "rgba(255,255,355,1)"]}
 					style={{
@@ -216,7 +244,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 const styles = StyleSheet.create({
 	header: {
-		/* aero/dark */
 		position: "relative",
 		height: 200,
 		top: 0,
@@ -269,6 +296,10 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		color: "#959595",
 		fontWeight: "400",
+	},
+	rating: {
+		paddingVertical: 10,
+		justifyContent: 'flex-end'
 	}
 });
 
