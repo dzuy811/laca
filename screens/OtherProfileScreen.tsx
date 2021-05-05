@@ -9,6 +9,8 @@ import 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
 import axios from "axios";
+import { storeData, getData } from "../constants/utility";
+
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -17,51 +19,81 @@ function OtherProfileScreen({ route, navigation }) {
 
     const [data, setData] = useState(route.params.data);
     const [isRequested, setIsRequested] = useState<boolean>();
+    const [isRequestSentByCurrentUser, setIsRequestSentByCurrentUser] = useState(false);
     const requestID = route.params.requestID
-    
+
     function acceptRequest(requestID: string) {
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/accept`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/accept`
         let body = {
             friendRequestID: requestID
         }
         console.log(body)
         axios.post(url, body)
-        .then(res => {
-            navigation.goBack()
-        })
-        .catch(err => {
-            console.log(err);
-        })
+            .then(res => {
+                navigation.goBack()
+                console.log('Go back to navigation screen')
+                console.log('-----------------------------')
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     function removeRequest(requestID: string) {
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/${requestID}/remove`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/${requestID}/remove`
         axios.delete(url)
-        .then(res => {
-            console.log(res)
-        })
-        .catch(err => {
-            console.log(err)
-        })
+            .then(res => {
+                console.log(res)
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
 
     function checkUserRelationship(data: {}) {
         let user = firebase.auth().currentUser
-        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/get?userID=${user?.uid}&otherUserID=${data.id}`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/get?userID=${data.id}&otherUserID=${user?.uid}`
         console.log(url);
         axios.get(url)
-        .then(res => {
-            setIsRequested(true)
-        })
-        .catch(err => {
-            setIsRequested(false)
-        })
+            .then(res => {
+                setIsRequested(true)
+                console.log(user?.uid)
+                if (res.data.sendUser.id == user?.uid) {
+                    console.log('send user is the one requested')
+                    setIsRequestSentByCurrentUser(true)
+                } else {
+                    console.log('send user is not the requested')
+                    setIsRequestSentByCurrentUser(false)
+                }
+                console.log("dasdasds")
+            })
+            .catch(err => {
+                setIsRequested(false)
+            })
+    }
+
+    function sendRequest() {
+        let user = firebase.auth().currentUser
+        let url = 'http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/send'
+        let body = {
+            sendUserID: user?.uid,
+            receiveUserID: data.id
+        }
+        axios.post(url, body)
+            .then(res => {
+                navigation.goBack()
+                console.log('Go back to navigation screen')
+                console.log('-----------------------------')
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     useEffect(() => {
         checkUserRelationship(data)
-        
+
     }, [])
 
 
@@ -124,40 +156,62 @@ function OtherProfileScreen({ route, navigation }) {
                 </View>
 
             </View>
-            <View style={{marginTop: 80}}>
-                {isRequested? 
-                <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                    <View style={{marginHorizontal: 10}}>
-                        <Button
-                        title="Accept"
-                        buttonStyle={styles.buttonRequest}
-                        onPress={() => acceptRequest(requestID)}
-                        />                                        
-                    </View>
-                    <View>
-                        <Button
-                        title="Remove"
-                        type="outline"
-                        buttonStyle={styles.buttonRequest}
-                        onPress={() => removeRequest(requestID)}
-                        />
-                    </View>
-                </View>
-                :
-                <Button
-                title="Connect"
+            <View style={{ marginTop: 80 }}>
+                {isRequested ?
+                    <>
+                        {isRequestSentByCurrentUser ?
+                            <Button
+                                title="Request sent"
+                                disabled={true}
+                                buttonStyle={{
+                                    width: '90%',
+                                    alignSelf: 'center',
+                                    backgroundColor: '#8dbae2',
+                                    paddingHorizontal: 50,
+                                    paddingVertical: 18,
+                                    borderRadius: 30
+                                }}
+                            />
+                            :
+                            <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+                                <View style={{ marginHorizontal: 10 }}>
+                                    <Button
+                                        title="Accept"
+                                        buttonStyle={styles.buttonRequest}
+                                        onPress={() => acceptRequest(requestID)}
+                                    />
+                                </View>
+                                <View>
+                                    <Button
+                                        title="Remove"
+                                        type="outline"
+                                        buttonStyle={styles.buttonRequest}
+                                        onPress={() => removeRequest(requestID)}
+                                    />
+                                </View>
+                            </View>
 
-                buttonStyle={{
-                    width: '90%', 
-                    alignSelf: 'center', 
-                    backgroundColor: '#8dbae2',
-                    paddingHorizontal: 50,
-                    paddingVertical: 18,
-                    borderRadius: 30
-                }}
-                />
+                        }
+
+                    </>
+
+
+
+                    :
+                    <Button
+                        title="Connect"
+                        onPress={() => sendRequest()}
+                        buttonStyle={{
+                            width: '90%',
+                            alignSelf: 'center',
+                            backgroundColor: '#8dbae2',
+                            paddingHorizontal: 50,
+                            paddingVertical: 18,
+                            borderRadius: 30
+                        }}
+                    />
                 }
-               
+
             </View>
         </View>
     );

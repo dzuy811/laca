@@ -5,6 +5,7 @@ import { Input, Button, SearchBar } from 'react-native-elements';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import firebase from 'firebase';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const FriendScreen = ({navigation}) => {
 
@@ -27,15 +28,28 @@ const FriendScreen = ({navigation}) => {
         return data
     }
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            fetchRequest(user?.uid)
-            .then(data => {
+    useFocusEffect(
+        React.useCallback(() => {
+          const unsubscribe = fetchRequest(user.uid).then(data => {
                 setFriendRequests(data)
+                console.log('SUCCESS: Friend requests fetch succssfully');
+                console.log('-------------------------------------------');
+                console.log(data)   
             })
-        })
-        console.log('fetch friend request')
-    }, [navigation])
+    
+          return () => unsubscribe;
+        }, [navigation])
+      );
+
+    // useEffect(() => {
+    //         fetchRequest(user.uid)
+    //             .then(data => {
+    //                 setFriendRequests(data)
+    //                 console.log('SUCCESS: Friend requests fetch succssfully');
+    //                 console.log('-------------------------------------------');
+    //                 console.log(data)             
+    //             })
+    // }, [navigation])
 
     function searchUser(phone: string) {
         // localhost-home: http://192.168.2.105:5001/laca-59b8c/asia-east2/api
@@ -60,10 +74,19 @@ const FriendScreen = ({navigation}) => {
         }
         axios.post(url, body)
         .then(res => {
-            fetchRequest(user?.uid)
-            .then(data => {
-                setFriendRequests(data)
-            })
+            if (user) {
+            fetchRequest(user.uid)
+                .then(data => {
+                    setFriendRequests(data)
+                    console.log('SUCCESS: Friend requests fetch successfully');
+                    console.log('-------------------------------------------');
+                    
+                })
+            }
+            else {
+                console.log('ERROR: No user found');
+                console.log('-------------------------------------------');   
+            }
         })
         .catch(err => {
             console.log(err);
@@ -74,15 +97,24 @@ const FriendScreen = ({navigation}) => {
         let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/${requestID}/remove`
         axios.delete(url)
         .then(res => {
-            fetchRequest(user?.uid)
-            .then(data => {
-                setFriendRequests(data)
-            })
+            if (user) {
+            fetchRequest(user.uid)
+                .then(data => {
+                    setFriendRequests(data)
+                    console.log('SUCCESS: Friend requests fetch successfully');
+                    console.log('-------------------------------------------');
+                    
+                })
+            }
+            else {
+                console.log('ERROR: No user found');
+                console.log('-------------------------------------------');   
+            }
         })
     }
 
     return (
-        <TouchableWithoutFeedback style={{ height: '100%' }} onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback style={{ height: '100%' }} onPress={Keyboard.dismiss}>
 
         <SafeAreaView style={{backgroundColor: '#fff', height: '100%'}}>
             <View style={{
@@ -113,7 +145,7 @@ const FriendScreen = ({navigation}) => {
                     placeholderTextColor='#dfebf7'                    
                 />
             </View>
-            {foundUser != null? 
+            {foundUser != null ? 
             <TouchableOpacity onPress={() => navigation.navigate("User Profile", { data: foundUser})}>
                 <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginBottom: 20}}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
