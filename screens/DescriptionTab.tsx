@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-// import React from "react";
-import { View, Text, StyleSheet, Image, FlatList, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, FlatList, Animated, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
 import moment from 'moment';
-import { Rating, AirbnbRating } from 'react-native-elements';
+import { Rating } from 'react-native-elements';
+import { AntDesign } from "@expo/vector-icons";
 
-type IItem = {
+type iItem = {
 	item: typeImageData;
 	index: number;
 };
@@ -31,22 +31,23 @@ type typeImageData = {
 	source: string 
 };
 
-type DescriptionType = { 
+type descriptionType = { 
 	id: string; 
 	name: string; 
 	avatar: string; 
 	content: string; 
 	timeCreated: string; 
-	rating: number 
+	rating: number,
+	likeCount: number
 };
 
 type dataDescription = {
-	item: DescriptionType;
+	item: descriptionType;
 };
 
 interface uniqueReviews  {
 	comment: comment,
-	userInfo : InfoUser
+	userInfo : infoUser
 }
 
 // Mock data for Gallery Pictures
@@ -84,7 +85,7 @@ type comment = {
 	rating : number 
 }
 
-type InfoUser = {
+type infoUser = {
 	id: string,
 	gender : string,
 	address : string[],
@@ -96,7 +97,7 @@ type InfoUser = {
 	urlAvatar : string
 }
 
-type ListData = DescriptionType[]
+type listData = descriptionType[]
 
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
@@ -115,27 +116,29 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	},[])
 
 	let dataPoint = 0;
-	let dataCombine = [] as ListData;
+	let dataCombine = [] as listData;
 
 	data.forEach((review) => {
-		let ThisData = {} as DescriptionType;
+		let data = {} as descriptionType;
+
+		// Format the timestamp from date to string
 		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
 		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 
-		ThisData.id = dataPoint.toString();
-
-		ThisData.content = review.comment.content;
-		ThisData.avatar = review.userInfo.urlAvatar;
-		ThisData.name = review.userInfo.name;
-		ThisData.timeCreated = formattedDate;
-		ThisData.rating = review.comment.rating;
+		data.id = dataPoint.toString();
+		data.content = review.comment.content;
+		data.avatar = review.userInfo.urlAvatar;
+		data.name = review.userInfo.name;
+		data.timeCreated = formattedDate;
+		data.rating = review.comment.rating;
+		data.likeCount = review.comment.likeCount;
 	
-		dataCombine.push(ThisData);
+		dataCombine.push(data);
 	})
 
-	// Render list of descriptions for Flatlist
+	// Render list of descriptions for Flat List
 	const renderDescription = ({ item }: dataDescription) => (
-		<View style={{ marginBottom: 20}}>
+		<View style={{ marginBottom: 30}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
@@ -143,7 +146,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						<Text style={styles.profileName}>{item.name}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
-					<View style={{width: '10%'}}>
+					<View style={{ width: '10%' }}>
 						<Rating 
 							imageSize={15} 
 							readonly 
@@ -153,14 +156,22 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					</View>
 				</View>
 			</View>
-			<View style={{marginLeft: 80, marginRight: 30}}>
-				<Text style={{ fontSize: 15 }}>{item.content}</Text>
+			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
+				<View style={{width: '10%',  marginRight: "2%"}}>
+					<TouchableOpacity onPress={() => console.log("The up vote test")}>
+						<AntDesign name="up" size={30} color={item.likeCount != 0 ? "green" : "black"} />
+					</TouchableOpacity>
+					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{item.likeCount}</Text>
+				</View>
+				<View style={{ width: '80%'}}>
+					<Text style={{ fontSize: 15 }}>{item.content}</Text>
+				</View>
 			</View>
 		</View>
 	);
 
-	// Render list of images for Flatlist
-	const renderImage = ({ item, index }: IItem) => {
+	// Render list of images for Flat List
+	const renderImage = ({ item, index }: iItem) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
 
