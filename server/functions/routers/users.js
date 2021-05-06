@@ -177,6 +177,48 @@ router.get("/:id/friendships", async (req, res) => {
 	}
 });
 
+/// ----- LEADERBOARD of All Users ----- ///
+router.get("/details/leaderboard", async (req, res) => {
+	try {
+		// Declare DB Reference
+		const db = admin.firestore();
+		// Declare Users collection reference
+		const userCollectionRef = db.collection("users");
+
+		// Get snapshot of the Users collection
+		const userCollectionSnapshot = await userCollectionRef.get();
+
+		let users = [];
+		for await (let user of userCollectionSnapshot.docs) {
+			users.push({
+				user: user.id,
+				...user.data(),
+			});
+		}
+		// Sort users by ranking on journeyCount in DESCending ORDER
+		users.sort(helper.sortBy("journeyCount", true, null));
+
+		// Add Ranking property for each user in the friendlist including the current user
+		let rank = 1;
+		for (var i = 0; i < users.length; i++) {
+			// increase rank only if current score less than previous
+			if (i > 0 && users[i].journeyCount < users[i - 1].journeyCount) {
+				rank++;
+			}
+			users[i].rank = rank;
+		}
+		return res.status(200).json({
+			totalUsers: users.length,
+			leaderboard: users,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
 /// ----- LEADERBOARD Between Friends (friendships) of a user ----- ///
 router.get("/:id/friendships/leaderboard", async (req, res) => {
 	try {
