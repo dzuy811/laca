@@ -1,9 +1,23 @@
-import React from 'react'
+import axios from 'axios';
+import firebase from 'firebase';
+import React, { useEffect } from 'react'
 import { Text, View, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { getData } from '../constants/utility';
 
 const RankingHeader = () => {
+
+    useEffect(() => {
+        const userID = firebase.auth().currentUser?.uid
+        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
+        axios.get(url)
+        .then(res => {
+            console.log(res)
+        })
+        console.log(url)
+        
+    }, [])
 
 return (
     <View>
@@ -29,6 +43,7 @@ const cityRanking = () => {
                 <View style={{ width: '20%' }}>
                     <Text>1</Text>
                 </View>
+
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
                     <View>
                         <Image
