@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, FlatList, Animated, TouchableOpacity } from "react-native";
+import { View, Text, Modal, StyleSheet, Image, FlatList, Animated, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -38,7 +38,8 @@ type descriptionType = {
 	content: string; 
 	timeCreated: string; 
 	rating: number,
-	likeCount: number
+	likeCount: number,
+	replyCount: number
 };
 
 type dataDescription = {
@@ -47,7 +48,8 @@ type dataDescription = {
 
 interface uniqueReviews  {
 	comment: comment,
-	userInfo : infoUser
+	userInfo : infoUser,
+	replyCount: number
 }
 
 // Mock data for Gallery Pictures
@@ -82,7 +84,7 @@ type comment = {
 	uid: any,
 	content: string,
 	aid: string,
-	rating : number 
+	rating : number,
 }
 
 type infoUser = {
@@ -132,6 +134,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		data.timeCreated = formattedDate;
 		data.rating = review.comment.rating;
 		data.likeCount = review.comment.likeCount;
+		data.replyCount = review.replyCount;
 	
 		dataCombine.push(data);
 	})
@@ -165,6 +168,19 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				</View>
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
+				</View>
+				{/* Reply section */}
+				<View style={{ paddingLeft: "10%" }}>
+					{item.replyCount == 0 ? // if there is not any reply
+					(
+					<View>
+					</View>
+					) : (
+					<View>
+						<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+					</View>
+					)
+					}
 				</View>
 			</View>
 		</View>
