@@ -1,10 +1,9 @@
-const functions = require("firebase-functions");
 const express = require("express");
-const Cors = require("cors");
 const router = express.Router();
 
 // Import Admin SDK
 const admin = require("../constants/firebase");
+const helper = require("../utilities/helper");
 // ---- API for USERS Collection (/api/users/) ----- //
 // Get ALL Users
 router.get("/", (req, res) => {
@@ -114,46 +113,194 @@ router.get("/search/details", async (req, res) => {
 		console.log(error);
 	}
 });
-
+/// ----- FRIENDSHIPs of a user ----- ///
 // Friendship of a user
 router.get("/:id/friendships", async (req, res) => {
 	try {
-		// Declare DB Firebase
+		// Declare DB Reference
 		const db = admin.firestore();
+		const userID = req.params.id;
 
-		// Retrieve user's reference
-		const userRef = db.doc("users/" + req.params.id);
-		const user = await userRef.get();
+		// Reference to the user by params id
+		const userRef = db.doc("users/" + userID);
+		const userSnapshot = await userRef.get();
 
-		// Retrieve friendship reference from collections
-		const friendshipSnapshot = await db
+		// Query list of friends of that particular user
+		const friendshipQuery_user = await db
 			.collection("friendships")
 			.where("user", "==", userRef)
 			.get();
+		const friendshipQuery_otherUser = await db
+			.collection("friendships")
+			.where("otherUser", "==", userRef)
+			.get();
 
-		if (friendshipSnapshot.empty) {
-			console.log("Empty Friendship for User's ID", userRef.id);
+		const queryArray_user = friendshipQuery_user.docs;
+		const queryArray_otherUser = friendshipQuery_otherUser.docs;
+
+		if (queryArray_user.length == 0 && queryArray_otherUser.length == 0) {
 			return res.status(200).json([]);
 		}
 
-		let response = [];
-		for await (let friendship of friendshipSnapshot.docs) {
-			let fsSnapshot = await friendship.data().otherUser.get();
-			response.push({
-				user: {
-					id: fsSnapshot.id,
-					...fsSnapshot.data(),
-				},
+		// Union of two sets to remove duplicate on prop "id"
+		const queryArray = helper.unionOnProp(queryArray_user, queryArray_otherUser, "id");
+
+		// Retrieve friend's ID from friendship entity
+		let responses = [];
+		for await (let friendship of queryArray) {
+			let currentFriendUserSnapshot;
+			const userData = friendship.data().user;
+			const otherUserData = friendship.data().otherUser;
+			// Assign IDs to the friend reference
+			if (userData.id == userRef.id) {
+				currentFriendUserSnapshot = await otherUserData.get();
+			} else {
+				currentFriendUserSnapshot = await userData.get();
+			}
+			responses.push({
+				id: friendship.id,
 				createdAt: friendship.data().createdAt,
+				otherUser: {
+					...currentFriendUserSnapshot.data(),
+				},
 			});
 		}
-		return res.json({
-			friendsCount: user.data().friendsCount,
-			friends: response,
+		return res.status(200).json({
+			friendsCount: userSnapshot.data().friendsCount,
+			friendships: responses,
 		});
 	} catch (error) {
 		res.status(400).json({
 			message: `ERROR 400`,
+		});
+		console.log(error);
+	}
+});
+
+/// ----- LEADERBOARD of All Users ----- ///
+router.get("/details/leaderboard", async (req, res) => {
+	try {
+		// Declare DB Reference
+		const db = admin.firestore();
+		// Declare Users collection reference
+		const userCollectionRef = db.collection("users");
+
+		// Get snapshot of the Users collection
+		const userCollectionSnapshot = await userCollectionRef.get();
+
+		let users = [];
+		for await (let user of userCollectionSnapshot.docs) {
+			users.push({
+				user: user.id,
+				...user.data(),
+			});
+		}
+		// Sort users by ranking on journeyCount in DESCending ORDER
+		users.sort(helper.sortBy("journeyCount", true, null));
+
+		// Add Ranking property for each user in the friendlist including the current user
+		let rank = 1;
+		for (var i = 0; i < users.length; i++) {
+			// increase rank only if current score less than previous
+			if (i > 0 && users[i].journeyCount < users[i - 1].journeyCount) {
+				rank++;
+			}
+			users[i].rank = rank;
+		}
+		return res.status(200).json({
+			totalUsers: users.length,
+			leaderboard: users,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+/// ----- LEADERBOARD Between Friends (friendships) of a user ----- ///
+router.get("/:id/friendships/leaderboard", async (req, res) => {
+	try {
+		// Declare DB Reference
+		const db = admin.firestore();
+		const userID = req.params.id;
+
+		// Reference to the user by params id
+		const userRef = db.doc("users/" + userID);
+		const userSnapshot = await userRef.get();
+
+		// Query list of friends of that particular user
+		const friendshipQuery_user = await db
+			.collection("friendships")
+			.where("user", "==", userRef)
+			.get();
+		const friendshipQuery_otherUser = await db
+			.collection("friendships")
+			.where("otherUser", "==", userRef)
+			.get();
+
+		const queryArray_user = friendshipQuery_user.docs;
+		const queryArray_otherUser = friendshipQuery_otherUser.docs;
+
+		if (queryArray_user.length == 0 && queryArray_otherUser.length == 0) {
+			return res.status(200).json([]);
+		}
+
+		// Union of two sets to remove duplicate on prop "id"
+		const queryArray = helper.unionOnProp(queryArray_user, queryArray_otherUser, "id");
+		queryArray.sort(helper.sortBy());
+
+		// Retrieve friend's ID from friendship entity
+		let responses = [];
+		for await (let friendship of queryArray) {
+			let currentFriendUserSnapshot;
+			const userData = friendship.data().user;
+			const otherUserData = friendship.data().otherUser;
+			// Assign IDs to the friend reference
+			if (userData.id == userID) {
+				currentFriendUserSnapshot = await otherUserData.get();
+			} else {
+				currentFriendUserSnapshot = await userData.get();
+			}
+			responses.push({
+				// id: friendship.id,
+				// createdAt: friendship.data().createdAt,
+
+				...currentFriendUserSnapshot.data(),
+			});
+		}
+		// Append current user to the list for ranking purpose
+		responses.push({
+			id: userSnapshot.id,
+			...userSnapshot.data(),
+		});
+
+		// Sort by journey count value in DESCending order
+		responses.sort(helper.sortBy("journeyCount", true, null));
+
+		// Add Ranking property for each user in the friendlist including the current user
+		let rank = 1;
+		let currentUserRank;
+		for (var i = 0; i < responses.length; i++) {
+			// increase rank only if current score less than previous
+			if (i > 0 && responses[i].journeyCount < responses[i - 1].journeyCount) {
+				rank++;
+			}
+			responses[i].rank = rank;
+			// Define current user's rank
+			if (responses[i].id == userID) {
+				currentUserRank = rank;
+			}
+		}
+
+		return res.status(200).json({
+			currentUserRank,
+			leaderboard: responses,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
 		});
 		console.log(error);
 	}
