@@ -169,18 +169,20 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
 				</View>
+				
 				{/* Reply section */}
 				<View style={{ paddingLeft: "10%" }}>
 					{item.replyCount == 0 ? // if there is not any reply
 					(
-					<View>
-					</View>
+						<View>
+						</View>
 					) : (
-					<View>
-						<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-					</View>
-					)
-					}
+						<View>
+								<TouchableOpacity onPress={() => console.log("Reply")}>
+									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+								</TouchableOpacity>
+						</View>
+					)}
 				</View>
 			</View>
 		</View>
