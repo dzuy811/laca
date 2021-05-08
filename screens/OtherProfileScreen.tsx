@@ -43,6 +43,7 @@ function OtherProfileScreen({ route, navigation }) {
         let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/${requestID}/remove`
         axios.delete(url)
             .then(res => {
+                navigation.goBack()
                 console.log(res)
             })
             .catch(err => {
