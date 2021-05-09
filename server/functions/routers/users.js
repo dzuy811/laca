@@ -44,7 +44,9 @@ router.post("/", (req, res) => {
 		.add(newUser)
 		.then((doc) => {
 			res.json({
-				message: `document ${doc.id} created successfully.`,
+				id: doc.id,
+				path: `users/${doc.id}`,
+				message: `User document ${doc.id} created successfully.`,
 			});
 		})
 		.catch((err) => {
@@ -182,33 +184,32 @@ router.get("/details/leaderboard", async (req, res) => {
 	try {
 		// Declare DB Reference
 		const db = admin.firestore();
-		// Declare Users collection reference
-		const userCollectionRef = db.collection("users");
-
+		// Define query params
+		const { size } = req.query;
 		// Get snapshot of the Users collection
-		const userCollectionSnapshot = await userCollectionRef.get();
+		var userCollectionQuery;
+		if (size) {
+			userCollectionQuery = db
+				.collection("users")
+				.orderBy("journeyCount", "desc")
+				.limit(parseInt(size));
+		} else {
+			userCollectionQuery = db.collection("users").orderBy("journeyCount", "desc");
+		}
 
-		let users = [];
-		for await (let user of userCollectionSnapshot.docs) {
+		const usersSnapshot = await userCollectionQuery.get();
+		const snapshotLength = usersSnapshot.docs.length;
+
+		users = [];
+		for await (let user of usersSnapshot.docs) {
 			users.push({
-				user: user.id,
+				id: user.id,
 				...user.data(),
 			});
 		}
-		// Sort users by ranking on journeyCount in DESCending ORDER
-		users.sort(helper.sortBy("journeyCount", true, null));
 
-		// Add Ranking property for each user in the friendlist including the current user
-		let rank = 1;
-		for (var i = 0; i < users.length; i++) {
-			// increase rank only if current score less than previous
-			if (i > 0 && users[i].journeyCount < users[i - 1].journeyCount) {
-				rank++;
-			}
-			users[i].rank = rank;
-		}
 		return res.status(200).json({
-			totalUsers: users.length,
+			totalUsers: snapshotLength,
 			leaderboard: users,
 		});
 	} catch (error) {
@@ -379,24 +380,125 @@ router.post("/histories", async (req, res) => {
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
 			user: userRef,
 			attraction: attractionRef,
+			status: req.body.status,
 		};
 
 		// Add new History object to Firestore (POST Method)
 		db.collection("histories")
 			.add(newHistory)
 			.then((doc) => {
-				userRef.update({
-					journeyCount: admin.firestore.FieldValue.increment(1),
-					totalReward: admin.firestore.FieldValue.increment(attractionReward),
-				});
-				res.json({
-					message: `History ${doc.id} created successfully`,
+				// userRef.update({
+				// 	journeyCount: admin.firestore.FieldValue.increment(1),
+				// 	totalReward: admin.firestore.FieldValue.increment(attractionReward),
+				// });
+				res.status(201).json({
+					id: doc.id,
+					path: `/histories/${doc.id}`,
+					message: `History document ${doc.id} created successfully.`,
 				});
 			});
 		// Increase journey's count by 1
 	} catch (error) {
 		res.status(400).json({
 			message: `ERROR 400`,
+		});
+		console.log(error);
+	}
+});
+
+// Journey History completition mark
+router.put("/histories/:id/finish", async (req, res) => {
+	try {
+		// Declare DB Reference
+		const db = admin.firestore();
+
+		// Params declaration
+		let { historyID } = req.params.id;
+
+		// Document History reference
+		const historyRef = db.collection("histories").doc(historyID);
+		const historySnapshot = await historyRef.get();
+		const historyUserRef = historySnapshot.data().user;
+		const historyAttractionRef = historySnapshot.data().attraction;
+
+		if (!historySnapshot.exists) {
+			throw new Error("History reference not found.");
+		}
+
+		// Mark the journey of the user as finished
+		await historyRef.update({
+			finishedAt: admin.firestore.Timestamp.fromDate(new Date()),
+			status: "finished",
+		});
+
+		// Transaction to to update current values for visitCount, journeyCount
+		const dbTransaction = db.runTransaction(async (t) => {
+			const docs = await t.getAll(historyUserRef, historyAttractionRef);
+			// Read snapshots via ref(s)
+			let user = docs[0];
+			let attraction = docs[1];
+			if (!user.exists) {
+				throw new Error("User reference not found.");
+			} else if (!attraction.exists) {
+				throw new Error("Attraction reference not found.");
+			}
+			// Read current values of all docs
+			let currentUserJourneyCount = user.data().journeyCount;
+			let currentUserReward = user.data().totalReward;
+			let currentAttractionVisitCount = attraction.data().visitCount;
+			// Update jounrey count prop for user
+			t.update(historyUserRef, {
+				journeyCount: currentUserJourneyCount + 1,
+				totalReward: currentUserReward + attraction.data().reward,
+			});
+			// Update visit count prop for attraction
+			t.update(historyAttractionRef, {
+				visitCount: currentAttractionVisitCount + 1,
+			});
+		});
+		return res.status(200);
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// Journey History cancellation mark
+router.put("/histories/:id/cancel", async (req, res) => {
+	try {
+		// Declare DB Reference
+		const db = admin.firestore();
+
+		// Params declaration
+		let { historyID } = req.params.id;
+
+		// Document History reference
+		const historyRef = db.collection("histories").doc(historyID);
+		const historySnapshot = await historyRef.get();
+
+		// Check existance of history reference
+		if (!historySnapshot.exists) {
+			throw new Error("History reference does not exist.");
+		}
+
+		// Check invalid history status to stop the function
+		if (historySnapshot.data().status == "finished") {
+			throw new Error("Journey has been completed and cannot be canceled.");
+		} else if (historySnapshot.data().status == "canceled") {
+			throw new Error("Journey has been canceled.");
+		}
+
+		await historyRef.update({
+			status: "canceled",
+		});
+		return res.status(200).json({
+			message: `History document ${historyRef} has been canceled successfully.`,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
 		});
 		console.log(error);
 	}

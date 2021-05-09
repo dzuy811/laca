@@ -19,6 +19,8 @@ router.post("/", (req, res) => {
 		.add(newReply)
 		.then((doc) => {
 			res.json({
+				id: doc.id,
+				path: `reply/${doc.id}`,
 				message: `document ${doc.id} created successfully`,
 			});
 		})

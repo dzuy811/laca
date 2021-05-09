@@ -46,6 +46,8 @@ router.post("/", (req, res) => {
 		.add(newAttraction)
 		.then((doc) => {
 			res.json({
+				id: doc.id,
+				path: `attractions/${doc.id}`,
 				message: `Attraction ${doc.id} created successfully.`,
 			});
 		})
