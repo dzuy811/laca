@@ -1,15 +1,19 @@
 import React, { FC, useState, useEffect } from "react";
 import { getFocusedRouteNameFromRoute, NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./authstack";
-import { Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, Platform } from "react-native";
 import { storeData, getData } from "../constants/utility";
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 import firebase from "firebase";
 
-import AttractionNavigator from "../navigator/AttractionNavigator";
-import ProfileNavigator from "../navigator/ProfileNavigator";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import ProfileScreen from "../screens/ProfileScreen";
+import AttractionNavigator from '../navigator/AttractionNavigator'
+import ProfileNavigator from '../navigator/ProfileNavigator'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import RankingScreen from '../screens/RankingScreen'
+import FriendScreen from '../screens/FriendScreen'
+import FriendNavigator from '../navigator/FriendNavigator';
 
 // Function to hide tab bar for some screen
 // docs: https://reactnavigation.org/docs/screen-options-resolution/
@@ -44,6 +48,7 @@ const MainNav: FC = () => {
 	useEffect(() => {
 		bootstrap();
 	}, []);
+
 
 	// Fetch details about current user save to the Async Storage
 	useEffect(() => {
@@ -84,63 +89,113 @@ const MainNav: FC = () => {
 			}
 		})();
 	}, [userData]);
-	return (
-		<NavigationContainer>
-			{user != null ? (
-				<Tab.Navigator
-					screenOptions={({ route }) => ({
-						tabBarIcon: ({ focused, color, size }) => {
-							let iconName;
-							let styleIcon;
-							if (route.name === "La Cà") {
-								iconName = require("../assets/sneaker.png");
-							} else if (route.name === "Shop") {
-								iconName = require("../assets/store.png");
-								styleIcon = focused ? styles.focusIcon : styles.unFocusIcon;
-							} else if (route.name === "Ranking") {
-								iconName = require("../assets/bar-chart.png");
-								styleIcon = focused ? styles.focusIcon : styles.unFocusIcon;
-							} else if (route.name === "Profile") {
-								iconName = require("../assets/user.png");
-								styleIcon = focused ? styles.focusIcon : styles.unFocusIcon;
-							}
 
-							// You can return any component that you like here!
-							return (
-								<Image
-									source={iconName}
-									style={[styles.tabBarIcon, focused ? styles.focusIcon : styles.unFocusIcon]}
-								/>
-							);
-						},
-					})}
-					tabBarOptions={{
-						activeTintColor: "#DFEBF7",
-						inactiveTintColor: "#8DBAE2",
-						style: {
-							backgroundColor: "#4B8FD2",
-						},
-						keyboardHidesTabBar: true,
-					}}
-				>
-					<Tab.Screen
-						name="La Cà"
-						component={AttractionNavigator}
-						options={({ route }) => ({
-							tabBarVisible: getTabBarVisibility(route),
-						})}
-					/>
-					<Tab.Screen name="Shop" component={ProfileScreen} />
-					<Tab.Screen name="Ranking" component={ProfileScreen} />
-					<Tab.Screen
-						name="Profile"
-						component={ProfileNavigator}
-						options={({ route }) => ({
-							tabBarVisible: getTabBarVisibility(route),
-						})}
-					/>
-				</Tab.Navigator>
-			) : (
+    async function registerForPushNotificationsAsync() {
+        let token;
+        if (Constants.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
+            let updates = { 'expoToken': ''}
+            updates.expoToken = token;
+            let userid = await getData("id")
+            console.log(userid)
+            await firebase.database().ref('/users/'+ userid).update(updates)
+
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+      
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+      
+        return token;
+    }
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => {
+
+        })
+    }, [])
+
+    return (
+        <NavigationContainer>
+            {user != null ?
+                <Tab.Navigator
+                    screenOptions={({ route }) => ({
+                        tabBarIcon: ({ focused, color, size }) => {
+                            let iconName;
+                            let styleIcon;
+                            if (route.name === 'La Cà') {
+                                iconName = require('../assets/sneaker.png')
+                            }
+                            else if (route.name === 'Shop') {
+                                iconName = require('../assets/store.png')
+                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
+                            }
+                            else if (route.name === 'Ranking') {
+                                iconName = require('../assets/bar-chart.png')
+                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
+                            }
+                            else if (route.name === 'Profile') {
+                                iconName = require('../assets/user.png')
+                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
+                            }
+
+                            // You can return any component that you like here!
+                            return <Image
+                                source={iconName}
+                                style={[styles.tabBarIcon, focused ? styles.focusIcon : styles.unFocusIcon]}
+                            />;
+                        },
+                    })}
+                    tabBarOptions={{
+                        activeTintColor: '#DFEBF7',
+                        inactiveTintColor: '#8DBAE2',
+                        style: {
+                            backgroundColor: '#4B8FD2'
+                        },
+                        keyboardHidesTabBar: true
+                    }}
+
+                >
+                    <Tab.Screen
+                        name="La Cà"
+                        component={AttractionNavigator}
+                        options={({ route }) => ({
+                            tabBarVisible: getTabBarVisibility(route)
+                        })}
+                    />
+                    <Tab.Screen
+                        name="Shop"
+                        component={FriendNavigator}
+                    />
+                    <Tab.Screen
+                        name="Ranking"
+                        component={RankingScreen}
+                    />
+                    <Tab.Screen
+                        name="Profile"
+                        component={ProfileNavigator}
+                        options={({ route }) => ({
+                            tabBarVisible: getTabBarVisibility(route)
+                        })}
+                    />
+                </Tab.Navigator>
+			 : (
 				<AuthStack />
 			)}
 		</NavigationContainer>

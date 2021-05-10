@@ -9,6 +9,8 @@ import { Rating } from 'react-native-elements';
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
+import axios from "axios";
+import { getData } from "../constants/utility";
 
 type IItem = {
 	item: typeImageData;
@@ -97,48 +99,8 @@ type InforUser = {
 type ListData = DescriptionType[]
 
 
-const descriptionData = [
-	{
-		id: "01",
-		name: "Minh Nguyen",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "02",
-		name: "Hung Nguyen",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "03",
-		name: "Duy Vo",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "04",
-		name: "Dat Ngo",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "05",
-		name: "Data Science",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-	{
-		id: "06",
-		name: "Machine Learning",
-		avatar: "../assets/user.jpg",
-		textComment: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	},
-];
-
 
 const DescriptionTab = ({ route, navigation }: Props) => {
-	console.log("it ran")
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
@@ -156,6 +118,23 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.catch((err) => console.error(err))
 	},[])
 
+	async function takeJourney() {
+		let body = {
+			userID: await getData('id'),
+			attractionID: id
+		}
+		console.log(body);
+		
+		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
+		.then(res => {
+			console.log(res.data);
+			navigation.navigate("Journey Map", {
+				latitude: latitude,
+				longitude: longitude,
+			});
+		}).catch(err => console.log(err))
+	}
+
 	let dataPoint = 0
 	let dataCombine = [] as ListData
 
@@ -172,11 +151,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		ThisData.rating = review.comment.rating
 		dataCombine.push(ThisData)
 	})
-
-	// useEffect(()=>{
-	// 	console.log("data below")
-	// 	console.log(dataCombine)
-	// })
 
 	// Render list of descriptions for Flatlist
 	const renderDescription = ({ item }: dataDescrip) => (
@@ -206,22 +180,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	// Render list of images for Flatlist
 	const renderImage = ({ item, index }: IItem) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
-	};
-
-	// Button press handler
-	const onPressThing = () => {
-		Alert.alert("Alert Title", "My Alert Msg", [
-			{
-				text: "Ask me later",
-				onPress: () => console.log("Ask me later pressed"),
-			},
-			{
-				text: "Cancel",
-				onPress: () => console.log("Cancel Pressed"),
-				style: "cancel",
-			},
-			{ text: "OK", onPress: () => console.log("OK Pressed") },
-		]);
 	};
 
 	return (
@@ -279,12 +237,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				>					
 				<LoginButton
 						title="Take the journey"
-						onPress={() => {
-							navigation.navigate("Journey Map", {
-								latitude: latitude,
-								longitude: longitude,
-							});
-						}}
+						onPress={() => takeJourney()}
 						color="#4B8FD2"
 						textColor="#E2D0A2"
 					/>
