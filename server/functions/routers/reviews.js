@@ -14,6 +14,7 @@ router.post("/", (req, res) => {
 		aid: req.body.aid,
 		likeCount: 0,
 		images: [],
+		replyCount: 0
 	};
 
 	admin
@@ -62,7 +63,7 @@ router.get("/:id", async (req, res) => {
 router.get("/attractions/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
-		let attractionRef = await db.collection("reviews").where("aid", "==", `${req.params.id}`).get();
+		let attractionRef = await db.collection("reviews").where("aid", "==", `${req.params.id}`).orderBy('timeCreated').get();
 
 		if (!attractionRef.empty) {
 			let attraction = [];
@@ -75,6 +76,9 @@ router.get("/attractions/:id", async (req, res) => {
 				} else {
 					throw new Error("one of the data is not found");
 				}
+
+				
+				
 				attraction.push({
 					id: a.id,
 					comment: {
@@ -85,14 +89,9 @@ router.get("/attractions/:id", async (req, res) => {
 						id: userRef.id,
 						...useInfo,
 					},
+					
 				});
 			}
-			// attractionRef.forEach(a => {
-			//     attraction.push({
-			//         id: a.id,
-			//         ...a.data()
-			//     })
-			// })
 			return res.json(attraction);
 		}
 		return res.json({ error: "dumaduy" });
@@ -123,5 +122,30 @@ router.put("/:id", (req, res) => {
 			console.error(err);
 		});
 });
+
+router.put("/updateAll",async (req,res)=>{
+	try {
+		let reviewsAll = admin.firestore().collection("reviews").get()
+
+		for await( let rev of reviewsAll.docs){
+			const revRef = await rev.get();
+			try {
+				revRef.update({ 
+					replyCount : 0
+				})
+			} catch(error) {
+				console.log("it didn't work")
+				console.log(error)
+			}
+			
+
+		}
+
+		res.json("updated all the docs")
+		
+	} catch (err) {
+		console.log(err)
+	}
+})
 
 module.exports = router;

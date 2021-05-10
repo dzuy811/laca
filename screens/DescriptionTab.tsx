@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import UserLogo from "../assets/fb_logo.png";
+import moment from 'moment';
+import { Rating } from 'react-native-elements';
 
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -27,7 +29,8 @@ type Props = {
 
 type typeImageData = { id: string; source: string };
 
-type DescriptionType = { id: string; name: string; avatar: string; content: string };
+type DescriptionType = { id: string; name: string; avatar: string; content: string ; timeCreated: string;
+	rating : number; };
 type dataDescrip = {
 	item: DescriptionType;
 };
@@ -158,11 +161,15 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	data.forEach((review) => {
 		let ThisData = {} as DescriptionType  
+		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 		ThisData.id = dataPoint.toString()
 		dataPoint ++
 		ThisData.content = review.comment.content
 		ThisData.avatar = review.userInfo.urlAvatar
+		ThisData.timeCreated = formattedDate;
 		ThisData.name = review.userInfo.name
+		ThisData.rating = review.comment.rating
 		dataCombine.push(ThisData)
 	})
 
@@ -177,6 +184,18 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<Text style={styles.profileName}>{item.name}</Text>
+				<View style={{width: '73%'}}>
+						<Text style={styles.profileName}>{item.name}</Text>
+						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
+					</View>
+					<View style={{ width: '10%' }}>
+						<Rating 
+							imageSize={15} 
+							readonly 
+							startingValue={item.rating} 
+							style={styles.rating} 
+						/>
+					</View>
 			</View>
 			<View style={styles.DescriptionBox}>
 				<Text style={{ fontSize: 12 }}>{item.content}</Text>
@@ -357,7 +376,77 @@ const styles = StyleSheet.create({
 		paddingLeft: "2%",
 		paddingTop: 10,
 	},
+	timeStamp: {
+		fontSize: 12,
+		color: "#959595",
+		fontWeight: "400",
+	},
+	rating: {
+		paddingVertical: 10,
+		justifyContent: 'flex-end'
+	}
 });
 
+
+// const styles = StyleSheet.create({
+// 	header: {
+// 		position: "relative",
+// 		height: 200,
+// 		top: 0,
+// 		left: 0,
+// 		right: 0,
+// 		zIndex: 10,
+// 		backgroundColor: "#4B8FD2",
+// 		borderBottomRightRadius: 30,
+// 		borderBottomLeftRadius: 30,
+// 	},
+// 	descriptionTitle: {
+// 		marginTop: "4%",
+// 		fontSize: 25,
+// 		marginLeft: "10%",
+// 		color: "rgb(211,184,115)",
+// 		paddingBottom: "2%",
+// 	},
+// 	descriptionBox: {
+// 		paddingBottom: "5%",
+// 		paddingRight: "10%",
+// 		paddingLeft: "10%",
+// 		fontSize: 14,
+// 		textAlign: "left",
+// 	},
+// 	imageStyle: {
+// 		marginRight: 30,
+// 		height: 220,
+// 		width: 150,
+// 		borderBottomLeftRadius: 10,
+// 		borderBottomRightRadius: 10,
+// 		borderTopLeftRadius: 10,
+// 		borderTopRightRadius: 10,
+// 	},
+// 	flatList: {
+// 		height: 250,
+// 		flexGrow: 0,
+// 	},
+// 	profileImage: {
+// 		marginLeft: 30,
+// 		height: 40,
+// 		width: 40,
+// 		borderRadius: 40,
+// 		overflow: "hidden",
+// 	},
+// 	profileName: {
+// 		fontSize: 16,
+// 		fontWeight: "400",
+// 	},
+// 	timeStamp: {
+// 		fontSize: 12,
+// 		color: "#959595",
+// 		fontWeight: "400",
+// 	},
+// 	rating: {
+// 		paddingVertical: 10,
+// 		justifyContent: 'flex-end'
+// 	}
+// });
 export default DescriptionTab;
 
