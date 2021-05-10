@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Modal, StyleSheet, Image, FlatList, Animated, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { AntDesign } from "@expo/vector-icons";
+import UserLogo from "../assets/fb_logo.png";
+import moment from 'moment';
+import { Rating } from 'react-native-elements';
+
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
-import moment from 'moment';
-import { Rating } from 'react-native-elements';
-import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
+import { getData } from "../constants/utility";
 
 type iItem = {
 	item: typeImageData;
@@ -44,6 +48,7 @@ type descriptionType = {
 
 type dataDescription = {
 	item: descriptionType;
+
 };
 
 interface uniqueReviews  {
@@ -101,6 +106,7 @@ type infoUser = {
 
 type listData = descriptionType[]
 
+
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id } = route.params;
@@ -116,6 +122,24 @@ const DescriptionTab = ({ route, navigation }: Props) => {
         })
 		.catch((err) => console.error(err))
 	},[])
+  
+async function takeJourney() {
+let body = {
+  userID: await getData('id'),
+  attractionID: id
+}
+console.log(body);
+
+axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
+.then(res => {
+  console.log(res.data);
+  navigation.navigate("Journey Map", {
+    latitude: latitude,
+    longitude: longitude,
+  });
+}).catch(err => console.log(err))
+}
+
 
 	let dataPoint = 0;
 	let dataCombine = [] as listData;
@@ -146,6 +170,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
+
 						<Text style={styles.profileName}>{item.name}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
@@ -158,6 +183,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						/>
 					</View>
 				</View>
+
 			</View>
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
 				<View style={{width: '10%',  marginRight: "2%"}}>
@@ -256,12 +282,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				>					
 				<LoginButton
 						title="Take the journey"
-						onPress={() => {
-							navigation.navigate("Journey Map", {
-								latitude: latitude,
-								longitude: longitude,
-							});
-						}}
+						onPress={() => takeJourney()}
 						color="#4B8FD2"
 						textColor="#E2D0A2"
 					/>
@@ -333,3 +354,4 @@ const styles = StyleSheet.create({
 });
 
 export default DescriptionTab;
+

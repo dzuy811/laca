@@ -41,14 +41,20 @@
     "react-native-lottie-rating": "0.0.11",
     "react-native-maps": "0.27.1",
     "react-native-maps-directions": "^1.8.0",
+    "react-native-pager-view": "^5.1.7",
     "react-native-paper": "^4.7.2",
     "react-native-reanimated": "^1.13.3",
     "react-native-safe-area-context": "3.1.9",
     "react-native-safe-area-view": "^1.1.1",
     "react-native-screens": "^2.15.2",
     "react-native-svg": "12.1.0",
+    "react-native-tab-view": "^3.0.1",
     "react-native-web": "~0.13.12",
-    "react-native-webview": "11.0.0"
+    "react-native-webview": "11.0.0",
+    "react-spring": "^9.1.2",
+    "expo-notifications": "~0.8.2",
+    "expo-background-fetch": "~8.6.0",
+    "expo-task-manager": "~8.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

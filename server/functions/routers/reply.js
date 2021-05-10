@@ -6,7 +6,7 @@ const admin = require("../constants/firebase");
 
 // ---- API for REPLY Collection (/api/reply) ---- //
 // tested
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
 	const newReply = {
 		rid: admin.firestore().doc(`reviews/${req.body.rid}`),
 		content: req.body.content,
@@ -18,9 +18,15 @@ router.post("/", (req, res) => {
 		.collection("reply")
 		.add(newReply)
 		.then((doc) => {
+			admin.firestore().collection("reviews").doc(req.body.rid).update({
+				replyCount: admin.firestore.FieldValue.increment(1)
+			})
 			res.json({
+				id: doc.id,
+				path: `reply/${doc.id}`,
 				message: `document ${doc.id} created successfully`,
 			});
+
 		})
 		.catch((err) => {
 			res.status(500).json({
@@ -34,16 +40,36 @@ router.post("/", (req, res) => {
 router.get("/reviews/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
+		console.log("hello world")
+		const reviews = db.collection("reviews").doc(req.params.id)
 
-		let attractionRef = await db.collection("reply").where("rid", "==", `${req.params.id}`).get();
+		let attractionRef = await db.collection("reply").where("rid", "==",reviews ).get();
+		
 		if (!attractionRef.empty) {
 			let attraction = [];
-			attractionRef.forEach((a) => {
+			for await (a of attractionRef.docs){
+				const userRef = await a.data().uid.get();
+				const useInfo = await userRef.data();
+				if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a) {
+					console.log("it wworked bae uhh");
+				} else {
+					throw new Error("one of the data is not found");
+				}
 				attraction.push({
 					id: a.id,
-					...a.data(),
+					comment: {
+						id: a.id,
+						...a.data(),
+					},
+					userInfo: {
+						id: userRef.id,
+						...useInfo,
+					},
 				});
-			});
+
+			}
+			
+			
 			return res.json(attraction);
 		}
 		return res.json({ error: "haizza" });
@@ -98,16 +124,22 @@ router.put("/:id", (req, res) => {
 });
 
 // tested
-router.delete("/:id", (req, res) => {
+router.delete("/:id",async (req, res) => {
 	try {
 		const LikeRef = admin.firestore().collection("reply").doc(req.params.id);
 		LikeRef.get().then((snap) => {
 			if (snap.exists) {
+				const ReviewRef = await LikeRef.data().rid;
 				LikeRef.delete().then(() => {
 					res.json({
 						message: `document ${req.params.id} deleted`,
 					});
 				});
+				if (!ReviewRef.get().empty){
+					ReviewRef.update({
+						replyCount : admin.firestore.FieldValue.increment(-1)
+					})
+				}
 			} else {
 				res.json({
 					message: "document not exist",
