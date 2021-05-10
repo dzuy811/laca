@@ -29,7 +29,7 @@ const UserFriendListScreen = (props:Props) => {
         React.useCallback(() => {
 
             let userID = firebase.auth().currentUser?.uid
-            let url = `http://localhost:5000/laca-59b8c/asia-east2/api/users/${userID}/friendships`
+            let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships`
             const unsubscribe = axios.get(url).then(res => {
                 setFriends(res.data.friendships)
                 setSortedData(res.data.friendships)

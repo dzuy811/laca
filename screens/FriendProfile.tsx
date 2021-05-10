@@ -18,7 +18,7 @@ function FriendProfile({ route, navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
 
     const unfriend = () => {
-        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendships/${data.id}/remove`
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendships/${data.id}/remove`
         axios.delete(url)
         .then(res => console.log(res.data))
         .catch(err => console.log(err))

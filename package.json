@@ -51,7 +51,9 @@
     "react-native-web": "~0.13.12",
     "react-native-webview": "11.0.0",
     "react-spring": "^9.1.2",
-    "expo-notifications": "~0.8.2"
+    "expo-notifications": "~0.8.2",
+    "expo-background-fetch": "~8.6.0",
+    "expo-task-manager": "~8.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
