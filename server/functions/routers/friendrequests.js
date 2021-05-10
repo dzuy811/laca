@@ -156,6 +156,8 @@ router.post("/send", async (req, res) => {
 		const addedFriendRequest = await db.collection("friendRequests").add(newFriendRequest);
 
 		return res.status(200).json({
+			id: addedFriendRequest.id,
+			path: `friendRequests/${addedFriendRequest.id}`,
 			message: `friendRequest document ${addedFriendRequest.id} created successfully`,
 		});
 	} catch (error) {
@@ -206,10 +208,12 @@ router.post("/accept", async (req, res) => {
 			friendRequest: frRef,
 		};
 		// Add operations
+		let addFriendshipID;
 		await db
 			.collection("friendships")
 			.add(newFriendShip)
 			.then((doc) => {
+				addFriendshipID = doc.id;
 				console.log(`Friendship document ${doc.id} has been created successfully`);
 			});
 
@@ -250,6 +254,8 @@ router.post("/accept", async (req, res) => {
 			})
 			.then(() => {
 				return res.status(200).json({
+					id: addFriendshipID,
+					path: `friendships/${addFriendshipID}`,
 					messasge: `SendUserID ${sendUserRef.id} has been friend with ReceiveUserID ${receiveUserRef.id}`,
 				});
 			})
