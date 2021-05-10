@@ -5,6 +5,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 import JourneyHistoryScreen from '../screens/JourneyHistoryScreen'
 import {RootStackParamList} from '../screens/ProfileStackParams'
 import UserProfile from '../screens/UserProfile';
+import UserFriendListScreen from '../screens/UserFriendListScreen';
+import FriendProfile from '../screens/FriendProfile';
 
 const ProfileStack = createStackNavigator<RootStackParamList>();
 interface Props {
@@ -28,6 +30,14 @@ const ProfileNavigator = () => {
             <ProfileStack.Screen
             name="Journey history"
             component={JourneyHistoryScreen}
+            />
+            <ProfileStack.Screen
+            name="My friends"
+            component={UserFriendListScreen}
+            />
+            <ProfileStack.Screen
+            name="Friend profile"
+            component={FriendProfile}
             />
         </ProfileStack.Navigator>
     )

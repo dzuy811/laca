@@ -1,8 +1,18 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Platform } from "react-native";
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	ActivityIndicator,
+	Alert,
+	Platform,
+} from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
+import * as BackgroundFetch from 'expo-background-fetch'
+import * as TaskManager from 'expo-task-manager'
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -24,11 +34,64 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [image, setImage] = useState<any>("");
 
 
+	//Background task defined
+	const GET_USER_LOCATION = 'GET_USER_LOCATION'
+	TaskManager.defineTask(GET_USER_LOCATION, async () => {
+		const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
+		console.log("wtfL ", a);
+		
+		  return a
+		  ? BackgroundFetch.Result.NewData
+		  : BackgroundFetch.Result.NoData
+		
+	})
+
+
 	// Fetch and Set the state of destination's geolocation
 	useEffect(() => {
-		setDestinationStr(Object.values(route.params!).join(","));
-	}, []);
 
+		/* 
+			UNDER RESEARCH
+		*/
+
+		// const initBackgroundFetch = async() => {
+		// 	const backgroundFetchStatus = await BackgroundFetch.getStatusAsync();
+        // switch (backgroundFetchStatus) {
+        //   case BackgroundFetch.Status.Restricted:
+        //     console.log("Background fetch execution is restricted");
+        //     return;
+
+        //   case BackgroundFetch.Status.Denied:
+        //     console.log("Background fetch execution is disabled");
+        //     return;
+
+        //   default:
+        //     console.log("Background fetch execution allowed");
+
+        //     let isRegistered = await TaskManager.isTaskRegisteredAsync(
+        //       GET_USER_LOCATION
+        //     );
+        //     if (isRegistered) {
+        //       console.log(`Task ${GET_USER_LOCATION} already registered`);
+        //     } else {
+        //       console.log("Background Fetch Task not found - Registering task");
+        //     }
+        //     await BackgroundFetch.registerTaskAsync(GET_USER_LOCATION, {
+        //       minimumInterval: 10,
+        //       startOnBoot: false,
+        //       stopOnTerminate: false
+        //     });}
+		// }
+		// initBackgroundFetch()
+		setDestinationStr(Object.values(route.params!).join(","));
+		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
+	}, []);
+	
+	// const getCurrentLocation = async () => {
+	// 	let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});		
+	// 	return location;
+	// }
+ 
 	// Ask for the current location of the user and permission to turn on GPS
 	const getUserLocation = async () => {
 		let { status }: PermissionStatus = await Location.requestPermissionsAsync();
@@ -43,12 +106,10 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	// Fetch User Location
 	useEffect(() => {
+		console.log("Update user location");
+		
 		getUserLocation();
 	}, []);
-
-	useEffect(() => {
-		console.log(userLocationStr);
-	}, [userLocationStr]);
 
 	// Handle error retrieving location
 	let text = "Waiting..";
@@ -63,6 +124,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		if (userLocation !== null) {
 			setUserLocationStr(`${userLocation.coords.latitude},${userLocation.coords.longitude}`);
 		}
+
 	}, [userLocation]);
 
 	// Calculate distance between two coordinates in kilometers (Bird-fly route)
@@ -77,6 +139,8 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	// Alert near distance
 	useEffect(() => {
+		console.log("helooooo");
+		
 		if (userLocationStr) {
 			// calculate distance between latitudes and coordinates of two locations
 			let dist = distance(
@@ -88,7 +152,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			// if the user is within the radius of 100meters -> user has arrived!
 			if (dist <= 0.1) {
 				setIsArrived(true);
-				navigation.navigate('Camera screen')
+				navigation.navigate("Camera screen");
 				return;
 			}
 			setIsArrived(false);
@@ -106,22 +170,6 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			console.log("User has NOT arrived yet!");
 		}
 	}, [isArrived]);
-
-	// Create Alert Message upon arrival to the destination
-	// const createTwoButtonAlert = () =>
-	// 	Alert.alert(
-	// 		"Congratulations!",
-	// 		"You have arrived to the COOL place!",
-	// 		[
-	// 			{
-	// 				text: "Dismiss",
-	// 				onPress: () => console.log("Cancel Pressed"),
-	// 				style: "cancel",
-	// 			},
-	// 			{ text: "OK", onPress: pickImage },
-	// 		],
-	// 		{ cancelable: false }
-	// 	);
 
 	return (
 		<>

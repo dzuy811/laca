@@ -14,6 +14,7 @@ import AttractionList from "./components/AttractionList";
 import AttractionCard from "./components/AttractionCard";
 import { NavigationContainer } from "@react-navigation/native";
 import UserProfile from "./screens/UserProfile";
+import ReviewScreen from "./screens/ReviewScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,12 +24,15 @@ export default function App() {
 	// surpress warnings for virtualizedLists
 	useEffect(() => {
 		LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+		LogBox.ignoreLogs(["Setting a timer"]);
 	}, []);
 
 	return (
 		<SafeAreaProvider>
 			<StatusBar />
-			<MainNav />
+			{/* <MainNav /> */}
+			<ReviewScreen/>
+
 		</SafeAreaProvider>
 	);
 }

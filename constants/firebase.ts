@@ -7,7 +7,8 @@ export const firebaseConfig = {
     storageBucket: "laca-59b8c.appspot.com",
     messagingSenderId: "484967488564",
     appId: "1:484967488564:web:fc10713e68413508b9be61",
-    measurementId: "G-NY7NE9KG7V"
+    measurementId: "G-NY7NE9KG7V",
+    databaseURL: "https://laca-59b8c-default-rtdb.firebaseio.com/"
   };
 
 firebase.initializeApp(firebaseConfig);
