@@ -8,55 +8,79 @@ import { Header } from "react-native-elements";
 import 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+const default_user_avatar = require("../assets/default_avatar.jpg");
+const location = require('../components/location.json');
 
-function UserProfile(props: any) {
+type UserProfile = {
+    navigation?: any;
+    route: any;
+}
+
+const UserProfile = ({route, navigation}: UserProfile) => {
 	
-	const [user, setUser] = useState<any>(firebase.auth().currentUser);
-	const [data, setData] = useState({});
-	const [phoneNumber, setPhoneNumber] = useState<string>("");
-	const [name, setName] = useState<string>("");
-	const [gender, setGender] = useState<string>("");
-	const [urlAvatar, setUrlAvatar] = useState<string>("");
+	const { data, setData } = route.params;
+	const [user, setUser] = useState<any>();
+	const [provinces, setProvinces] = useState<any>(data.address[0]);
+	const [districts, setDistricts] = useState<any>(data.address[1]);
+	const [phoneNumber] = useState<string>(data.phoneNumber != "" ? "0" + data.phoneNumber.substring(3) : "");
+	const [name, setName] = useState<string>(data.name);
+	const [gender, setGender] = useState<string>(data.gender);
+	const [urlAvatar, setUrlAvatar] = useState<string>(data.urlAvatar);
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
+	const [addressStatus, setAddressStatus] = useState<number>(-1);
 
-    useEffect(() => {
-		async function getUserInfo() {
-			// Get user's information from collection
-			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
-			let dataInfo = user_info.data();
-			setData(dataInfo) 
-			setPhoneNumber("0" + dataInfo.phoneNumber.substring(3));
-			setName(dataInfo.name);
-			setGender(dataInfo.gender);
-			setUrlAvatar(dataInfo.urlAvatar);
-		})
-		.catch((error) => { console.log("error:", error) });
+	// Generate the data for Vietnam's Administrative Division
+	let province = [];
+
+	// Get the Provinces
+	for (let i = 0; i < location.length; i++) {
+		let objPro = {
+			label: location[i].Name,
+			value: location[i].Name,
 		}
-		getUserInfo();
-    },[])
+		province.push(objPro);
+	}
 
+	// Take the index of Province in the array
+	function takeAddressIndex(address: string):number {
+		for (let i = 0; i < location.length; i++) {
+			if(location[i].Name == address) return i;
+		}
+		return 0;
+	}
+
+	// Get the District array based on the Province index
+	function getDistrictArray(index:number):any {
+		let arr: { label: string, value: string}[] = [];
+		for(let i = 0; i < location[index].Districts.length; i++) {
+			let objDis = {
+				label: location[index].Districts[i].Name,
+				value: location[index].Districts[i].Name
+			}
+			arr.push(objDis);
+		}
+		return arr;
+	}
+
+	// Regular Expression for Name Validation
 	let regEx = /^\s*([A-Za-z]{1,}([-']| ))+[A-Za-z]+?\s*$/;
 
 	const handleNameChange = (newText: string) => {
 		setName(newText);
 		// Check if the new name is the old name or not
 		if (newText.trimEnd() == data.name) {
-			if(checkValidationGender) {
-				setValidation(true);
-			}
-			else {
-				setValidation(false);
-			}
+			if(checkValidationGender) setValidation(true);	
+			else setValidation(false);
+			
 		}
 		// Validate the new name
 		else {
-			if(true) {
-				setValidation(regEx.test(newText) ? true : false)
-			}
+			if(true) setValidation(regEx.test(newText) ? true : false)
 		}
 	};
 
@@ -69,7 +93,7 @@ function UserProfile(props: any) {
 	}
 
 	useEffect(() => {
-		console.log(gender)
+		// console.log(gender)
 		checkGender();
 	}, [gender]);
 
@@ -90,9 +114,9 @@ function UserProfile(props: any) {
 		bootstrap();
 	}, []);
 
+	// Give permission to use device library
 	useEffect(() => {
 		(async () => {
-			// Give permission to use device library
 			if (Platform.OS !== 'web') {
 				const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 				if (status !== 'granted') {
@@ -110,20 +134,14 @@ function UserProfile(props: any) {
 			aspect: [1, 1],
 			quality: 1,
 		});
-
-		if (!result.cancelled) {
-			setUrlAvatar(result.uri);
-			await uploadImage(result);
-		}
+		if (!result.cancelled) await uploadImage(result);
 	};
 
-	// Upload image to storage + save URL into firestore collection
+	// Upload image to storage
 	const uploadImage = async (image: any) => {
 		const { uri } = image;
-
 		const response = await fetch(uri);
 		const blob = await response.blob();
-
 		const filename = "avatars/";
 		const uploadUri = user.uid;
 
@@ -131,9 +149,8 @@ function UserProfile(props: any) {
 		return ref.put(blob).then(() => {
   			console.log('Uploaded a blob or file!');
 			ref.getDownloadURL().then((url) => {
-				// Save url to the user collection
 				setUrlAvatar(url);
-				firebase.firestore().collection("users").doc(user?.uid).set({urlAvatar: url}, { merge: true });
+				setValidation(true);
   			})
 		})
   		.catch((e: any) => console.log('uploading image error => ', e));
@@ -201,6 +218,10 @@ function UserProfile(props: any) {
 		progressBarContainer: {
     		marginTop: 20
   		},
+		dropDownListContainer: {
+			backgroundColor: '#fafafa',
+			width: windowWidth - 70, 
+		}
 	});
 
 	return (
@@ -208,7 +229,7 @@ function UserProfile(props: any) {
 			{/* Navigation */}
 			<Header
 				leftComponent={
-					<TouchableOpacity onPress={() => props.navigation.goBack()}>
+					<TouchableOpacity onPress={() => navigation.goBack()}>
 						<AntDesign name="arrowleft" size={24} color="#fff" />
 					</TouchableOpacity>
 				}
@@ -216,12 +237,18 @@ function UserProfile(props: any) {
 				rightComponent={
 					<TouchableOpacity
 						activeOpacity={checkValidation ? 0.4 : 1}
+						// Update the validation
 						onPress={() => {
 							if (checkValidation) {
 								const new_info = {
 									phoneNumber: "+84" + phoneNumber.substring(1),
 									name: name,
-									gender: gender
+									gender: gender,
+									urlAvatar: urlAvatar,
+									address: [
+										provinces, 
+										districts
+									]
 								};
 								firebase.firestore().collection("users").doc(user?.uid).set(new_info, { merge: true });
 								setData(new_info);
@@ -236,7 +263,12 @@ function UserProfile(props: any) {
 
 			{/* Image */}
 			<View style={styles.container}>
-				<Image style={styles.image} source={{ uri: urlAvatar }} resizeMode={"cover"} />
+				<Image 
+					style={styles.image} 
+					// Display the default image if not image found
+					source={urlAvatar != "" ? ({uri: urlAvatar}) : default_user_avatar} 
+					resizeMode={"cover"} 
+				/>
 				<View style={styles.infoContainer}>
 					<TouchableOpacity onPress={pickImage}>
 						<Text style={styles.textAvatar}> Change avatar</Text>
@@ -255,8 +287,7 @@ function UserProfile(props: any) {
 							fontSize: 14,
 							color: "#BDBDBD",
 						}}
-					>
-						Gender
+					>Gender
 					</Text>
 					<View style={{ flexDirection: "row", width: "100%" }}>
 						<View style={{ flexDirection: "row", marginRight: 30 }}>
@@ -267,8 +298,7 @@ function UserProfile(props: any) {
 								onPress={() => {
 									console.log(">>>>>>>")
 									setGender("M");
-								}
-									}
+								}}
 							/>
 							<Text style={{ fontSize: 16, paddingTop: 7 }}>Male</Text>
 						</View>
@@ -286,6 +316,67 @@ function UserProfile(props: any) {
 						</View>
 					</View>
 				</View>
+
+				{/* Dropdown List for location */}
+				<View style={styles.genderContainer}>
+					<Text
+						style={{
+							height: 26,
+							fontSize: 14,
+							color: "#BDBDBD",
+						}}
+					>
+						Address
+					</Text>
+					<View style={{paddingTop:10}} />
+					{/* Provinces */}
+					<DropDownPicker
+						style={styles.dropDownListContainer}
+						items={province}
+						containerStyle={{height: 40}}
+						itemStyle={{
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{backgroundColor: '#fafafa', width: windowWidth - 70}}
+						placeholder={provinces != "" ? provinces : "City/Province"}
+						onChangeItem={
+							item => {
+								setProvinces(item.value);
+								setAddressStatus(takeAddressIndex(item.value));
+								setValidation(false);
+								setDistricts("");
+							}
+						}
+					/>
+
+					<View style={{paddingTop:10}} />
+					{/* Districts */}
+					<DropDownPicker
+						style={styles.dropDownListContainer}
+						disabled={addressStatus == -1 && districts == "" ? true : false}
+						items={getDistrictArray(addressStatus == -1 && provinces == "" ? 0 : takeAddressIndex(provinces))}
+						containerStyle={{height: 40}}
+						itemStyle={{
+							justifyContent: 'flex-start'
+						}}
+						dropDownStyle={{backgroundColor: '#fafafa', width: windowWidth - 70}}
+						placeholder={districts == "" ? "Ward/District" : districts}
+						onChangeItem={item => {
+							setDistricts(item.value)
+							setValidation(true);
+						}}
+					/>
+				</View>
+				{/* Announcement for choosing the Ward/District */}
+				{districts == "" && provinces != "" ? (
+					<View style={styles.container}>
+						<Text style={{color: "red"}}>Choose the Ward/District</Text>
+					</View>
+				):
+				(
+					<>
+					</>
+				)}
 
 				{/* Sign out */}
 				<View style={styles.signOutButton}>
