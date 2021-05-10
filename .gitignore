@@ -11,6 +11,7 @@ web-build/
 .env
 types/env.d.ts
 constants/firebase.ts
+google-services.json
 
 # macOS
 .DS_Store
