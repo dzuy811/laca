@@ -1,19 +1,30 @@
-import React from "react";
-import { Text, View, StyleSheet } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import React, {useState, useEffect} from "react";
+import { View } from "react-native";
 import ProfileHeader from "../components/profile-screen-components/ProfileHeader";
 import UserOptionsList from "../components/profile-screen-components/UserOptionsList";
+import firebase from "firebase";
 
-import { StackScreenProps } from "@react-navigation/stack";
-import { RootStackParamList } from "./ProfileStackParams";
+const ProfileScreen = ({ navigation }: any) => {
 
-type ProfileScreenNavigationProp = StackScreenProps<RootStackParamList>;
+	const [user, setUser] = useState<any>(firebase.auth().currentUser);
+	const [data, setData] = useState({});
 
-const ProfileScreen = ({ route, navigation }: any) => {
+	useEffect(() => {
+		async function getUserInfo() {
+			// Get user's information from collection
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
+			let dataInfo = user_info.data();
+			setData(dataInfo) 
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+		getUserInfo();
+    },[])
+
 	return (
 		<View>
 			<View>
-				<ProfileHeader navigation={navigation} />
+				<ProfileHeader setData={setData} data={data} navigation={navigation} />
 			</View>
 			<View style={{ marginTop: 50 }}>
 				<UserOptionsList navigation={navigation} />
