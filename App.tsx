@@ -10,11 +10,6 @@ import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import AttractionList from "./components/AttractionList";
-import AttractionCard from "./components/AttractionCard";
-import { NavigationContainer } from "@react-navigation/native";
-import UserProfile from "./screens/UserProfile";
-import ReviewScreen from "./screens/ReviewScreen";
 
 const Tab = createBottomTabNavigator();
 
