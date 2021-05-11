@@ -11,6 +11,8 @@ import {
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
+import * as BackgroundFetch from 'expo-background-fetch'
+import * as TaskManager from 'expo-task-manager'
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -31,11 +33,65 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
 
+
+	//Background task defined
+	const GET_USER_LOCATION = 'GET_USER_LOCATION'
+	TaskManager.defineTask(GET_USER_LOCATION, async () => {
+		const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
+		console.log("wtfL ", a);
+		
+		  return a
+		  ? BackgroundFetch.Result.NewData
+		  : BackgroundFetch.Result.NoData
+		
+	})
+
+
 	// Fetch and Set the state of destination's geolocation
 	useEffect(() => {
-		setDestinationStr(Object.values(route.params!).join(","));
-	}, []);
 
+		/* 
+			UNDER RESEARCH
+		*/
+
+		// const initBackgroundFetch = async() => {
+		// 	const backgroundFetchStatus = await BackgroundFetch.getStatusAsync();
+        // switch (backgroundFetchStatus) {
+        //   case BackgroundFetch.Status.Restricted:
+        //     console.log("Background fetch execution is restricted");
+        //     return;
+
+        //   case BackgroundFetch.Status.Denied:
+        //     console.log("Background fetch execution is disabled");
+        //     return;
+
+        //   default:
+        //     console.log("Background fetch execution allowed");
+
+        //     let isRegistered = await TaskManager.isTaskRegisteredAsync(
+        //       GET_USER_LOCATION
+        //     );
+        //     if (isRegistered) {
+        //       console.log(`Task ${GET_USER_LOCATION} already registered`);
+        //     } else {
+        //       console.log("Background Fetch Task not found - Registering task");
+        //     }
+        //     await BackgroundFetch.registerTaskAsync(GET_USER_LOCATION, {
+        //       minimumInterval: 10,
+        //       startOnBoot: false,
+        //       stopOnTerminate: false
+        //     });}
+		// }
+		// initBackgroundFetch()
+		setDestinationStr(Object.values(route.params!).join(","));
+		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
+	}, []);
+	
+	// const getCurrentLocation = async () => {
+	// 	let location = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});		
+	// 	return location;
+	// }
+ 
 	// Ask for the current location of the user and permission to turn on GPS
 	const getUserLocation = async () => {
 		let { status }: PermissionStatus = await Location.requestPermissionsAsync();
@@ -50,12 +106,10 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	// Fetch User Location
 	useEffect(() => {
+		console.log("Update user location");
+		
 		getUserLocation();
 	}, []);
-
-	useEffect(() => {
-		console.log(userLocationStr);
-	}, [userLocationStr]);
 
 	// Handle error retrieving location
 	let text = "Waiting..";
@@ -70,6 +124,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		if (userLocation !== null) {
 			setUserLocationStr(`${userLocation.coords.latitude},${userLocation.coords.longitude}`);
 		}
+
 	}, [userLocation]);
 
 	// Calculate distance between two coordinates in kilometers (Bird-fly route)
@@ -84,6 +139,8 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	// Alert near distance
 	useEffect(() => {
+		console.log("helooooo");
+		
 		if (userLocationStr) {
 			// calculate distance between latitudes and coordinates of two locations
 			let dist = distance(

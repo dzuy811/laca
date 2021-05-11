@@ -16,7 +16,7 @@ const UserOptionsList: React.FC<Props> = ({ navigation }: any) => {
 	return (
 		<View>
 			<UserOption navigation={navigation} name="Journey history" />
-			<UserOption navigation={navigation} name="My voucher" />
+			<UserOption navigation={navigation} name="My friends" />
 			<UserOption navigation={navigation} name="Favorite attraction" />
 			<UserOption navigation={navigation} name="Help" />
 		</View>
