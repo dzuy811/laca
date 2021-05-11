@@ -12,14 +12,17 @@ import * as firebase from "firebase";
 type homeScreenProps = {
 
     navigation: any,
+    address: string
 }
 
-const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
+const HomeScreen:React.FC<homeScreenProps> = ({navigation, address}) => {
 
 
     const [data, setData] = useState([])
 
     useEffect(() => {
+        console.log("homescreen props: ", address);
+        
         fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions')
         .then((response) => response.json())
         .then((json) => {
@@ -30,72 +33,71 @@ const HomeScreen:React.FC<homeScreenProps> = ({navigation}, props) => {
     },[])
 
   const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
-  const [address, setAddress] = useState("")
-useEffect(() => {
-    CheckIfLocationEnabled();
-    GetCurrentLocation();
-  },[address]);
+//   const [address, setAddress] = useState("")
+// useEffect(() => {
+//     CheckIfLocationEnabled();
+//     GetCurrentLocation();
+//   },[address]);
 
 
-  const GetCurrentLocation = async () => {
-    let { status } = await Location.requestPermissionsAsync();
+//   const GetCurrentLocation = async () => {
+//     let { status } = await Location.requestPermissionsAsync();
   
-    if (status !== 'granted') {
-      Alert.alert(
-        'Permission not granted',
-        'Allow the app to use location service.',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    }
+//     if (status !== 'granted') {
+//       Alert.alert(
+//         'Permission not granted',
+//         'Allow the app to use location service.',
+//         [{ text: 'OK' }],
+//         { cancelable: false }
+//       );
+//     }
   
-    let { coords } = await Location.getCurrentPositionAsync();
+//     let { coords } = await Location.getCurrentPositionAsync();
   
-    if (coords) {
-      const { latitude, longitude } = coords;
-      let response = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude
-      });
+//     if (coords) {
+//       const { latitude, longitude } = coords;
+//       let response = await Location.reverseGeocodeAsync({
+//         latitude,
+//         longitude
+//       });
   
 
-      for (let item of response) {
-        setAddress(`${item.street}`);
-      }
+//       for (let item of response) {
+//         setAddress(`${item.street}`);
+//       }
 
-    }
-  };
-
-
-  const CheckIfLocationEnabled = async () => {
-    let enabled = await Location.hasServicesEnabledAsync();
-
-    if (!enabled) {
-      Alert.alert(
-        'Location Service not enabled',
-        'Please enable your location services to continue',
-        [{ text: 'OK' }],
-        { cancelable: false }
-      );
-    } else {
-      setLocationServiceEnabled(enabled);
-    }
-  };
-
-  if (address=="") {
-    return (
-      <LoadingHomeScreen/>
-    )
-  }
+//     }
+//   };
 
 
-    const item  = address
+//   const CheckIfLocationEnabled = async () => {
+//     let enabled = await Location.hasServicesEnabledAsync();
+
+//     if (!enabled) {
+//       Alert.alert(
+//         'Location Service not enabled',
+//         'Please enable your location services to continue',
+//         [{ text: 'OK' }],
+//         { cancelable: false }
+//       );
+//     } else {
+//       setLocationServiceEnabled(enabled);
+//     }
+//   };
+
+//   if (address=="") {
+//     return (
+//       <LoadingHomeScreen/>
+//     )
+//   }
+
+
 
     return (
         <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
                 <Header
                 leftComponent={
-                    <Text style={{color: '#fff'}}>{item || "Location not available"}</Text>
+                    <Text style={{color: '#fff'}}>{address || "Location not available"}</Text>
                 }
                 leftContainerStyle={{flex:4}}
                 />

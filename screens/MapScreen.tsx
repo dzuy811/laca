@@ -13,6 +13,7 @@ import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'
+import firebase from "firebase";
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -83,6 +84,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
         //     });}
 		// }
 		// initBackgroundFetch()
+		BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
 		setDestinationStr(Object.values(route.params!).join(","));
 		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
 	}, []);
