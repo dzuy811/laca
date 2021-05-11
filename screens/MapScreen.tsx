@@ -33,6 +33,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [destinationStr, setDestinationStr] = useState<string>("");
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
+	const { latitude, longitude, journeyID, attractionID} = route.params
 
 
 	//Background task defined
@@ -85,7 +86,9 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		// }
 		// initBackgroundFetch()
 		BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
-		setDestinationStr(Object.values(route.params!).join(","));
+		setDestinationStr(`${latitude},${longitude}`)
+		console.log(destinationStr);
+		
 		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
 	}, []);
 	
@@ -154,7 +157,9 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 			// if the user is within the radius of 100meters -> user has arrived!
 			if (dist <= 0.1) {
 				setIsArrived(true);
-				navigation.navigate("Camera screen");
+				console.log("journey:", journeyID);
+				
+				navigation.navigate("Camera screen", {journeyID: journeyID, attractionID: attractionID});
 				return;
 			}
 			setIsArrived(false);

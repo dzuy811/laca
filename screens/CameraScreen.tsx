@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Image, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, Image, Platform, TouchableWithoutFeedback, Keyboard, Modal, Pressable, Alert } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import * as firebase from 'firebase'
 import { ScrollView, TextInput, TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,10 +9,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons'
 import ImageReviewSection from '../components/review-screen-components/ImageReviewSection'
 import TextBoxReviewSection from '../components/review-screen-components/TextBoxReviewSection'
+import { getData } from '../constants/utility';
+import axios from 'axios';
 
 
 // Upload to firebase cloudstore function
-async function uploadReview(uriArray: string[], rating: number, review: string) {
+async function uploadReview(uriArray: string[], rating: number, review: string, journeyID: string, attractionID: string) {
     console.log("review: ", review)
     console.log("rating:", rating)
     for (let i = 0; i < uriArray.length; i++) {
@@ -31,15 +33,31 @@ async function uploadReview(uriArray: string[], rating: number, review: string) 
         //     .then((url) => {
         //         console.log(url.toString())
         //     })
+        let body = {
+            uid: await getData("id"),
+            aid: attractionID,
+            content: review,
+            rating: rating,
+            images: []
+        }
+        // axios.post("https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews", body)
+        // .then(res => {
+        //     console.log(res.data);  
+        // }).catch(err => {
+        //     console.log(err);
+        // })
+        return body;
     }
-    
+
 
 }
 
 
 
 
-const CameraScreen = () => {
+const CameraScreen = ({ route }) => {
+    console.log("camera screen route props: ", route);
+    const { journeyID, attractionID } = route.params
 
     const CameraButton: React.FC = () => {
 
@@ -63,12 +81,14 @@ const CameraScreen = () => {
     const [rating, setRating] = useState<number>(0)
     const [review, setReview] = useState<string>("");
     const [visible, setVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+
 
     const toggleOverlay = () => {
         setVisible(!visible);
     };
 
-    function handleReview(e:string) {
+    function handleReview(e: string) {
         setReview(e)
         console.log(e)
     }
@@ -168,14 +188,36 @@ const CameraScreen = () => {
 
                     :
                     <View style={{ height: '100%', justifyContent: 'center' }}>
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={modalVisible}
+                                onRequestClose={() => {
+                                    Alert.alert("Modal has been closed.");
+                                    setModalVisible(!modalVisible);
+                                }}
+                            >
+                                <View style={styles.centeredView}>
+                                    <View style={styles.modalView}>
+                                        <Text style={styles.modalText}>Hello World!</Text>
+                                        <Pressable
+                                            style={[styles.button, styles.buttonClose]}
+                                            onPress={() => setModalVisible(!modalVisible)}
+                                        >
+                                            <Text style={styles.textStyle}>Hide Modal</Text>
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            </Modal>
+                           
                         <ImageReviewSection
-                        pickImage={pickImage}
-                        pickVideo={pickVideo}
-                        pickImageFromLibrary={pickImageFromLibrary}
-                        visible={visible}
-                        removeImage={removeImage}
-                        image={image}
-                        toggleOverlay={toggleOverlay}
+                            pickImage={pickImage}
+                            pickVideo={pickVideo}
+                            pickImageFromLibrary={pickImageFromLibrary}
+                            visible={visible}
+                            removeImage={removeImage}
+                            image={image}
+                            toggleOverlay={toggleOverlay}
                         />
 
                         <View>
@@ -185,13 +227,18 @@ const CameraScreen = () => {
 
                             />
                         </View>
-                        <TextBoxReviewSection handleReview={handleReview}/>
+                        <TextBoxReviewSection handleReview={handleReview} />
                         <View style={styles.submitContainer}>
                             <Button
                                 buttonStyle={styles.submitButton}
                                 title="Submit"
                                 titleStyle={styles.submitButtonText}
-                                onPress={() => uploadReview(image, rating, review)}
+                                onPress={() => {
+                                    uploadReview(image, rating, review, journeyID, attractionID).then(res => {
+                                        setModalVisible(true)
+                                    })
+                                    
+                                }}
                             />
                         </View>
 
@@ -252,5 +299,46 @@ const styles = StyleSheet.create({
     },
     overlayTextContainer: {
         marginBottom: 20
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2
+    },
+    buttonOpen: {
+        backgroundColor: "#F194FF",
+    },
+    buttonClose: {
+        backgroundColor: "#2196F3",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     }
 })

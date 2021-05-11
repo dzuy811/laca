@@ -15,7 +15,7 @@ type props = {
   navigation: any;
 }
 
-const AttractionNavigator:React.FC<props> = ({navigation, address}) => {
+const AttractionNavigator:React.FC<props> = ({address}) => {
   console.log("attrction navigator props: ", address);
   
 
@@ -23,7 +23,7 @@ const AttractionNavigator:React.FC<props> = ({navigation, address}) => {
       <Stack.Navigator headerMode="none">
         <Stack.Screen
           name="Home"
-          children={ () => <HomeScreen navigation={navigation} address={address} />}
+          children={ () => <HomeScreen address={address} />}
         />
         <Stack.Screen name="Attraction detail" component={DescriptionTab}/>
         <Stack.Screen name="Journey Map" component={MapScreen} />

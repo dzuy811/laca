@@ -4,10 +4,7 @@ import { Header } from "react-native-elements";
 import * as Location from "expo-location";
 import LoadingHomeScreen from "../screens/LoadingHomeScreen";
 import AttractionList from "../components/AttractionList";
-import GGLogo from "../assets/gg_logo.jpg";
-import * as ImagePicker from "expo-image-picker";
-import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
-import * as firebase from "firebase";
+import { useNavigation } from '@react-navigation/native'
 
 type homeScreenProps = {
 
@@ -15,8 +12,9 @@ type homeScreenProps = {
     address: string
 }
 
-const HomeScreen:React.FC<homeScreenProps> = ({navigation, address}) => {
+const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
 
+    const navigation = useNavigation()
 
     const [data, setData] = useState([])
 

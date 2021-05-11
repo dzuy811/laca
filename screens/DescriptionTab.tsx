@@ -126,7 +126,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 async function takeJourney() {
 let body = {
   userID: await getData('id'),
-  attractionID: id
+  attractionID: id,
+  status: "ongoing"
 }
 console.log(body);
 
@@ -134,8 +135,10 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 .then(res => {
   console.log(res.data);
   navigation.navigate("Journey Map", {
-    latitude: latitude,
-    longitude: longitude,
+    latitude: 10.791044000816369,
+    longitude: 106.6839532702234,
+	journeyID: res.data.id,
+	attractionID: id
   });
 }).catch(err => console.log(err))
 }

@@ -12,13 +12,13 @@ const RankingHeader = () => {
         <View>
             <View style={{ flexDirection: 'row' }}>
                 <View style={{ width: '20%' }}>
-                    <Text>Rank</Text>
+                    <Text style={styles.textHeading}>Rank</Text>
                 </View>
                 <View style={{ width: '60%' }}>
-                    <Text>Name</Text>
+                    <Text style={styles.textHeading}>Name</Text>
                 </View>
                 <View style={{ width: '20%' }}>
-                    <Text>Journey</Text>
+                    <Text style={styles.textHeading}>Journey</Text>
                 </View>
             </View>
         </View>
@@ -83,7 +83,7 @@ const GlobalRanking = () => {
     const [leaderboard, setLeaderboard] = useState([])
 
     useEffect(() => {
-        const url = `http://localhost:5000/laca-59b8c/asia-east2/api/users/details/leaderboard`
+        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -96,25 +96,25 @@ const GlobalRanking = () => {
     return (
         <View>
             <RankingHeader />
-            {leaderboard.map((user) => {
+            {leaderboard.map((user, index) => {
                 return (
-                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ width: '20%' }}>
-                            <Text>{user.rank}</Text>
+                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                        <View style={{ width: '20%', paddingLeft: 14 }}>
+                            <Text style={{}}>{index+1}</Text>
                         </View>
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%'}}>
                             <View>
                                 <Image
                                     source={{ uri: user.urlAvatar }}
                                     style={styles.logo}
                                 />
                             </View>
-                            <View>
+                            <View style={{paddingHorizontal: 10}}>
                                 <Text>{user.name}</Text>
                             </View>
                         </View>
-                        <View style={{ width: '20%' }}>
+                        <View style={{ width: '20%', paddingLeft: 16 }}>
                             <Text>{user.journeyCount}</Text>
                         </View>
                     </View>
@@ -178,6 +178,9 @@ const styles = StyleSheet.create({
         height: 30,
         borderRadius: 50
     },
+    textHeading: {
+        fontWeight: '700'
+    }
 })
 
 export default RankingScreen
