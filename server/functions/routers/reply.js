@@ -18,15 +18,14 @@ router.post("/", async (req, res) => {
 		.collection("reply")
 		.add(newReply)
 		.then((doc) => {
-			admin.firestore().collection("reviews").doc(req.body.rid).update({
-				replyCount: admin.firestore.FieldValue.increment(1)
-			})
+			// admin.firestore().collection("reviews").doc(req.body.rid).update({
+			// 	replyCount: admin.firestore.FieldValue.increment(1)
+			// })
 			res.json({
 				id: doc.id,
 				path: `reply/${doc.id}`,
 				message: `document ${doc.id} created successfully`,
 			});
-
 		})
 		.catch((err) => {
 			res.status(500).json({
@@ -40,14 +39,14 @@ router.post("/", async (req, res) => {
 router.get("/reviews/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
-		console.log("hello world")
-		const reviews = db.collection("reviews").doc(req.params.id)
+		console.log("hello world");
+		const reviews = db.collection("reviews").doc(req.params.id);
 
-		let attractionRef = await db.collection("reply").where("rid", "==",reviews ).get();
-		
+		let attractionRef = await db.collection("reply").where("rid", "==", reviews).get();
+
 		if (!attractionRef.empty) {
 			let attraction = [];
-			for await (a of attractionRef.docs){
+			for await (a of attractionRef.docs) {
 				const userRef = await a.data().uid.get();
 				const useInfo = await userRef.data();
 				if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a) {
@@ -66,10 +65,8 @@ router.get("/reviews/:id", async (req, res) => {
 						...useInfo,
 					},
 				});
-
 			}
-			
-			
+
 			return res.json(attraction);
 		}
 		return res.json({ error: "haizza" });
@@ -124,22 +121,22 @@ router.put("/:id", (req, res) => {
 });
 
 // tested
-router.delete("/:id",async (req, res) => {
+router.delete("/:id", async (req, res) => {
 	try {
 		const LikeRef = admin.firestore().collection("reply").doc(req.params.id);
 		LikeRef.get().then((snap) => {
 			if (snap.exists) {
-				const ReviewRef = await LikeRef.data().rid;
+				// const ReviewRef = await LikeRef.data().rid;
 				LikeRef.delete().then(() => {
 					res.json({
 						message: `document ${req.params.id} deleted`,
 					});
 				});
-				if (!ReviewRef.get().empty){
-					ReviewRef.update({
-						replyCount : admin.firestore.FieldValue.increment(-1)
-					})
-				}
+				// if (!ReviewRef.get().empty){
+				// 	ReviewRef.update({
+				// 		replyCount : admin.firestore.FieldValue.increment(-1)
+				// 	})
+				// }
 			} else {
 				res.json({
 					message: "document not exist",
