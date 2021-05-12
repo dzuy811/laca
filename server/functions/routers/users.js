@@ -380,7 +380,7 @@ router.post("/histories", async (req, res) => {
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
 			user: userRef,
 			attraction: attractionRef,
-			status: req.body.status,
+			status: "ongoing",
 		};
 
 		// Add new History object to Firestore (POST Method)
