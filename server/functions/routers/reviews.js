@@ -16,7 +16,6 @@ router.post("/", (req, res) => {
 		images: req.body.images,
 		replyCount: 0
 	};
-
 	admin
 		.firestore()
 		.collection("reviews")
@@ -38,7 +37,7 @@ router.post("/", (req, res) => {
 router.get("/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
-
+		
 		let attractionRef = await db
 			.collection("reviews")
 			.where("__name__", "==", `${req.params.id}`)
@@ -76,9 +75,6 @@ router.get("/attractions/:id", async (req, res) => {
 				} else {
 					throw new Error("one of the data is not found");
 				}
-
-				
-				
 				attraction.push({
 					id: a.id,
 					comment: {

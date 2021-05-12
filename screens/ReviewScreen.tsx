@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
 import { Rating } from 'react-native-elements';
 import moment from 'moment';
@@ -212,13 +212,21 @@ const ReviewScreen = () =>{
 				/>
 			</View>
 			<Text style={styles.DescriptionTitle}>reply</Text>
-			<View style={{ paddingBottom: 100 }}>
+			<View style={{ paddingBottom: 10 }}>
 				
 				<FlatList
 					data={dataCombine}
 					renderItem={renderDescription}
 					keyExtractor={(item) => item.id}
 				></FlatList>
+			</View>
+			<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
+			<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
+			<TouchableOpacity style={styles.containerButton}>
+				<Text style = {styles.buttonText}>type your comment here</Text>
+				
+			</TouchableOpacity>
+				
 			</View>
 
 			
@@ -325,6 +333,18 @@ const styles = StyleSheet.create({
 	rating: {
 		paddingVertical: 10,
 		justifyContent: 'flex-end'
+	},
+	containerButton : {
+		width: 250,
+		backgroundColor : "#E7E7E7",
+		marginLeft:"5%",
+		borderRadius: 12
+	},
+	buttonText: {
+		margin:11,
+		position:"relative",
+		alignContent:"center"
+		
 	}
 
 })
