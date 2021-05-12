@@ -25,3 +25,4 @@ app.use("/rewards", Rewards);
 
 // Exports REST API
 exports.api = functions.region("asia-east2").https.onRequest(app);
+

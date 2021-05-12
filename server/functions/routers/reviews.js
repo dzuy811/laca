@@ -13,7 +13,7 @@ router.post("/", (req, res) => {
 		timeCreated: admin.firestore.Timestamp.fromDate(new Date()),
 		aid: req.body.aid,
 		likeCount: 0,
-		images: [],
+		images: req.body.images,
 		replyCount: 0
 	};
 
@@ -123,29 +123,5 @@ router.put("/:id", (req, res) => {
 		});
 });
 
-router.put("/updateAll",async (req,res)=>{
-	try {
-		let reviewsAll = admin.firestore().collection("reviews").get()
-
-		for await( let rev of reviewsAll.docs){
-			const revRef = await rev.get();
-			try {
-				revRef.update({ 
-					replyCount : 0
-				})
-			} catch(error) {
-				console.log("it didn't work")
-				console.log(error)
-			}
-			
-
-		}
-
-		res.json("updated all the docs")
-		
-	} catch (err) {
-		console.log(err)
-	}
-})
 
 module.exports = router;

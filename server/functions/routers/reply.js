@@ -18,9 +18,9 @@ router.post("/", async (req, res) => {
 		.collection("reply")
 		.add(newReply)
 		.then((doc) => {
-			// admin.firestore().collection("reviews").doc(req.body.rid).update({
-			// 	replyCount: admin.firestore.FieldValue.increment(1)
-			// })
+			newReply.rid.update({
+				replyCount : admin.firestore.FieldValue.increment(1)
+			})
 			res.json({
 				id: doc.id,
 				path: `reply/${doc.id}`,
@@ -124,19 +124,15 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", async (req, res) => {
 	try {
 		const LikeRef = admin.firestore().collection("reply").doc(req.params.id);
+		// const revRef = await LikeRef.get().data().rid;
 		LikeRef.get().then((snap) => {
 			if (snap.exists) {
-				// const ReviewRef = await LikeRef.data().rid;
 				LikeRef.delete().then(() => {
 					res.json({
+						
 						message: `document ${req.params.id} deleted`,
 					});
 				});
-				// if (!ReviewRef.get().empty){
-				// 	ReviewRef.update({
-				// 		replyCount : admin.firestore.FieldValue.increment(-1)
-				// 	})
-				// }
 			} else {
 				res.json({
 					message: "document not exist",
