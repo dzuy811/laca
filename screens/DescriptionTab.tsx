@@ -4,7 +4,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
 import UserLogo from "../assets/fb_logo.png";
 import moment from 'moment';
-import { Rating } from 'react-native-elements';
+import { Rating, Overlay } from 'react-native-elements';
+
 
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -112,6 +113,9 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 
+
+
+
 	// fetch list of reviews 
 	useEffect(() => {
 		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`)
@@ -123,26 +127,40 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.catch((err) => console.error(err))
 	},[])
   
-async function takeJourney() {
-let body = {
-  userID: await getData('id'),
-  attractionID: id
-}
-console.log(body);
+	async function takeJourney() {
+		let body = {
+		userID: await getData('id'),
+		attractionID: id
+		}
+		console.log(body);
 
-axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
-.then(res => {
-  console.log(res.data);
-  navigation.navigate("Journey Map", {
-    latitude: latitude,
-    longitude: longitude,
-  });
-}).catch(err => console.log(err))
-}
-
+		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
+		.then(res => {
+		console.log(res.data);
+		navigation.navigate("Journey Map", {
+			latitude: latitude,
+			longitude: longitude,
+		});
+		}).catch(err => console.log(err))
+	}
 
 	let dataPoint = 0;
 	let dataCombine = [] as listData;
+
+	let dataMock = {} as descriptionType;
+	dataMock.content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+	dataMock.avatar = "https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FJdiRqjQRzva2Y9Gu8LOiopbUYg32?alt=media&token=d29123f3-16a1-42d5-8035-62d2d78a09b4";
+	dataMock.name = "Duy";
+	dataMock.timeCreated = "12:23 12-12-2009";
+	dataMock.rating = 2;
+	dataMock.likeCount = 4;
+	dataMock.replyCount = 7;
+	dataCombine.push(dataMock);
+	dataCombine.push(dataMock);
+	dataCombine.push(dataMock);
+	dataCombine.push(dataMock);
+	dataCombine.push(dataMock);
+
 
 	data.forEach((review) => {
 		let data = {} as descriptionType;
@@ -151,14 +169,23 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
 		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 
-		data.id = dataPoint.toString();
-		data.content = review.comment.content;
-		data.avatar = review.userInfo.urlAvatar;
-		data.name = review.userInfo.name;
-		data.timeCreated = formattedDate;
-		data.rating = review.comment.rating;
-		data.likeCount = review.comment.likeCount;
-		data.replyCount = review.replyCount;
+		// data.id = dataPoint.toString();
+		// data.content = review.comment.content;
+		// data.avatar = review.userInfo.urlAvatar;
+		// data.name = review.userInfo.name;
+		// data.timeCreated = formattedDate;
+		// data.rating = review.comment.rating;
+		// data.likeCount = review.comment.likeCount;
+		// data.replyCount = review.replyCount;
+
+		// data.id = dataPoint.toString();
+		data.content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+		data.avatar = "https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FJdiRqjQRzva2Y9Gu8LOiopbUYg32?alt=media&token=d29123f3-16a1-42d5-8035-62d2d78a09b4";
+		data.name = "Duy";
+		data.timeCreated = "12:23 12-12-2009";
+		data.rating = 5;
+		data.likeCount = 4;
+		data.replyCount = 7;
 	
 		dataCombine.push(data);
 	})
@@ -188,29 +215,28 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
 				<View style={{width: '10%',  marginRight: "2%"}}>
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={30} color={item.likeCount != 0 ? "green" : "black"} />
+						<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
-					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{item.likeCount}</Text>
+					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>{item.likeCount}</Text>
 				</View>
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
 				</View>
-				
-				{/* Reply section */}
-				<View style={{ paddingLeft: "10%" }}>
+			</View>
+			{/* Reply section */}
+				<View style={{ marginTop: 10, marginLeft: "25%"}}>
 					{item.replyCount == 0 ? // if there is not any reply
 					(
 						<View>
 						</View>
 					) : (
-						<View>
+						<View style={{}}>
 								<TouchableOpacity onPress={() => console.log("Reply")}>
 									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
 								</TouchableOpacity>
 						</View>
 					)}
 				</View>
-			</View>
 		</View>
 	);
 
@@ -218,6 +244,12 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 	const renderImage = ({ item, index }: iItem) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
+
+	const [visible, setVisible] = useState(false);
+
+    const toggleOverlay = () => {
+      setVisible(!visible);
+    };
 
 	return (
 		<>
@@ -288,6 +320,25 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 					/>
 				</LinearGradient>
 			</View>
+			            {/* <View style={styles.centeredView}>
+                <View>
+                    <Overlay
+                    isVisible={visible}
+                    onBackdropPress={() => toggleOverlay()}
+                    overlayStyle={styles.overlay}
+                    >
+                        <View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
+                            <TouchableOpacity onPress={() => console.log("Hell")}>
+                                <Text>Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => console.log("Hi")}>
+                                <Text>Delete</Text>
+                            </TouchableOpacity>
+                        </View>
+                        
+                    </Overlay>
+                </View>
+            </View> */}
 		</>
 	);
 };
@@ -350,7 +401,18 @@ const styles = StyleSheet.create({
 	rating: {
 		paddingVertical: 10,
 		justifyContent: 'flex-end'
-	}
+	},
+	centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22,
+    },
+	overlay: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        width: '86%'
+    },
 });
 
 export default DescriptionTab;

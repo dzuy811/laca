@@ -58,7 +58,7 @@ function FriendProfile({ route, navigation }) {
                     onBackdropPress={() => toggleOverlay()}
                     overlayStyle={styles.overlay}
                     >
-                        <Text style={{fontSize: 16}}>Are you sure you want to revmove {data.otherUser.name} as your friend?</Text>
+                        <Text style={{fontSize: 16}}>Are you sure you want to remove {data.otherUser.name} as your friend?</Text>
                         <View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
                             <TouchableOpacity onPress={() => toggleOverlay()}>
                                 <Text style={styles.cancelButton}>CANCEL</Text>
