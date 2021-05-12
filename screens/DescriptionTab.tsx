@@ -1,16 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Modal, StyleSheet, Image, FlatList, Animated, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, FlatList, Animated, TouchableOpacity, TextInput, Pressable } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
-import UserLogo from "../assets/fb_logo.png";
 import moment from 'moment';
 import { Rating, Overlay } from 'react-native-elements';
 import { LoginButton } from "../components";
-// import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
-import firebase from "firebase";
 
 type iItem = {
 	item: typeImageData;
@@ -113,6 +110,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 	const [userID, setUserID] = useState<any>();
+	const [text, setText] = useState<string>("");
 
 	// fetch list of reviews 
 	useEffect(() => {
@@ -172,12 +170,11 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	})
 
 	const ReviewSection = ({ item }: dataDescription) => (
-		<View style={{ marginBottom: 30}}>
+		<View style={{ marginBottom: 10}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
-
 						<Text style={styles.profileName}>{item.name}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
@@ -202,20 +199,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
 				</View>
 			</View>
-			{/* Reply section */}
-				<View style={{ marginTop: 10, marginLeft: "25%"}}>
-					{item.replyCount == 0 ? // if there is not any reply
-					(
-						<View>
-						</View>
-					) : (
-						<View style={{}}>
-								<TouchableOpacity onPress={() => console.log("Reply")}>
-									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-								</TouchableOpacity>
-						</View>
-					)}
-				</View>
 		</View>
 	)
 
@@ -225,16 +208,43 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			{console.log(item)}
 			{userID == item.uid ? (
 				<>		
-					<TouchableOpacity onPress={() => console.log("Reply")}>
+					<TouchableOpacity onPress={() => toggleFirstOverlay()}>
 						<ReviewSection item={item} />
 					</TouchableOpacity>
+					{/* Reply section */}
+					<View style={{ marginLeft: "25%"}}>
+						{item.replyCount == 0 ? // if there is not any reply
+						(
+							<View>
+							</View>
+						) : (
+							<View style={{}}>
+									<TouchableOpacity onPress={() => console.log("Reply")}>
+										<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+									</TouchableOpacity>
+							</View>
+						)}
+					</View>
 				</>
 			) : (
 				<>
 					<ReviewSection item={item} />
+					{/* Reply section */}
+					<View style={{ marginTop: 10, marginLeft: "25%"}}>
+						{item.replyCount == 0 ? // if there is not any reply
+						(
+							<View>
+							</View>
+						) : (
+							<View style={{}}>
+									<TouchableOpacity onPress={() => console.log("Reply")}>
+										<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+									</TouchableOpacity>
+							</View>
+						)}
+					</View>
 				</>
 			)} 
-			
 		</View>
 	);
 
@@ -243,10 +253,15 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
 
-	const [visible, setVisible] = useState(false);
+	const [visible1, setVisible1] = useState(false);
+	const [visible2, setVisible2] = useState(false);
 
-    const toggleOverlay = () => {
-      setVisible(!visible);
+    const toggleFirstOverlay = () => {
+      setVisible1(!visible1);
+    };
+
+	const toggleSecondOverlay = () => {
+      setVisible2(!visible2);
     };
 
 	return (
@@ -294,6 +309,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							</View>
 						</Animated.ScrollView>
 					</View>
+					
 				</View>
 
 				{/* Journey Starting Button */}
@@ -318,25 +334,51 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					/>
 				</LinearGradient>
 
-				{/* Model for editing/deleting */}
-			    <View>
-					<View>
+				{/* Modal for editing/deleting */}
+			    <View style={{position: 'absolute', bottom: 0}}>
+					<View style={{position: 'absolute', bottom: 0}}>
 						<Overlay
-						isVisible={visible}
-						onBackdropPress={() => toggleOverlay()}
-						overlayStyle={styles.overlay}
+							isVisible={visible1}
+							onBackdropPress={() => toggleFirstOverlay()}
+							animationType="slide"
+							overlayStyle={{position: 'absolute', bottom: 20, width: "100%"}}
 						>
-							<View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
-								<TouchableOpacity onPress={() => console.log("Hell")}>
-									<Text>Edit</Text>
+							<View>
+								<TouchableOpacity style={{padding: 5}} onPress={() => toggleSecondOverlay()}>
+									<Text style={styles.textOverlap}>Edit</Text>
 								</TouchableOpacity>
-								<TouchableOpacity onPress={() => console.log("Hi")}>
-									<Text>Delete</Text>
+								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
+								<TouchableOpacity style={{padding: 5}} onPress={() => console.log("Delete")}>
+									<Text style={styles.textOverlap}>Delete</Text>
 								</TouchableOpacity>
 							</View>
 						</Overlay>
 					</View>
             	</View>
+				{/* Modal for editing the post */}
+				<View>
+					<Overlay
+						isVisible={visible2}
+						onBackdropPress={() => toggleSecondOverlay()}
+						animationType="slide"
+						overlayStyle={{position: 'absolute', bottom: 40, width: "100%"}}
+					>
+						<View style={{alignItems: "center"}}>
+							<TextInput
+								style={{height: 50, textAlign: "auto"}}
+								placeholder="Type here!"
+								onChangeText={text => setText(text)}
+								defaultValue={text}
+							/>
+							<Pressable 
+								style={styles.submitButton}
+								onPress={() => alert("hello world")}
+							>
+								<Text style={{color: "#E2D0A2"}}>Submit</Text>
+							</Pressable>
+						</View>
+					</Overlay>
+				</View>
 			</View>
 			
 		</>
@@ -404,16 +446,33 @@ const styles = StyleSheet.create({
 	},
 	centeredView: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        justifyContent: "center", 
+		position: 'absolute',
+		bottom: 0,
         marginTop: 22,
     },
 	overlay: {
         paddingVertical: 15,
+		position: 'absolute',
         paddingHorizontal: 20,
         width: '86%'
     },
+	textOverlap: {
+		position: 'relative',
+		fontSize: 20,
+		textAlign: 'center',
+		color: "#828282"
+	},
+	submitButton: {
+		width: 300,
+		padding: 20,
+		backgroundColor: "#4B8FD2",
+		borderRadius: 30,
+		borderWidth: 1,
+		borderColor: "#fff",
+		alignItems: "center",
+		marginBottom: 20
+	}
 });
 
 export default DescriptionTab;
-
