@@ -5,13 +5,12 @@ import { AntDesign } from "@expo/vector-icons";
 import UserLogo from "../assets/fb_logo.png";
 import moment from 'moment';
 import { Rating, Overlay } from 'react-native-elements';
-
-
 import { LoginButton } from "../components";
 // import { SafeAreaProvider } from "react-native-safe-area-context";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
+import firebase from "firebase";
 
 type iItem = {
 	item: typeImageData;
@@ -38,6 +37,7 @@ type typeImageData = {
 
 type descriptionType = { 
 	id: string; 
+	uid: string;
 	name: string; 
 	avatar: string; 
 	content: string; 
@@ -49,13 +49,12 @@ type descriptionType = {
 
 type dataDescription = {
 	item: descriptionType;
-
+	index?: number;
 };
 
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : infoUser,
-	replyCount: number
 }
 
 // Mock data for Gallery Pictures
@@ -91,6 +90,7 @@ type comment = {
 	content: string,
 	aid: string,
 	rating : number,
+	replyCount: number
 }
 
 type infoUser = {
@@ -112,9 +112,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
-
-
-
+	const [userID, setUserID] = useState<any>();
 
 	// fetch list of reviews 
 	useEffect(() => {
@@ -122,10 +120,16 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.then((response) => response.json())
 		.then((json) => {
             setData(json)
-            // console.log(json) 
+            // console.log(json)
+			getUser().then((data) => { setUserID(data) })
         })
 		.catch((err) => console.error(err))
 	},[])
+
+	async function getUser() {
+		let id = await getData("id");
+		return id;
+	}
   
 	async function takeJourney() {
 		let body = {
@@ -147,21 +151,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	let dataPoint = 0;
 	let dataCombine = [] as listData;
 
-	let dataMock = {} as descriptionType;
-	dataMock.content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-	dataMock.avatar = "https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FJdiRqjQRzva2Y9Gu8LOiopbUYg32?alt=media&token=d29123f3-16a1-42d5-8035-62d2d78a09b4";
-	dataMock.name = "Duy";
-	dataMock.timeCreated = "12:23 12-12-2009";
-	dataMock.rating = 2;
-	dataMock.likeCount = 4;
-	dataMock.replyCount = 7;
-	dataCombine.push(dataMock);
-	dataCombine.push(dataMock);
-	dataCombine.push(dataMock);
-	dataCombine.push(dataMock);
-	dataCombine.push(dataMock);
-
-
 	data.forEach((review) => {
 		let data = {} as descriptionType;
 
@@ -169,29 +158,20 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
 		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 
-		// data.id = dataPoint.toString();
-		// data.content = review.comment.content;
-		// data.avatar = review.userInfo.urlAvatar;
-		// data.name = review.userInfo.name;
-		// data.timeCreated = formattedDate;
-		// data.rating = review.comment.rating;
-		// data.likeCount = review.comment.likeCount;
-		// data.replyCount = review.replyCount;
-
-		// data.id = dataPoint.toString();
-		data.content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-		data.avatar = "https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FJdiRqjQRzva2Y9Gu8LOiopbUYg32?alt=media&token=d29123f3-16a1-42d5-8035-62d2d78a09b4";
-		data.name = "Duy";
-		data.timeCreated = "12:23 12-12-2009";
-		data.rating = 5;
-		data.likeCount = 4;
-		data.replyCount = 7;
+		data.id = dataPoint.toString();
+		data.content = review.comment.content;
+		data.avatar = review.userInfo.urlAvatar;
+		data.name = review.userInfo.name;
+		data.timeCreated = formattedDate;
+		data.rating = review.comment.rating;
+		data.likeCount = review.comment.likeCount;
+		data.replyCount = review.comment.replyCount;
+		data.uid = review.userInfo.id;
 	
 		dataCombine.push(data);
 	})
 
-	// Render list of descriptions for Flat List
-	const renderDescription = ({ item }: dataDescription) => (
+	const ReviewSection = ({ item }: dataDescription) => (
 		<View style={{ marginBottom: 30}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
@@ -210,7 +190,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						/>
 					</View>
 				</View>
-
 			</View>
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
 				<View style={{width: '10%',  marginRight: "2%"}}>
@@ -237,6 +216,25 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						</View>
 					)}
 				</View>
+		</View>
+	)
+
+	// Render list of descriptions for Flat List
+	const renderDescription = ({ item, index }: dataDescription) => (
+		<View key={index} style={{ marginBottom: 30}}>
+			{console.log(item)}
+			{userID == item.uid ? (
+				<>		
+					<TouchableOpacity onPress={() => console.log("Reply")}>
+						<ReviewSection item={item} />
+					</TouchableOpacity>
+				</>
+			) : (
+				<>
+					<ReviewSection item={item} />
+				</>
+			)} 
+			
 		</View>
 	);
 
@@ -289,7 +287,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							<View style={{ paddingBottom: 100 }}>
 								<Text style={styles.descriptionTitle}>Reviews</Text>
 								<FlatList
-									data={dataCombine}
+									data={dataCombine.reverse()}
 									renderItem={renderDescription}
 									keyExtractor={(item) => item.id}
 								></FlatList>
@@ -319,26 +317,28 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						textColor="#E2D0A2"
 					/>
 				</LinearGradient>
+
+				{/* Model for editing/deleting */}
+			    <View>
+					<View>
+						<Overlay
+						isVisible={visible}
+						onBackdropPress={() => toggleOverlay()}
+						overlayStyle={styles.overlay}
+						>
+							<View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
+								<TouchableOpacity onPress={() => console.log("Hell")}>
+									<Text>Edit</Text>
+								</TouchableOpacity>
+								<TouchableOpacity onPress={() => console.log("Hi")}>
+									<Text>Delete</Text>
+								</TouchableOpacity>
+							</View>
+						</Overlay>
+					</View>
+            	</View>
 			</View>
-			            {/* <View style={styles.centeredView}>
-                <View>
-                    <Overlay
-                    isVisible={visible}
-                    onBackdropPress={() => toggleOverlay()}
-                    overlayStyle={styles.overlay}
-                    >
-                        <View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
-                            <TouchableOpacity onPress={() => console.log("Hell")}>
-                                <Text>Edit</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => console.log("Hi")}>
-                                <Text>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                        
-                    </Overlay>
-                </View>
-            </View> */}
+			
 		</>
 	);
 };

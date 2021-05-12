@@ -76,7 +76,7 @@ function OtherProfileScreen({ route, navigation }) {
 
     function sendRequest() {
         let user = firebase.auth().currentUser
-        let url = 'http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/send'
+        let url = 'https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/send'
         let body = {
             sendUserID: user?.uid,
             receiveUserID: data.id
