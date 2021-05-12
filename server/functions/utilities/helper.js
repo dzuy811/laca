@@ -1,5 +1,3 @@
-const { ModuleResolutionKind } = require("typescript");
-
 // returns the union of two arrays where duplicate objects with the same 'prop' are removed
 const unionOnProp = (a, b, prop) => {
 	let array = [...a, ...b];

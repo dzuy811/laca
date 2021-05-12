@@ -24,10 +24,3 @@ app.use("/reply", Reply);
 // Exports REST API
 exports.api = functions.region("asia-east2").https.onRequest(app);
 
-// // Exports Event Listeners
-// exports.notification = functions.firestore
-// 	.document("users/{userId}")
-// 	.onUpdate((change, context) => {
-// 		const newValue = change.after.data();
-// 		console.log(newValue);
-// 	});
