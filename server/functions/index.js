@@ -12,6 +12,7 @@ const Reviews = require("./routers/reviews");
 const Like = require("./routers/like");
 const Reply = require("./routers/reply");
 const Rewards = require("./routers/rewards");
+const RewardCopies = require("./routers/rewardcopies");
 
 // Route API addresses
 app.use("/users", Users);
@@ -22,7 +23,7 @@ app.use("/reviews", Reviews);
 app.use("/like", Like);
 app.use("/reply", Reply);
 app.use("/rewards", Rewards);
+app.use("/rewardcopies", RewardCopies);
 
 // Exports REST API
 exports.api = functions.region("asia-east2").https.onRequest(app);
-

@@ -413,7 +413,7 @@ router.put("/histories/:id/finish", async (req, res) => {
 		const db = admin.firestore();
 
 		// Params declaration
-		let { historyID } = req.params.id;
+		let historyID = req.params.id;
 
 		// Document History reference
 		const historyRef = db.collection("histories").doc(historyID);
@@ -423,6 +423,11 @@ router.put("/histories/:id/finish", async (req, res) => {
 
 		if (!historySnapshot.exists) {
 			throw new Error("History reference not found.");
+		}
+
+		// Check if it has already been finished
+		if (historySnapshot.data().status == "finished") {
+			throw new Error("History has been marked as finished.");
 		}
 
 		// Mark the journey of the user as finished
@@ -472,7 +477,7 @@ router.put("/histories/:id/cancel", async (req, res) => {
 		const db = admin.firestore();
 
 		// Params declaration
-		let { historyID } = req.params.id;
+		let historyID = req.params.id;
 
 		// Document History reference
 		const historyRef = db.collection("histories").doc(historyID);
