@@ -200,12 +200,47 @@ router.delete("/system/:id", async (req, res) => {
 	}
 });
 
-// ---- API for system_rewards Collection (/api/rewards/system) ----- //
+// ---- API for PartnerReward Collection (/api/rewards/partner) ----- //
+// READ All Partner Rewards available in the System
 router.get("/partner", async (req, res) => {
 	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+
+		// Declare reference to collection
+		const partnerRewardsRef = db.collection("partner_rewards");
+		const partnersRewardSnapshot = await partnerRewardsRef.get();
+
+		// Response all rewards retrieved
+		let partnerRewards = [];
+		let partnerRewardCount = 0;
+		for await (let pReward of partnersRewardSnapshot.docs) {
+			// Reference to partner data
+			let partnerData = pReward.data();
+			// Retrieve snapshot of referenced partner
+			let partnerSs = await pReward.data().partner.get();
+
+			partnerData.partner = {
+				id: partnerSs.id,
+				...partnerSs.data(),
+			};
+			// Push to the response body
+			partnerRewards.push({
+				id: pReward.id,
+				...partnerData,
+			});
+			partnerRewardCount++;
+		}
+		return res.status(200).json({
+			partnerRewardCount,
+			partnerRewards: partnerRewards,
+		});
 	} catch (error) {
 		console.log(error);
 	}
 });
+
+// CREATE a Partner Reward
+router.post("/partner", async (req, res) => {});
 
 module.exports = router;

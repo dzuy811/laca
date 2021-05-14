@@ -421,6 +421,7 @@ router.put("/histories/:id/finish", async (req, res) => {
 		const historyUserRef = historySnapshot.data().user;
 		const historyAttractionRef = historySnapshot.data().attraction;
 
+		// Check if the history reference exist
 		if (!historySnapshot.exists) {
 			throw new Error("History reference not found.");
 		}

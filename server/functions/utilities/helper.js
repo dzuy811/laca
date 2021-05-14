@@ -1,8 +1,12 @@
 // returns the union of two arrays where duplicate objects with the same 'prop' are removed
-const unionOnProp = (a, b, prop) => {
-	let array = [...a, ...b];
-	array.filter((x) => !b.find((y) => x[prop] === y[prop]));
-	return array;
+const mergeByProperty = (target, source, prop) => {
+	source.forEach((sourceElement) => {
+		let targetElement = target.find((targetElement) => {
+			return sourceElement[prop] === targetElement[prop];
+		});
+		targetElement ? Object.assign(targetElement, sourceElement) : target.push(sourceElement);
+	});
+	return target;
 };
 
 const sortBy = (field, reverse, primer) => {
@@ -21,5 +25,5 @@ const sortBy = (field, reverse, primer) => {
 	};
 };
 
-exports.unionOnProp = unionOnProp;
+exports.unionOnProp = mergeByProperty;
 exports.sortBy = sortBy;

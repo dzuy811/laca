@@ -40,6 +40,34 @@ router.get("/", async (req, res) => {
 	}
 });
 
+// READ One Partner by id
+router.get("/:id", async (req, res) => {
+	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+
+		// Reference to Partner Collection by ID
+		const partnerRef = db.collection("partners").doc(req.params.id);
+		const partnerSnapshot = await partnerRef.get();
+
+		if (!partnerSnapshot.exists) {
+			return res.status(200).json({});
+		}
+		let partner = {
+			id: partnerSnapshot.id,
+			...partnerSnapshot.data(),
+		};
+
+		return res.status(200).json(partner);
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// CREATE a Partner
 router.post("/", async (req, res) => {
 	try {
 		// Declare DB Schema
@@ -49,7 +77,53 @@ router.post("/", async (req, res) => {
 		const partnersRef = db.collection("partners");
 
 		// Declare schema for new partner
-		const newPartner = {};
+		const newPartner = {
+			name: req.body.name,
+			phone: req.body.phone,
+			address: [req.body.address_line_1, req.body.address_line_2],
+			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+		};
+
+		// Add partner to firestore's collection
+		partnersRef.add(newPartner).then((doc) => {
+			return res.status(201).json({
+				id: doc.id,
+				path: `partners/${doc.id}`,
+				message: `Partner document ${doc.id} created successfully.`,
+			});
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
+// UPDATE a Partner on basic information
+router.put("/:id", async (req, res) => {
+	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+
+		// Declare Reference to the Partner document
+		const partnerRef = db.doc("partners/" + req.params.id);
+
+		// declare Update body
+		const updatedPartner = {
+			name: req.body.name,
+			phone: req.body.phone,
+			address: [req.body.address_line_1, req.body.address_line_2],
+		};
+
+		// Update operation for Partner
+		await partnerRef.update(updatedPartner).then(() => {
+			return res.status(200).json({
+				id: partnerRef.id,
+				path: `partners/${partnerRef.id}`,
+				message: `Partner document ${partnerRef.id} updated successfully.`,
+			});
+		});
 	} catch (error) {
 		res.status(400).json({
 			message: `ERROR! ${error}`,
