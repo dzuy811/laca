@@ -111,6 +111,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const [data, setData] = useState<uniqueReviews[]>([]);
 	const [userID, setUserID] = useState<any>();
 	const [text, setText] = useState<string>("");
+	let userContent = "";
 
 	// fetch list of reviews 
 	useEffect(() => {
@@ -119,7 +120,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.then((json) => {
             setData(json)
             // console.log(json)
-			getUser().then((data) => { setUserID(data) })
+			getUser().then(data => setUserID(data))
         })
 		.catch((err) => console.error(err))
 	},[])
@@ -147,7 +148,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	}
 
 	let dataPoint = 0;
-	let dataCombine = [] as listData;
+	let dataCombination = [] as listData;
 
 	data.forEach((review) => {
 		let data = {} as descriptionType;
@@ -165,8 +166,11 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		data.likeCount = review.comment.likeCount;
 		data.replyCount = review.comment.replyCount;
 		data.uid = review.userInfo.id;
-	
-		dataCombine.push(data);
+
+		// Take the content of the current user
+		if(data.uid == userID) userContent = data.content;
+
+		dataCombination.push(data);
 	})
 
 	const ReviewSection = ({ item }: dataDescription) => (
@@ -205,10 +209,9 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	// Render list of descriptions for Flat List
 	const renderDescription = ({ item, index }: dataDescription) => (
 		<View key={index} style={{ marginBottom: 30}}>
-			{console.log(item)}
 			{userID == item.uid ? (
 				<>		
-					<TouchableOpacity onPress={() => toggleFirstOverlay()}>
+					<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
 						<ReviewSection item={item} />
 					</TouchableOpacity>
 					{/* Reply section */}
@@ -302,7 +305,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							<View style={{ paddingBottom: 100 }}>
 								<Text style={styles.descriptionTitle}>Reviews</Text>
 								<FlatList
-									data={dataCombine.reverse()}
+									data={dataCombination.reverse()}
 									renderItem={renderDescription}
 									keyExtractor={(item) => item.id}
 								></FlatList>
@@ -344,7 +347,10 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							overlayStyle={{position: 'absolute', bottom: 20, width: "100%"}}
 						>
 							<View>
-								<TouchableOpacity style={{padding: 5}} onPress={() => toggleSecondOverlay()}>
+								<TouchableOpacity style={{padding: 5}} onPress={() => {
+									toggleSecondOverlay()
+									setVisible1(false);
+									}}>
 									<Text style={styles.textOverlap}>Edit</Text>
 								</TouchableOpacity>
 								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
@@ -368,7 +374,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								style={{height: 50, textAlign: "auto"}}
 								placeholder="Type here!"
 								onChangeText={text => setText(text)}
-								defaultValue={text}
+								defaultValue={userContent}
 							/>
 							<Pressable 
 								style={styles.submitButton}
