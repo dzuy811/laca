@@ -413,7 +413,7 @@ router.put("/histories/:id/finish", async (req, res) => {
 		const db = admin.firestore();
 
 		// Params declaration
-		let { historyID } = req.params.id;
+		let historyID  = req.params.id;
 
 		// Document History reference
 		const historyRef = db.collection("histories").doc(historyID);
