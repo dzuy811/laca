@@ -25,6 +25,7 @@ type Props = {
 			description: string;
 			name: string;
 			id : string;
+			distance: number
 		};
 	};
 	navigation: any;
@@ -109,7 +110,7 @@ type listData = descriptionType[]
 
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
-	const { latitude, longitude, description, name, id } = route.params;
+	const { latitude, longitude, description, name, id, distance } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 
 	// fetch list of reviews 
@@ -135,6 +136,8 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 .then(res => {
   console.log(res.data);
   navigation.navigate("Journey Map", {
+	  // rmit 10.730283804989273, 106.69316143068589
+	  // home 10.791044000816369, 106.6839532702234
     latitude: 10.791044000816369,
     longitude: 106.6839532702234,
 	journeyID: res.data.id,
@@ -226,7 +229,7 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 		<>
 			<View style={{ flex: 1 }}>
 				{/* Header */}
-				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} />
+				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} headerDistance={distance}/>
 
 				<View style={{ flex: 1, backgroundColor: "white"}}>
 					<View>

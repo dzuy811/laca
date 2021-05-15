@@ -10,54 +10,84 @@ import { AntDesign } from '@expo/vector-icons'
 import ImageReviewSection from '../components/review-screen-components/ImageReviewSection'
 import TextBoxReviewSection from '../components/review-screen-components/TextBoxReviewSection'
 import { getData } from '../constants/utility';
+
 import axios from 'axios';
 
 
 // Upload to firebase cloudstore function
+async function createImagesArray(uriArray: string[]) {
+
+    let images:string[] = []
+
+        for await (const uri of uriArray) {
+            console.log(uri);
+            
+            const response = await fetch(uri);
+            const blob = await response.blob();
+    
+            // split to get the name from the file
+            let uriSplitString = uri.split("/")
+            let filename = uriSplitString[uriSplitString.length - 1].split('.')[0]
+            console.log("name: ", filename)
+    
+            var ref = firebase.storage().ref().child("images/" + filename);
+            await ref.put(blob)
+            await ref.getDownloadURL()
+                .then((url) => {
+                    console.log("url: ", url);
+                    images.push(url)    
+                })
+        
+        }        
+    console.log(images);
+    return images
+}
+
+
 async function uploadReview(uriArray: string[], rating: number, review: string, journeyID: string, attractionID: string) {
-    console.log("review: ", review)
-    console.log("rating:", rating)
-    for (let i = 0; i < uriArray.length; i++) {
-        let uri = uriArray[i]
-        const response = await fetch(uri);
-        const blob = await response.blob();
-
-        // split to get the name from the file
-        let uriSplitString = uri.split("/")
-        let filename = uriSplitString[uriSplitString.length - 1].split('.')[0]
-        console.log("name: ", filename)
-
-        // var ref = firebase.storage().ref().child("images/" + filename);
-        // await ref.put(blob)
-        // ref.getDownloadURL()
-        //     .then((url) => {
-        //         console.log(url.toString())
-        //     })
-        let body = {
-            uid: await getData("id"),
-            aid: attractionID,
-            content: review,
-            rating: rating,
-            images: []
-        }
-        // axios.post("https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews", body)
-        // .then(res => {
-        //     console.log(res.data);  
-        // }).catch(err => {
-        //     console.log(err);
-        // })
-        return body;
+    
+    let body = {
+        uid: await getData("id"),
+        rating,
+        content: review,
+        aid: attractionID,
+        images: await createImagesArray(uriArray)
     }
+console.log("images: ", body.images);
 
+    axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews', body)
+    .then(res => {
+        console.log("body: ", body);
+        console.log(res.data);
+              
+    })
+    .then(() => {
+        // still using local because not merge code for deploy yet
+        axios.put(`http://192.168.2.105:5000/laca-59b8c/asia-east2/api/users/histories/${journeyID}/finish`)
+        .then(() => {
+            console.log("journey ID: ", journeyID);
+
+            console.log("Journey completed")
+        })
+        .catch(err => {
+            console.log("journey ID: ", journeyID);
+
+            console.log(err);
+        })
+    })
+    .catch(err => {
+        console.log("body err: ", body);
+        console.log(err)
+    })
 
 }
 
 
 
-
-const CameraScreen = ({ route }) => {
+const CameraScreen = ({navigation, route }) => {
     console.log("camera screen route props: ", route);
     const { journeyID, attractionID } = route.params
+    
 
     const CameraButton: React.FC = () => {
 
@@ -81,9 +111,13 @@ const CameraScreen = ({ route }) => {
     const [rating, setRating] = useState<number>(0)
     const [review, setReview] = useState<string>("");
     const [visible, setVisible] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [congratVisible, setCongratVisible] = useState(false);
 
 
+    const toggleCongrat = () => {
+        setCongratVisible(!congratVisible)
+    }
+ 
     const toggleOverlay = () => {
         setVisible(!visible);
     };
@@ -152,6 +186,11 @@ const CameraScreen = ({ route }) => {
         }
     };
 
+    const navigateBack = (navigation) => {
+        console.log(navigation)
+        navigation.navigate('Home')
+    }
+
     return (
         <TouchableWithoutFeedback style={{ height: '100%' }} onPress={Keyboard.dismiss} accessible={false}>
 
@@ -188,27 +227,24 @@ const CameraScreen = ({ route }) => {
 
                     :
                     <View style={{ height: '100%', justifyContent: 'center' }}>
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={modalVisible}
-                                onRequestClose={() => {
-                                    Alert.alert("Modal has been closed.");
-                                    setModalVisible(!modalVisible);
-                                }}
-                            >
-                                <View style={styles.centeredView}>
-                                    <View style={styles.modalView}>
-                                        <Text style={styles.modalText}>Hello World!</Text>
-                                        <Pressable
-                                            style={[styles.button, styles.buttonClose]}
-                                            onPress={() => setModalVisible(!modalVisible)}
-                                        >
-                                            <Text style={styles.textStyle}>Hide Modal</Text>
-                                        </Pressable>
-                                    </View>
-                                </View>
-                            </Modal>
+                <View>
+                    <Overlay
+                    isVisible={congratVisible}
+                    overlayStyle={styles.congratOverlay}
+                    >
+                        <Image style={{height: 250, width: 250}} source={require('../assets/2124.jpg')} />
+                        <Text style={{fontSize: 26}}>Finish journey</Text>
+                        <Text>You earn 100 points</Text>
+                        <Button
+                        titleStyle={styles.congratTitle}
+                        buttonStyle={styles.congratButton}
+                        onPress={() => navigateBack(navigation)}
+                        activeOpacity={1}
+                        title="Complete"
+                        />                        
+                    </Overlay>
+                </View>
+
                            
                         <ImageReviewSection
                             pickImage={pickImage}
@@ -234,8 +270,9 @@ const CameraScreen = ({ route }) => {
                                 title="Submit"
                                 titleStyle={styles.submitButtonText}
                                 onPress={() => {
-                                    uploadReview(image, rating, review, journeyID, attractionID).then(res => {
-                                        setModalVisible(true)
+                                    uploadReview(image, rating, review, journeyID, attractionID)
+                                    .then(() => {
+                                        toggleCongrat()
                                     })
                                     
                                 }}
@@ -337,8 +374,35 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "center"
     },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center"
+    overlay: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        width: '86%'
+    },
+    cancelButton: {
+        fontSize: 15,
+        marginRight: 20
+    },
+    confirmButton: {
+        fontSize: 15,
+        color: '#488fd2'
+    },
+    congratOverlay: {
+        alignItems: 'center',
+        width: '85%',
+        paddingHorizontal: 20,
+        paddingVertical: 50,
+        
+        borderRadius: 20,
+
+    },
+    congratButton: {
+        paddingHorizontal: 100,
+        paddingVertical: 20,
+        backgroundColor: '#4b8fd2',
+        borderRadius: 50,
+    },
+    congratTitle: {
+        color: '#e2dda2'
     }
 })
