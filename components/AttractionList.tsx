@@ -33,13 +33,18 @@ export default class AttractionList extends React.Component<AttractionType> {
     render() {
     
         return (
-            <ScrollView>
+            <ScrollView style={{width: '100%', backgroundColor: '#fff'}}            >
                 <View  style={style.attractionList}>
                     <FlatList
+                    contentContainerStyle={{paddingHorizontal: 16}}
+                     style={{height: 305, width: '100%', backgroundColor: '#fff'}}
                     showsHorizontalScrollIndicator={false} 
                     data={this.props.attractions}
                     horizontal={true} 
                     keyExtractor={item => item.id}
+                    ItemSeparatorComponent={() => 
+                        <View style={{width: 16}}/>
+                    }
                     renderItem={({item})=> (
                         <AttractionCard navigation={this.props.navigation} data={item}/>
                     )}>
