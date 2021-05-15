@@ -28,11 +28,11 @@ const ProfileNavigator = () => {
             component={UserProfile}
             />
             <ProfileStack.Screen
-            name="Journey history"
+            name="My journeys"
             component={JourneyHistoryScreen}
             />
             <ProfileStack.Screen
-            name="My friends"
+            name="Friends"
             component={UserFriendListScreen}
             />
             <ProfileStack.Screen

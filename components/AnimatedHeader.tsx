@@ -8,10 +8,11 @@ interface Props {
 	animatedValue: any;
 	navigation?: any;
 	headerName: string;
+	headerDistance: number;
 }
 
 const HEADER_HEIGHT = 150;
-const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
+const AnimatedHeader = ({ animatedValue, navigation, headerName, headerDistance }: Props) => {
 	const insets = useSafeAreaInsets();
 
 
@@ -100,7 +101,7 @@ const AnimatedHeader = ({ animatedValue, navigation, headerName }: Props) => {
 								fontWeight: "400",
 							}}
 						>
-							6.9km, 01 Nguyễn Tất Thành, Quận 4
+							{headerDistance.toFixed(1)}km, 01 Nguyễn Tất Thành, Quận 4
 						</Animated.Text>
 					</Animated.View>
 					</Animated.View>

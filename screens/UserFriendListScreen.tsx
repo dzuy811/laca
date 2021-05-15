@@ -11,7 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 type UserFriendListNavigationProp = StackNavigationProp<
     RootStackParamList,
-    "My friends"
+    "Friends"
 >
 
 type Props = {

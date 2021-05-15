@@ -39,8 +39,8 @@ const AppNavigator = (props) => {
                             if (route.name === 'La Cà') {
                                 iconName = require('../assets/sneaker.png')
                             }
-                            else if (route.name === 'Shop') {
-                                iconName = require('../assets/store.png')
+                            else if (route.name === 'Search') {
+                                iconName = require('../assets/loupe.png')
                                 styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
                             }
                             else if (route.name === 'Ranking') {
@@ -77,7 +77,7 @@ const AppNavigator = (props) => {
                         })}
                     />
                     <Tab.Screen
-                        name="Shop"
+                        name="Search"
                         component={FriendNavigator}
                     />
                     <Tab.Screen

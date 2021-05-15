@@ -24,7 +24,9 @@ export default function App() {
 
 	return (
 		<SafeAreaProvider>
-			<StatusBar />
+			<StatusBar
+			style="light"
+			/>
 			<MainNav />
 			{/* <ReviewScreen/> */}
 

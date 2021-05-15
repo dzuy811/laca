@@ -1,7 +1,7 @@
 export type RootStackParamList = {
     "Profile screen": keyof RootStackParamList;
     "Edit profile": keyof RootStackParamList;
-    "Journey history": keyof RootStackParamList;
-    "My friends": undefined;
+    "My journeys": keyof RootStackParamList;
+    "Friends": keyof RootStackParamList;
     "Friend profile": keyof RootStackParamList
 };
