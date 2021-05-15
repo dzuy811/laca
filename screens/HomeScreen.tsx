@@ -1,10 +1,11 @@
 import React, { Component, useState, useEffect, JSXElementConstructor } from "react";
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Alert, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Header } from "react-native-elements";
 import * as Location from "expo-location";
 import LoadingHomeScreen from "../screens/LoadingHomeScreen";
 import AttractionList from "../components/AttractionList";
 import { useNavigation } from '@react-navigation/native'
+import Category from "../components/Category";
 
 type homeScreenProps = {
 
@@ -30,80 +31,38 @@ const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
         .catch((err) => console.error(err))
     },[])
 
-  const [locationServiceEnabled, setLocationServiceEnabled] = useState(false);
-//   const [address, setAddress] = useState("")
-// useEffect(() => {
-//     CheckIfLocationEnabled();
-//     GetCurrentLocation();
-//   },[address]);
-
-
-//   const GetCurrentLocation = async () => {
-//     let { status } = await Location.requestPermissionsAsync();
-  
-//     if (status !== 'granted') {
-//       Alert.alert(
-//         'Permission not granted',
-//         'Allow the app to use location service.',
-//         [{ text: 'OK' }],
-//         { cancelable: false }
-//       );
-//     }
-  
-//     let { coords } = await Location.getCurrentPositionAsync();
-  
-//     if (coords) {
-//       const { latitude, longitude } = coords;
-//       let response = await Location.reverseGeocodeAsync({
-//         latitude,
-//         longitude
-//       });
-  
-
-//       for (let item of response) {
-//         setAddress(`${item.street}`);
-//       }
-
-//     }
-//   };
-
-
-//   const CheckIfLocationEnabled = async () => {
-//     let enabled = await Location.hasServicesEnabledAsync();
-
-//     if (!enabled) {
-//       Alert.alert(
-//         'Location Service not enabled',
-//         'Please enable your location services to continue',
-//         [{ text: 'OK' }],
-//         { cancelable: false }
-//       );
-//     } else {
-//       setLocationServiceEnabled(enabled);
-//     }
-//   };
-
-//   if (address=="") {
-//     return (
-//       <LoadingHomeScreen/>
-//     )
-//   }
-
-
-
     return (
-        <View style={{flex: 1, backgroundColor: '#FCFCFC'}}>
+        <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
                 <Header
                 leftComponent={
                     <Text style={{color: '#fff'}}>{address || "Location not available"}</Text>
                 }
                 leftContainerStyle={{flex:4}}
                 />
-                <View style={style.cardList}>
-                    <AttractionList navigation={navigation} attractions={data}/>
+                <View style={style.sectionContainer}>
+                    <Text style={style.sectionHeading}>Popular attractions</Text>
+                    <View style={style.cardList}>
+                        <AttractionList navigation={navigation} attractions={data}/>
+                    </View>
                 </View>
+                <View style={style.sectionContainer}>
+                     <Text style={style.sectionHeading}>Category</Text>
+                     <View style={style.categoryList}>
+                         <View style={style.categoryRow}>
+                            <Category bgColor='#fbc6a4' name='Art' image={require('../assets/paint-palette.png')}/>
+                            <Category bgColor='#f4a9a8' name='History' image={require('../assets/history.png')}/>
+                            <Category bgColor='#ce97b0' name='Apartment' image={require('../assets/apartment.png')} />
+                         </View>
+                         <View style={style.categoryRow}>
+                            <Category bgColor='#94d0cc' name='Relics' image={require('../assets/relics.png')}/>
+                            <Category bgColor='#c6ffc1' name='Cave' image={require('../assets/cave.png')}/>
+                            <Category bgColor='#766161' name='Coffee' image={require('../assets/coffee-cup.png')} />
+                         </View>
+                     </View>
+                </View>
+               
                 
-        </View>
+        </ScrollView>
     )
 }
 
@@ -116,14 +75,10 @@ const style = StyleSheet.create({
 		height: 100,
 		alignItems: "center",
 	},
-	sectionHeading: {
-		color: "#4B8FD2",
-	},
 	cardList: {
-		marginLeft: 20,
-		marginTop: 100,
-		alignItems: "stretch",
-		justifyContent: "center",
+		width: '100%',
+        marginTop: 28,
+        marginLeft: -16
 	},
 	button: {
 		backgroundColor: "blue",
@@ -134,4 +89,23 @@ const style = StyleSheet.create({
 		fontSize: 20,
 		color: "#fff",
 	},
+    sectionContainer: {
+        marginLeft: 16,
+        paddingVertical: 20
+    },
+    sectionHeading: {
+        color: "#4B8FD2",
+        fontSize: 18,
+        fontWeight: '700',
+        letterSpacing: 1
+    },
+    categoryList: {
+        marginTop: 10,
+    },
+    categoryRow: {
+        marginTop: 18,
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    }
+
 });
