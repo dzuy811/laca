@@ -3,7 +3,7 @@ import { StyleSheet, Image } from 'react-native'
 import React from 'react'
 import AttractionNavigator from '../navigator/AttractionNavigator'
 import ProfileNavigator from '../navigator/ProfileNavigator'
-import RankingScreen from '../screens/RankingScreen'
+import RankingNavigator from '../navigator/RankingNavigator'
 import FriendNavigator from '../navigator/FriendNavigator';
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
@@ -82,7 +82,7 @@ const AppNavigator = (props) => {
                     />
                     <Tab.Screen
                         name="Ranking"
-                        component={RankingScreen}
+                        component={RankingNavigator}
                     />
                     <Tab.Screen
                         name="Profile"

@@ -43,27 +43,55 @@ const FriendRanking = () => {
 
     return (
         <View>
-            <RankingHeader />
             {leaderboard ?
                 <View>
                     {leaderboard.map((user, index) =>
-                        <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <View style={{ width: '20%' }}>
-                                <Text>{index + 1}</Text>
+                        <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', height: 90 }}>
+                            <View style={styles.rankingNumberBox}>
+                                {index == 0 ?
+                                    <Image
+                                        source={require('../assets/gold-medal.png')}
+                                        style={styles.logo}
+                                    />
+                                    :
+                                    <>
+                                        {index == 1 ?
+                                            <Image
+                                                source={require('../assets/silver-medal.png')}
+                                                style={styles.logo}
+                                            />
+                                            :
+                                            <>
+                                                {index == 2 ?
+                                                    <Image
+                                                        source={require('../assets/bronze-medal.png')}
+                                                        style={styles.logo}
+                                                    />
+                                                    :
+                                                    <Text style={styles.rankingNumberText}>{index + 1}</Text>
+
+                                                }
+                                            </>
+                                        }
+                                    </>
+                                }
                             </View>
 
-                            <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 3 }}>
                                 <View>
                                     <Image
                                         source={{ uri: user.urlAvatar }}
                                         style={styles.logo}
                                     />
                                 </View>
-                                <View>
-                                    <Text>{user.name}</Text>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
                                 </View>
                             </View>
-                            <View style={{ width: '20%' }}>
+                            <View style={{ alignItems: 'center', flex: 3 }}>
+                                <Image
+                                    source={require('../assets/sneakers.png')}
+                                />
                                 <Text>{user.journeyCount}</Text>
                             </View>
                         </View>
@@ -95,26 +123,55 @@ const GlobalRanking = () => {
 
     return (
         <View>
-            <RankingHeader />
+            {/* <RankingHeader /> */}
             {leaderboard.map((user, index) => {
                 return (
-                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
-                        <View style={{ width: '20%', paddingLeft: 14 }}>
-                            <Text style={{}}>{index+1}</Text>
+                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', height: 90 }}>
+                        <View style={styles.rankingNumberBox}>
+                            {index == 0 ?
+                                <Image
+                                    source={require('../assets/gold-medal.png')}
+                                    style={styles.logo}
+                                />
+                                :
+                                <>
+                                    {index == 1 ?
+                                        <Image
+                                            source={require('../assets/silver-medal.png')}
+                                            style={styles.logo}
+                                        />
+                                        :
+                                        <>
+                                            {index == 2 ?
+                                                <Image
+                                                    source={require('../assets/bronze-medal.png')}
+                                                    style={styles.logo}
+                                                />
+                                                :
+                                                <Text style={styles.rankingNumberText}>{index + 1}</Text>
+
+                                            }
+                                        </>
+                                    }
+                                </>
+                            }
                         </View>
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%'}}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 3 }}>
                             <View>
                                 <Image
                                     source={{ uri: user.urlAvatar }}
                                     style={styles.logo}
                                 />
                             </View>
-                            <View style={{paddingHorizontal: 10}}>
-                                <Text>{user.name}</Text>
+                            <View style={{ marginLeft: 10 }}>
+                                <Text style={styles.userName}>{user.name}</Text>
                             </View>
                         </View>
-                        <View style={{ width: '20%', paddingLeft: 16 }}>
+                        <View style={{ alignItems: 'center', flex: 3 }}>
+                            <Image
+                                source={require('../assets/sneakers.png')}
+                            />
                             <Text>{user.journeyCount}</Text>
                         </View>
                     </View>
@@ -174,12 +231,29 @@ const RankingScreen = () => {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 30,
-        height: 30,
+        width: 40,
+        height: 40,
         borderRadius: 50
     },
     textHeading: {
         fontWeight: '700'
+    },
+
+    rankingNumberBox: {
+        height: '70%',
+        width: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1
+    },
+    rankingNumberText: {
+        color: 'black',
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    userName: {
+        fontWeight: '600',
+        fontSize: 16
     }
 })
 

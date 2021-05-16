@@ -1,11 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { Alert } from 'react-native';
 import HomeScreen from '../screens/HomeScreen'
 import DescriptionTab from '../screens/DescriptionTab';
-import * as Location from 'expo-location';
-import LoadingHomeScreen from '../screens/LoadingHomeScreen';
 import { MapScreen } from '../screens';
 import CameraScreen from '../screens/CameraScreen';
 

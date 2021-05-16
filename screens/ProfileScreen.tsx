@@ -11,9 +11,7 @@ const ProfileScreen = ({ navigation }: any) => {
 
 	useEffect(() => {
 		async function getUserInfo() {
-			// Get user's information from collection
-			console.log("cac");
-			
+			// Get user's information from collection			
 			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
 			let dataInfo = user_info.data();
 			setData(dataInfo) 
