@@ -9,7 +9,7 @@ const admin = require("../constants/firebase");
 const helper = require("../utilities/helper");
 // ---- API for system_reward_copies Collection (/api/rewardcopies/system) ----- //
 // Get all system reward copies
-router.get("/system", async (req, res) => {
+router.get("/", async (req, res) => {
 	try {
 		// Declare DB Reference
 		const db = admin.firestore();
@@ -47,8 +47,8 @@ router.get("/system", async (req, res) => {
 	}
 });
 
-// Post a new reward copy systems
-router.post("/system", async (req, res) => {
+// UPDATE a new reward copy systems
+router.put("/:copyID", async (req, res) => {
 	try {
 		// Declare DB Schema
 		const db = admin.firestore();
@@ -59,8 +59,9 @@ router.post("/system", async (req, res) => {
 		// Declare new system reward copy
 		const newCopy = {
 			user: db.doc("users/" + userID),
+			status: req.body.status,
 			systemReward: db.doc("system_rewards/" + systemRewardID),
-			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+			createdAt: helper.stringToDatetime(req.body.codeExpiryDatetime, "HH:mm:ss DD-MM-YYYY"),
 		};
 
 		// Assign new copy to user
@@ -77,8 +78,79 @@ router.post("/system", async (req, res) => {
 	}
 });
 
+// Buy a System Reward Copy
+router.post("/buy", async (req, res) => {
+	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+
+		// Declare route params
+		const { userID, systemRewardID } = req.body;
+
+		// Declare references
+		const userRef = db.doc("users/" + userID);
+		const systemRewardRef = db.doc("system_rewards/" + systemRewardID);
+
+		// Declare new copy of system reward
+		const newSystemReward = {
+			user: userRef,
+			systemReward: systemRewardRef,
+			status: "unused",
+			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+		};
+
+		// Update batch in a transaction
+		const dbTransaction = db
+			.runTransaction(async (t) => {
+				let docs = await t.getAll(userRef, systemRewardRef);
+				let user = docs[0];
+				let systemReward = docs[1];
+				// Read current values
+				let totalReward = user.data().totalReward;
+				let redeemedCount = systemReward.data().redeemed;
+				let rewardPrice = systemReward.data().rewardPrice;
+				// Check if the reward has been out of stock or not
+				if (redeemedCount == systemReward.data().totalQuantity) {
+					throw new Error("System Reward is unavailable.");
+				}
+				// Check if user has enough reward points for the transaction
+				if (rewardPrice > totalReward) {
+					throw new Error("User does not have enough reward points.");
+				}
+				// Update values
+				t.update(userRef, {
+					totalReward: totalReward - rewardPrice,
+				});
+				t.update(systemRewardRef, {
+					redeemed: redeemedCount + 1,
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+				throw error;
+			});
+
+		// Initialize a copy of System Reward for user
+		await db
+			.collection("system_reward_copies")
+			.add(newSystemReward)
+			.then((doc) => {
+				return res.status(201).json({
+					id: doc.id,
+					path: `system_reward_copies/${doc.id}`,
+					message: `System Reward Copy document has been created successfully.`,
+				});
+			});
+	} catch (error) {
+		res.status(400).json({
+			message: `ERROR! ${error}`,
+		});
+		console.log(error);
+	}
+});
+
 // Get all system reward copie of a user by ID
-router.get("/system/users/:id", async (req, res) => {
+router.get("/users/:id", async (req, res) => {
 	try {
 		// Declare DB Schema
 		const db = admin.firestore();
@@ -127,13 +199,20 @@ router.get("/system/users/:id", async (req, res) => {
 });
 
 // Use the voucher (Cares later for SIDE EFFECTS);
-router.put("/system/redeem/:id", async (req, res) => {
+router.put("/:copyID/users/:userID/redeem", async (req, res) => {
 	try {
 		// Declare DB Schema
 		const db = admin.firestore();
 
 		// Declare reference to System Reward Copy
-		const systemCopyRef = db.collection("system_reward_copies").doc(req.params.id);
+		const systemCopyRef = db.collection("system_reward_copies").doc(req.params.copyID);
+		const userRef = db.collection("users").doc(req.params.userID);
+		const systemCopySnapshot = await systemCopyRef.get();
+
+		// Check if user is authorized for redeeming this system reward
+		if (systemCopySnapshot.data().user.id != userRef.id) {
+			throw new Error("User does not have permission to redeem this System Reward.");
+		}
 
 		await systemCopyRef.update({
 			status: "used",
@@ -142,7 +221,7 @@ router.put("/system/redeem/:id", async (req, res) => {
 		return res.status(200).json({
 			id: systemCopyRef.id,
 			path: `system_reward_copies/${systemCopyRef.id}`,
-			message: `System Reward Copy document ${systemCopyRef.id} updated successfully`,
+			message: `System Reward Copy document ${systemCopyRef.id} redeemed successfully`,
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -151,8 +230,8 @@ router.put("/system/redeem/:id", async (req, res) => {
 	}
 });
 
-// Delete a system reward copy by its ID
-router.delete("/systems/:id", async (req, res) => {
+// DELETE a system reward copy by its ID
+router.delete("/:id", async (req, res) => {
 	try {
 		// Declare DB Schema
 		const db = admin.firestore();
@@ -177,5 +256,7 @@ router.delete("/systems/:id", async (req, res) => {
 		console.log(error);
 	}
 });
+
+// -------- API For PartnerRewardCopy (/api/rewardcopies/partner-rewards/) --------- //
 
 module.exports = router;

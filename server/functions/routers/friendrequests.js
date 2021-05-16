@@ -227,9 +227,7 @@ router.post("/accept", async (req, res) => {
 				let receiveUser = docs[2];
 				// Check existance
 				if (!fr.exists && !sendUser.exists && !receiveUser.exists) {
-					return res.status(400).json({
-						message: "Invalid send user OR receive user OR friend request",
-					});
+					throw new Error("Invalid send user OR receive user OR friend request");
 				}
 				// Update counter for both sender and receiver
 				let sendUserCount = sendUser.data().friendsCount;
@@ -261,6 +259,7 @@ router.post("/accept", async (req, res) => {
 			})
 			.catch((error) => {
 				console.log("Transaction failed: ", error);
+				throw error;
 			});
 	} catch (error) {
 		res.status(400).json({

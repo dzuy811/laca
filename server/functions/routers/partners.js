@@ -132,4 +132,28 @@ router.put("/:id", async (req, res) => {
 	}
 });
 
+// DELETE A Partner
+router.delete("/:id", async (req, res) => {
+	try {
+		// Declare DB Schema
+		const db = admin.firestore();
+
+		// Delete operation for Partner
+		await db
+			.collection("partners")
+			.doc(req.params.id)
+			.delete(() => {
+				return res.status(200).json({
+					id: req.params.id,
+					path: `partners/${req.params.id}`,
+					message: `Partner document ${req.params.id} deleted successfully.`,
+				});
+			});
+	} catch (error) {
+		res.status(200).json({
+			message: `ERROR! ${error}`,
+		});
+	}
+});
+
 module.exports = router;

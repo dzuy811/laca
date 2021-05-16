@@ -1,3 +1,6 @@
+var dayjs = require("dayjs");
+var customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
 // returns the union of two arrays where duplicate objects with the same 'prop' are removed
 const mergeByProperty = (target, source, prop) => {
 	source.forEach((sourceElement) => {
@@ -7,6 +10,11 @@ const mergeByProperty = (target, source, prop) => {
 		targetElement ? Object.assign(targetElement, sourceElement) : target.push(sourceElement);
 	});
 	return target;
+};
+
+// Format Date
+const stringToDatetime = (datetimeStr, format) => {
+	return dayjs(datetimeStr, format).toDate();
 };
 
 const sortBy = (field, reverse, primer) => {
@@ -27,3 +35,4 @@ const sortBy = (field, reverse, primer) => {
 
 exports.unionOnProp = mergeByProperty;
 exports.sortBy = sortBy;
+exports.stringToDatetime = stringToDatetime;

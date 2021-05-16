@@ -11,8 +11,10 @@ const FriendRequests = require("./routers/friendrequests");
 const Reviews = require("./routers/reviews");
 const Like = require("./routers/like");
 const Reply = require("./routers/reply");
-const Rewards = require("./routers/rewards");
-const RewardCopies = require("./routers/rewardcopies");
+const PartnerRewards = require("./routers/partner-rewards");
+const SystemRewards = require("./routers/system-rewards");
+const SystemRewardCopies = require("./routers/system-reward-copies");
+const PartnerRewardCodes = require("./routers/partner-reward-codes");
 const Partners = require("./routers/partners");
 
 // Route API addresses
@@ -23,8 +25,12 @@ app.use("/friendrequests", FriendRequests);
 app.use("/reviews", Reviews);
 app.use("/like", Like);
 app.use("/reply", Reply);
-app.use("/rewards", Rewards);
-app.use("/rewardcopies", RewardCopies);
+
+// Rewards Routes
+app.use("/partner-rewards", PartnerRewards);
+app.use("/system-rewards", SystemRewards);
+app.use("/system-reward-copies", SystemRewardCopies);
+app.use("/partner-reward-codes", PartnerRewardCodes);
 app.use("/partners", Partners);
 
 // Exports REST API

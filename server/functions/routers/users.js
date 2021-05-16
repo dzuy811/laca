@@ -438,30 +438,35 @@ router.put("/histories/:id/finish", async (req, res) => {
 		});
 
 		// Transaction to to update current values for visitCount, journeyCount
-		const dbTransaction = db.runTransaction(async (t) => {
-			const docs = await t.getAll(historyUserRef, historyAttractionRef);
-			// Read snapshots via ref(s)
-			let user = docs[0];
-			let attraction = docs[1];
-			if (!user.exists) {
-				throw new Error("User reference not found.");
-			} else if (!attraction.exists) {
-				throw new Error("Attraction reference not found.");
-			}
-			// Read current values of all docs
-			let currentUserJourneyCount = user.data().journeyCount;
-			let currentUserReward = user.data().totalReward;
-			let currentAttractionVisitCount = attraction.data().visitCount;
-			// Update jounrey count prop for user
-			t.update(historyUserRef, {
-				journeyCount: currentUserJourneyCount + 1,
-				totalReward: currentUserReward + attraction.data().reward,
+		const dbTransaction = db
+			.runTransaction(async (t) => {
+				const docs = await t.getAll(historyUserRef, historyAttractionRef);
+				// Read snapshots via ref(s)
+				let user = docs[0];
+				let attraction = docs[1];
+				if (!user.exists) {
+					throw new Error("User reference not found.");
+				} else if (!attraction.exists) {
+					throw new Error("Attraction reference not found.");
+				}
+				// Read current values of all docs
+				let currentUserJourneyCount = user.data().journeyCount;
+				let currentUserReward = user.data().totalReward;
+				let currentAttractionVisitCount = attraction.data().visitCount;
+				// Update jounrey count prop for user
+				t.update(historyUserRef, {
+					journeyCount: currentUserJourneyCount + 1,
+					totalReward: currentUserReward + attraction.data().reward,
+				});
+				// Update visit count prop for attraction
+				t.update(historyAttractionRef, {
+					visitCount: currentAttractionVisitCount + 1,
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+				throw error;
 			});
-			// Update visit count prop for attraction
-			t.update(historyAttractionRef, {
-				visitCount: currentAttractionVisitCount + 1,
-			});
-		});
 		return res.status(200);
 	} catch (error) {
 		res.status(400).json({
