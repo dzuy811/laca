@@ -19,11 +19,11 @@ router.post("/", async (req, res) => {
 		.add(newReply)
 		.then((doc) => {
 			newReply.rid.update({
-				replyCount : admin.firestore.FieldValue.increment(1)
-			})
+				replyCount: admin.firestore.FieldValue.increment(1),
+			});
 			res.json({
 				id: doc.id,
-				path: `reply/${doc.id}`,
+				path: `/reply/${doc.id}`,
 				message: `document ${doc.id} created successfully`,
 			});
 		})
@@ -129,7 +129,6 @@ router.delete("/:id", async (req, res) => {
 			if (snap.exists) {
 				LikeRef.delete().then(() => {
 					res.json({
-						
 						message: `document ${req.params.id} deleted`,
 					});
 				});

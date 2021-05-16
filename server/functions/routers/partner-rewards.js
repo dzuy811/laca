@@ -101,7 +101,7 @@ router.post("/", async (req, res) => {
 			.then((doc) => {
 				return res.status(200).json({
 					id: doc.id,
-					path: `partner_rewards/${doc.id}`,
+					path: `/partner_rewards/${doc.id}`,
 					message: `Partner Reward document ${doc.id} has been created successfully.`,
 				});
 			});
@@ -136,7 +136,7 @@ router.put("/:id", async (req, res) => {
 			.then(() => {
 				return res.status(200).json({
 					id: req.params.id,
-					path: `partner_rewards/${req.params.id}`,
+					path: `/partner_rewards/${req.params.id}`,
 					message: `Partner Reward document ${req.params.id} updated successfully.`,
 				});
 			});
@@ -161,7 +161,7 @@ router.delete("/:id", async (req, res) => {
 			.then(() => {
 				return res.status(200).json({
 					id: req.params.id,
-					path: `partner_rewards/${req.params.id}`,
+					path: `/partner_rewards/${req.params.id}`,
 					message: `Partner Reward document ${req.params.id} updated successfully.`,
 				});
 			});

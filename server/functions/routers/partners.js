@@ -88,7 +88,7 @@ router.post("/", async (req, res) => {
 		partnersRef.add(newPartner).then((doc) => {
 			return res.status(201).json({
 				id: doc.id,
-				path: `partners/${doc.id}`,
+				path: `/partners/${doc.id}`,
 				message: `Partner document ${doc.id} created successfully.`,
 			});
 		});
@@ -120,7 +120,7 @@ router.put("/:id", async (req, res) => {
 		await partnerRef.update(updatedPartner).then(() => {
 			return res.status(200).json({
 				id: partnerRef.id,
-				path: `partners/${partnerRef.id}`,
+				path: `/partners/${partnerRef.id}`,
 				message: `Partner document ${partnerRef.id} updated successfully.`,
 			});
 		});
@@ -145,7 +145,7 @@ router.delete("/:id", async (req, res) => {
 			.delete(() => {
 				return res.status(200).json({
 					id: req.params.id,
-					path: `partners/${req.params.id}`,
+					path: `/partners/${req.params.id}`,
 					message: `Partner document ${req.params.id} deleted successfully.`,
 				});
 			});

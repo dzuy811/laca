@@ -236,7 +236,7 @@ router.post("/", async (req, res) => {
 
 		return res.status(200).json({
 			id: addedDoc.id,
-			path: `partner_reward_codes/${addedDoc.id}`,
+			path: `/partner_reward_codes/${addedDoc.id}`,
 			message: `Partner Reward Codes document ${addedDoc.id} created successfully.`,
 		});
 	} catch (error) {
@@ -318,7 +318,7 @@ router.put("/acquire", async (req, res) => {
 			});
 		return res.status(200).json({
 			id: codeRef.id,
-			path: `partner_reward_codes/${codeRef.id}`,
+			path: `/partner_reward_codes/${codeRef.id}`,
 			message: `Partner Reward Code document ${codeRef.id} has been acquired by User document ${userRef.id}`,
 		});
 	} catch (error) {
@@ -361,7 +361,7 @@ router.put("/:codeID/users/:userID/redeem", async (req, res) => {
 		});
 		res.status(200).json({
 			id: codeRef.id,
-			path: `partner_reward_codes/${codeRef.id}`,
+			path: `/partner_reward_codes/${codeRef.id}`,
 			message: `Partner Reward Code document ${codeRef.id} redeemed sucessfully by User ${userRef.id}`,
 		});
 	} catch (error) {
@@ -396,7 +396,7 @@ router.put("/:codeID", async (req, res) => {
 		await code.update(updatedCode).then(() => {
 			return res.status(200).json({
 				id: code.id,
-				path: `partner_reward_codes/${code.id}`,
+				path: `/partner_reward_codes/${code.id}`,
 				message: `Partner Reward Code document ${code.id} updated successfully.`,
 			});
 		});
@@ -436,7 +436,7 @@ router.delete("/:codeID", async (req, res) => {
 		await codeRef.delete();
 		return res.status(200).json({
 			id: req.params.codeID,
-			path: `partner_reward_codes/${req.params.codeID}`,
+			path: `/partner_reward_codes/${req.params.codeID}`,
 			message: `Partner Reward Code document ${req.params.codeID} deleted successfully.`,
 		});
 	} catch (error) {

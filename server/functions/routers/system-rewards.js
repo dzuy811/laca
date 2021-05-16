@@ -79,7 +79,7 @@ router.post("/", async (req, res) => {
 		const addedDoc = await rewardsRef.add(newSystemReward);
 		return res.status(201).json({
 			id: addedDoc.id,
-			path: `system_rewards/${addedDoc.id}`,
+			path: `/system_rewards/${addedDoc.id}`,
 			message: `System reward document ${addedDoc.id} created successfully!`,
 		});
 	} catch (error) {
@@ -116,7 +116,7 @@ router.put("/:id", async (req, res) => {
 		await rewardSystemRef.update(newSystemReward);
 		return res.status(200).json({
 			id: rewardSystemRef.id,
-			path: `system_rewards/${rewardSystemRef.id}`,
+			path: `/system_rewards/${rewardSystemRef.id}`,
 			message: `System Reward document ${rewardSystemRef.id} updated successfully.`,
 		});
 	} catch (error) {
@@ -144,7 +144,7 @@ router.delete("/:id", async (req, res) => {
 		await systemRewardRef.delete();
 		return res.status(200).json({
 			id: systemRewardRef.id,
-			path: `system_rewards/${systemRewardRef.id}`,
+			path: `/system_rewards/${systemRewardRef.id}`,
 			message: `System Reward document ${systemRewardRef.id} deleted successfully.`,
 		});
 	} catch (error) {

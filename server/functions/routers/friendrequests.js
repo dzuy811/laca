@@ -157,7 +157,7 @@ router.post("/send", async (req, res) => {
 
 		return res.status(200).json({
 			id: addedFriendRequest.id,
-			path: `friendRequests/${addedFriendRequest.id}`,
+			path: `/friendRequests/${addedFriendRequest.id}`,
 			message: `friendRequest document ${addedFriendRequest.id} created successfully`,
 		});
 	} catch (error) {
@@ -253,7 +253,7 @@ router.post("/accept", async (req, res) => {
 			.then(() => {
 				return res.status(200).json({
 					id: addFriendshipID,
-					path: `friendships/${addFriendshipID}`,
+					path: `/friendships/${addFriendshipID}`,
 					messasge: `SendUserID ${sendUserRef.id} has been friend with ReceiveUserID ${receiveUserRef.id}`,
 				});
 			})

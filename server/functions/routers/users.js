@@ -45,7 +45,7 @@ router.post("/", (req, res) => {
 		.then((doc) => {
 			res.json({
 				id: doc.id,
-				path: `users/${doc.id}`,
+				path: `/users/${doc.id}`,
 				message: `User document ${doc.id} created successfully.`,
 			});
 		})

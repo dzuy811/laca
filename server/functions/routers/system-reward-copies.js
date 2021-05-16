@@ -68,7 +68,7 @@ router.put("/:copyID", async (req, res) => {
 		const addedDoc = await db.collection("system_rewards_copies").add(newCopy);
 		return res.status(200).json({
 			id: addedDoc.id,
-			path: `system_reward_copies/${addedDoc.id}`,
+			path: `/system_reward_copies/${addedDoc.id}`,
 			message: `System Reward Copy document ${addedDoc.id} created successfully!`,
 		});
 	} catch (error) {
@@ -137,7 +137,7 @@ router.post("/buy", async (req, res) => {
 			.then((doc) => {
 				return res.status(201).json({
 					id: doc.id,
-					path: `system_reward_copies/${doc.id}`,
+					path: `/system_reward_copies/${doc.id}`,
 					message: `System Reward Copy document has been created successfully.`,
 				});
 			});
@@ -220,7 +220,7 @@ router.put("/:copyID/users/:userID/redeem", async (req, res) => {
 
 		return res.status(200).json({
 			id: systemCopyRef.id,
-			path: `system_reward_copies/${systemCopyRef.id}`,
+			path: `/system_reward_copies/${systemCopyRef.id}`,
 			message: `System Reward Copy document ${systemCopyRef.id} redeemed successfully`,
 		});
 	} catch (error) {
@@ -246,7 +246,7 @@ router.delete("/:id", async (req, res) => {
 		await systemCopyRef.delete();
 		return res.status(200).json({
 			id: systemCopyRef.id,
-			path: `system_reward_copies/${systemCopyRef.id}`,
+			path: `/system_reward_copies/${systemCopyRef.id}`,
 			message: `System Reward Copy document ${systemCopyRef.id} deleted successfully.`,
 		});
 	} catch (error) {
