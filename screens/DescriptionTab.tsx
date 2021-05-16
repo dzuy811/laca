@@ -41,7 +41,8 @@ type descriptionType = {
 	timeCreated: string; 
 	rating: number,
 	likeCount: number,
-	replyCount: number
+	replyCount: number,
+	images: any[]
 };
 
 type dataDescription = {
@@ -150,28 +151,46 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	let dataPoint = 0;
 	let dataCombination = [] as listData;
 
-	data.forEach((review) => {
-		let data = {} as descriptionType;
+	useEffect(() => {
+		if(data.length > 0) {
+			data.forEach((review) => {
+				let data = {} as descriptionType;
 
-		// Format the timestamp from date to string
-		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+				// Format the timestamp from date to string
+				const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+				const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 
-		data.id = dataPoint.toString();
-		data.content = review.comment.content;
-		data.avatar = review.userInfo.urlAvatar;
-		data.name = review.userInfo.name;
-		data.timeCreated = formattedDate;
-		data.rating = review.comment.rating;
-		data.likeCount = review.comment.likeCount;
-		data.replyCount = review.comment.replyCount;
-		data.uid = review.userInfo.id;
+				data.id = dataPoint.toString();
+				data.content = review.comment.content;
+				data.avatar = review.userInfo.urlAvatar;
+				data.name = review.userInfo.name;
+				data.timeCreated = formattedDate;
+				data.rating = review.comment.rating;
+				data.likeCount = review.comment.likeCount;
+				data.replyCount = review.comment.replyCount;
+				data.uid = review.userInfo.id;
 
-		// Take the content of the current user
-		if(data.uid == userID) userContent = data.content;
+				// Store the images by index
+				if(review.comment.images.length > 0) {
+					// let index = 1;
+					let imgArray:any = [];
+					for(let i = 0; i < review.comment.images.length; i++) {
+						let index = i + 1;
+						imgArray.push({
+							"id": index,
+							"source": review.comment.images[i]
+						})
+					}
+					data.images = imgArray;
+				}
 
-		dataCombination.push(data);
-	})
+				// Take the content of the current user
+				if(data.uid == userID) userContent = data.content;
+
+				dataCombination.push(data);
+			})
+		}
+	}, [data])
 
 	const ReviewSection = ({ item }: dataDescription) => (
 		<View style={{ marginBottom: 10}}>
@@ -179,7 +198,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
-						<Text style={styles.profileName}>{item.name}</Text>
+						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
@@ -247,7 +266,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						)}
 					</View>
 				</>
-			)} 
+			)}
 		</View>
 	);
 
