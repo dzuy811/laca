@@ -21,6 +21,9 @@ router.post("/", (req, res) => {
 		.collection("reviews")
 		.add(newReview)
 		.then((doc) => {
+			newReview.uid.update({
+				reviewCount : admin.firestore.FieldValue.increment(1)
+			})
 			res.json({
 				message: `document ${doc.id} created successfully`,
 			});
@@ -96,6 +99,46 @@ router.get("/attractions/:id", async (req, res) => {
 	}
 });
 
+
+// get reviews post by users 
+router.get("/users/:id",(req,res)=>{
+	try {
+		let db = admin.firestore();
+		let uRef = db.collection("users").doc(req.params.id)
+		let attractionRef = await db.collection("reviews").where("uid", "==", uRef).orderBy('timeCreated').get();
+
+		if (!attractionRef.empty) {
+			let attraction = [];
+
+			for await (let a of attractionRef.docs) {
+				// const userRef = await a.data().uid.get();
+				// const useInfo = await userRef.data();
+				// if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a) {
+				// 	console.log("it wworked bae uhh");
+				// } else {
+				// 	throw new Error("one of the data is not found");
+				// }
+				attraction.push({
+					id: a.id,
+					comment: {
+						id: a.id,
+						...a.data(),
+					}
+					// userInfo: {
+					// 	id: userRef.id,
+					// 	...useInfo,
+					// },
+					
+				});
+			}
+			return res.json(attraction);
+		}
+		return res.json({ error: "dumaduy" });
+	} catch (err) {
+		console.log(err);
+	}
+})
+
 // tested
 router.put("/:id", (req, res) => {
 	admin
@@ -118,6 +161,38 @@ router.put("/:id", (req, res) => {
 			console.error(err);
 		});
 });
+
+router.delete("/:id",(req, res)=>{
+	try {
+		const LikeRef = admin.firestore().collection("reviews").doc(req.params.id);
+		// console.log(`${ (await LikeRef.get()).data()}`)
+		const revRef =(await LikeRef.get()).data().uid;
+		LikeRef.get().then((snap) => {
+			
+			if (snap.exists) {
+				LikeRef.delete().then(() => {
+					revRef.update({
+						reviewCount : admin.firestore.FieldValue.increment(-1)
+					})
+					res.json({
+						message: `document ${req.params.id} deleted`,
+					});
+				});
+			} else {
+				res.json({
+					message: "document not exist",
+				});
+			}
+		});
+	} catch (err) {
+		res.status(400).json({
+			error: err,
+		});
+		console.error(err);
+	}
+})
+
+
 
 
 module.exports = router;
