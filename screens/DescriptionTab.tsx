@@ -400,7 +400,15 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									<Text style={styles.textOverlap}>Edit</Text>
 								</TouchableOpacity>
 								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
-								<TouchableOpacity style={{padding: 5}} onPress={() => console.log("Delete")}>
+								<TouchableOpacity style={{padding: 5}} onPress={() => {
+									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + "PQEfo4XxfpOThUPZXPGx";
+									axios.delete(url)
+									.then(res => {
+										console.log(res.data);
+									}).catch(err => console.log(err.response.data))
+									dataCombination.splice(getCurrentUserIndex(), 1);
+									setVisible1(false);
+								}}>
 									<Text style={styles.textOverlap}>Delete</Text>
 								</TouchableOpacity>
 							</View>
