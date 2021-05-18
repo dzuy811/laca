@@ -1,27 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity,TextInput,Pressable,KeyboardAvoidingView,Platform } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
-import { Rating } from 'react-native-elements';
+import ReplyChange from "../components/review-screen-components/ReplyChange";
+import { Rating,Overlay } from 'react-native-elements';
 import { AntDesign } from "@expo/vector-icons";
 import moment from 'moment';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { getData } from "../constants/utility";
+import axios from "axios";
 
 
-type props = {
-	navigation: any,
-	route : {
-		params:{
-		id : string,
-		content: string,
-		rating: number,
-		urlAvatar:string,
-		timeStamp: string,
-		username : string,
-		likeCount: number,
-		}
 
-
-	}
-}
 
 type typeImageData = { id: string; source: string };
 
@@ -67,13 +56,32 @@ type InforUser = {
 	urlAvatar : string
 }
 
+
 type ListData = descriptionType[]
+
 
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : InforUser
 
 }
+
+
+
+
+
+type Props = {
+	route: {
+		params: {
+			latitude: number;
+			longitude: number;
+			description: string;
+			name: string;
+			id : string;
+		};
+	};
+	navigation: any;
+};
 
 const Data = [
 	{
@@ -109,22 +117,28 @@ const PassedData = {
 
 }
 
-// const ReviewScreen = ({navigation,route} : props) =>{
-const ReviewScreen = () =>{
+const PostComment = () =>{
 	const offset = useRef(new Animated.Value(0)).current;
 	const description = "aaaaaaaaaa";
+	const [text, setText] = useState<string>("");
+	const [userID, setUserID] = useState<any>();
+	
+
 	const renderImage = ({ item, index }: IItem) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
 
 	const [data, setData] = useState<uniqueReviews[]>([]);
-	let id = "JmTVF0qul9fTptyQjzNQ"
+	let id = "JmTVF0qul9fTptyQjzNQ";
+	let rid = "0NefT72ZDBlnlVsgnOem";
+	let userContent = "";
+	let wordHolder = "please type your reply here";
 
-	// const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params
+	async function getUser() {
+		let id = await getData("id");
+		return id;
+	}
 
-
-
-	// let name = `Review of ${username}`
 	// fetch list of reviews 
 	useEffect(() => {
 		console.log("effect called")
@@ -134,6 +148,7 @@ const ReviewScreen = () =>{
             setData(json)
 			console.log("==============================")
             console.log(json) // For debugging. Check if the effect is called multiple times or not
+			getUser().then(data => setUserID(data))
         })
 		.catch((err) => console.error(err))
 	},[])
@@ -154,16 +169,19 @@ const ReviewScreen = () =>{
 		ThisData.rating = review.comment.rating
 		dataCombine.push(ThisData)
 	})
-	dataCombine.forEach((datapoint) => {
-		console.log("=============================================\n\n\n")
-		console.log("hahaa")
-		console.log(datapoint.avatar)
-	})
+
+	let content = "fuck expo"
+	// dataCombine.forEach((datapoint) => {
+	// 	console.log("=============================================\n\n\n")
+	// 	console.log("hahaa")
+	// 	console.log(datapoint.avatar)
+	// })
+	console.log("                    \n\n\n\n")
+
 
 
 
 	const renderDescription = ({ item }: dataDescrip) => (
-
 		<View style={{ marginBottom: 30}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
@@ -213,6 +231,28 @@ const ReviewScreen = () =>{
 		</View>
 	);
 
+    
+    const handleReview = (review:string) =>{
+		setText(review)
+		
+    }
+
+	const submitFunc = () =>{
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply`,{
+			method: "POST",
+			headers: { 
+			Accept: 'application/json',
+			'Content-Type': 'application/json' },
+			body :JSON.stringify({
+				rid:"JmTVF0qul9fTptyQjzNQ",
+				uid:userID,
+				content : text
+			})
+		})
+
+		console.log(userID)
+		console.log(text)
+	}
 	
 	
     return (<>
@@ -235,8 +275,6 @@ const ReviewScreen = () =>{
 				useNativeDriver: false,
 			})}
 			>
-					{/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route */}
-
 
 			<Text style={styles.descriptionTitle}>Review</Text>
 			<View style={{paddingBottom : 20 }}>
@@ -273,6 +311,7 @@ const ReviewScreen = () =>{
 				</View>
 				</View>
 			</View>
+			
 			<View style={{ marginLeft: "10%" }}>
 				<FlatList
 					data={Data}
@@ -292,17 +331,19 @@ const ReviewScreen = () =>{
 					keyExtractor={(item) => item.id}
 				></FlatList>
 			</View>
-			<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
-			<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
-			<TouchableOpacity style={styles.containerButton}>
-				<Text style = {styles.buttonText}>type your comment here</Text>
-				
-			</TouchableOpacity>
-				
-			</View>
-			</Animated.ScrollView>
 
+
+			
+			
+			
+			</Animated.ScrollView>
+			<KeyboardAvoidingView
+			behavior={Platform.OS === "ios" ? "padding" : "height"} >
+				<ReplyChange handleReview={handleReview} word = {content} submitFunc = {submitFunc} />
+			</KeyboardAvoidingView>
+             
 		</View>
+        
 
             
         </View>
@@ -427,8 +468,23 @@ const styles = StyleSheet.create({
 		position:"relative",
 		alignContent:"center"
 		
+	},
+    postTitle : {
+        margin: 11,
+        position: "relative",
+        alignContent:"center"
+    },
+	submitButton: {
+		width: 300,
+		padding: 20,
+		backgroundColor: "#4B8FD2",
+		borderRadius: 30,
+		borderWidth: 1,
+		borderColor: "#fff",
+		alignItems: "center",
+		marginBottom: 20
 	}
 
 })
 
-export default ReviewScreen;
+export default PostComment;

@@ -15,6 +15,7 @@ import AttractionCard from "./components/AttractionCard";
 import { NavigationContainer } from "@react-navigation/native";
 import UserProfile from "./screens/UserProfile";
 import ReviewScreen from "./screens/ReviewScreen";
+import PostComment from "./screens/PostCommentScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,8 +31,9 @@ export default function App() {
 	return (
 		<SafeAreaProvider>
 			<StatusBar />
-			<MainNav />
+			{/* <MainNav /> */}
 			{/* <ReviewScreen/> */}
+			<PostComment/>
 		</SafeAreaProvider>
 	);
 }

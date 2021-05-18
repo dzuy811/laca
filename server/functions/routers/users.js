@@ -36,6 +36,7 @@ router.post("/", (req, res) => {
 		name: req.body.name,
 		gender: req.body.gender,
 		urlAvatar: req.body.urlAvatar,
+		reviewCount: 0
 	};
 
 	admin

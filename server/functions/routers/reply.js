@@ -124,10 +124,15 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", async (req, res) => {
 	try {
 		const LikeRef = admin.firestore().collection("reply").doc(req.params.id);
-		// const revRef = await LikeRef.get().data().rid;
+		// console.log(`${ (await LikeRef.get()).data()}`)
+		const revRef =(await LikeRef.get()).data().rid;
 		LikeRef.get().then((snap) => {
+			
 			if (snap.exists) {
 				LikeRef.delete().then(() => {
+					revRef.update({
+						replyCount : admin.firestore.FieldValue.increment(-1)
+					})
 					res.json({
 						message: `document ${req.params.id} deleted`,
 					});
