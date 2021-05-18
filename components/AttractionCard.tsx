@@ -30,25 +30,21 @@ export default class AttractionCard extends Component<CardProps> {
 		super(props);
 	}
 
-	componentDidMount() {
-		
-	}
-
 	render() {
-		// Store the gallery images by index
-		if(this.props.data.galleryImage != []) {
-			if(this.props.data.galleryImage.length > 0) {
-				let imgArray:any = [];
-				for(let i = 0; i < this.props.data.galleryImage.length; i++) {
-					let index = i + 1;
-					imgArray.push({
-						"id": index,
-						"source": this.props.data.galleryImage[i]
-					})
-				}
-				this.props.data.galleryImage = imgArray;
-			}
-		}
+		// // Store the gallery images by index
+		// if(this.props.data.galleryImage != []) {
+		// 	if(this.props.data.galleryImage.length > 0) {
+		// 		let imgArray:any = [];
+		// 		for(let i = 0; i < this.props.data.galleryImage.length; i++) {
+		// 			let index = i + 1;
+		// 			imgArray.push({
+		// 				"id": index,
+		// 				"source": this.props.data.galleryImage[i]
+		// 			})
+		// 		}
+		// 		this.props.data.galleryImage = imgArray;
+		// 	}
+		// }
 		return (
 			<TouchableOpacity
 				onPress={() => {

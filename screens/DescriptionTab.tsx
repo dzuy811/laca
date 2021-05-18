@@ -54,7 +54,7 @@ type dataDescription = {
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : infoUser
-}
+};
 
 type comment = {
 	id: string,
@@ -66,7 +66,7 @@ type comment = {
 	aid: string,
 	rating : number,
 	replyCount: number
-}
+};
 
 type infoUser = {
 	id: string,
@@ -78,9 +78,9 @@ type infoUser = {
 	totalReward : number,
 	journeyCount : number,
 	urlAvatar : string
-}
+};
 
-type listData = descriptionType[]
+type listData = descriptionType[];
 
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
@@ -126,10 +126,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		});
 		}).catch(err => console.log(err))
 	}
-
-	// useEffect(() => {
-		
-	// }, [input])
 
 	let dataPoint = 0;
 	let dataCombination = [] as listData;
@@ -238,23 +234,30 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		<View key={String(index)} style={{ marginBottom: 30}}>
 			{userID == item.uid ? (
 				<>		
-					<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
-						<ReviewSection item={item} />
-					</TouchableOpacity>
-					{/* Reply section */}
-					<View style={{ marginLeft: "25%", marginBottom: "5%"}}>
-						{item.replyCount != 0 ? // if the review has reply
-						(
-							<View>
-								<TouchableOpacity onPress={() => console.log("Reply")}>
-									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-								</TouchableOpacity>
+					{deletePost ? (
+						<>
+						</>
+					) : (
+						<>
+							<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
+								<ReviewSection item={item} />
+							</TouchableOpacity>
+							{/* Reply section */}
+							<View style={{ marginLeft: "25%", marginBottom: "5%"}}>
+								{item.replyCount != 0 ? // if the review has reply
+								(
+									<View>
+										<TouchableOpacity onPress={() => console.log("Reply")}>
+											<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+										</TouchableOpacity>
+									</View>
+								) : (
+									<>
+									</>
+								)}
 							</View>
-						) : (
-							<>
-							</>
-						)}
-					</View>
+						</>
+					)}
 				</>
 			) : (
 				<>
@@ -288,7 +291,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	// Render list of images for Flat List
 	const renderGalleryImage = ({ item, index }: iItem) => {
-		return <Image key={index} source={{ uri: item.source }} style={styles.galleryImageStyle} />;
+		let link = item.source.toString();
+		return <Image key={index} source={{ uri: link }} style={styles.galleryImageStyle} />;
 	};
 
 	const renderReviewImage = ({ item, index }: iItem) => {
@@ -436,7 +440,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								style={{height: 100}}
 								placeholder="Type here!"
 								onChangeText={(text) => {setText(text);}}
-								defaultValue={userContent}
+								defaultValue={!updatePost ? userContent : newText}
 								multiline={true}
 								numberOfLines={8}
 							/>
