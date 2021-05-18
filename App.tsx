@@ -4,7 +4,7 @@ import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
 import MainNav from "./navigation/mainNav";
-
+import VoucherShop from "./screens/VoucherShop";
 import HomeScreen from "./screens/HomeScreen";
 import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
@@ -30,8 +30,8 @@ export default function App() {
 	return (
 		<SafeAreaProvider>
 			<StatusBar />
-			<MainNav />
-			{/* <ReviewScreen/> */}
+			{/* <MainNav /> */}
+			<VoucherShop />
 
 		</SafeAreaProvider>
 	);
