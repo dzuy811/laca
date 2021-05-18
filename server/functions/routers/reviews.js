@@ -53,7 +53,7 @@ router.get("/:id", async (req, res) => {
 					...a.data(),
 				});
 			});
-			return res.json(attraction[0]);
+			return res.json(attraction);
 		}
 		return res.json({ error: "dumaduy" });
 	} catch (err) {
@@ -65,14 +65,26 @@ router.get("/:id", async (req, res) => {
 router.get("/attractions/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
+		// const revRef =(await LikeRef.get()).data().uid;
+
 		let attractionRef = await db.collection("reviews").where("aid", "==", `${req.params.id}`).orderBy('timeCreated').get();
 
 		if (!attractionRef.empty) {
 			let attraction = [];
 
+			console.log(attractionRef.docs.length)
+			// let count = 0
 			for await (let a of attractionRef.docs) {
-				const userRef = await a.data().uid.get();
-				const useInfo = await userRef.data();
+				// count ++ 
+				// console.log(a.data())
+				// console.log(count)
+
+				console.log(a.id)
+				
+				const userRef = a.data().uid;
+				const useInfo = (await userRef.get()).data();
+				console.log(typeof userRef)
+					
 				if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a) {
 					console.log("it wworked bae uhh");
 				} else {
@@ -91,6 +103,8 @@ router.get("/attractions/:id", async (req, res) => {
 					
 				});
 			}
+				
+			
 			return res.json(attraction);
 		}
 		return res.json({ error: "dumaduy" });
@@ -101,7 +115,7 @@ router.get("/attractions/:id", async (req, res) => {
 
 
 // get reviews post by users 
-router.get("/users/:id",(req,res)=>{
+router.get("/users/:id", async (req,res)=>{
 	try {
 		let db = admin.firestore();
 		let uRef = db.collection("users").doc(req.params.id)
@@ -162,7 +176,7 @@ router.put("/:id", (req, res) => {
 		});
 });
 
-router.delete("/:id",(req, res)=>{
+router.delete("/:id",async (req, res)=>{
 	try {
 		const LikeRef = admin.firestore().collection("reviews").doc(req.params.id);
 		// console.log(`${ (await LikeRef.get()).data()}`)
