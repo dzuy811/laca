@@ -26,6 +26,7 @@ export default function App() {
 		<SafeAreaProvider>
 			<StatusBar
 			style="light"
+			backgroundColor="#4B8FD2"
 			/>
 			<MainNav />
 			{/* <ReviewScreen/> */}

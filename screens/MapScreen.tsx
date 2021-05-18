@@ -33,7 +33,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [destinationStr, setDestinationStr] = useState<string>("");
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
-	const { latitude, longitude, journeyID, attractionID} = route.params
+	const { latitude, longitude, journeyID, attractionID, reward} = route.params
 
 
 	//Background task defined
@@ -159,7 +159,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 				setIsArrived(true);
 				console.log("journey:", journeyID);
 				
-				navigation.navigate("Camera screen", {journeyID: journeyID, attractionID: attractionID});
+				navigation.navigate("Camera screen", {journeyID: journeyID, attractionID: attractionID, reward: reward});
 				return;
 			}
 			setIsArrived(false);

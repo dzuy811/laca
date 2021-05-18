@@ -57,12 +57,24 @@ const FriendScreen = ({navigation}) => {
         const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/search/details?phone=${phone}`
         fetch(url)
         .then(res => res.json())
-        .then(data => {
-            if (data.id == undefined) {
+        .then(foundUserData => {
+            if (foundUserData.id == undefined) {
                 setFoundUser(null)
             } else {
-                console.log("--------------")                
-                setFoundUser(data)
+                console.log("--------------")
+                let friendshipURL = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendships/get?userID=${user?.uid}&otherUserID=${foundUserData.id}`
+                fetch(friendshipURL)
+                .then(message => message.json())
+                .then(data => {
+                    if (data.id == undefined) {
+                        foundUserData['isFriend'] = false;   
+                    } else {
+                        foundUserData['isFriend'] = true;
+                    }
+                })
+                
+                
+                // check if friend 
             }
         })
     }
@@ -146,21 +158,45 @@ const FriendScreen = ({navigation}) => {
                 />
             </View>
             {foundUser != null ? 
-            <TouchableOpacity onPress={() => navigation.navigate("User Profile", { data: foundUser})}>
-                <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginBottom: 20}}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{marginHorizontal: 15}}>
-                            <Image
-                                source={{ uri: foundUser.urlAvatar }}
-                                style={styles.logo}
-                            />
-                        </View>
-                        <View>
-                            <Text>{foundUser.name}</Text>
-                        </View>
-                    </View>
-                </View>
-            </TouchableOpacity>
+
+                    <>
+                        {foundUser.isFriend == false? 
+                           <TouchableOpacity onPress={() => navigation.navigate("User Profile", { data: foundUser})}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginBottom: 20}}>
+                               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                   <View style={{marginHorizontal: 15}}>
+                                       <Image
+                                           source={{ uri: foundUser.urlAvatar }}
+                                           style={styles.logo}
+                                       />
+                                   </View>
+                                   <View>
+                                       <Text>{foundUser.name}</Text>
+                                   </View>
+                               </View>
+                           </View>
+                       </TouchableOpacity>
+                       :
+                       <>
+                        <TouchableOpacity onPress={() => navigation.navigate("Friend Profile", { data: foundUser})}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 30, marginBottom: 20}}>
+                               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                   <View style={{marginHorizontal: 15}}>
+                                       <Image
+                                           source={{ uri: foundUser.urlAvatar }}
+                                           style={styles.logo}
+                                       />
+                                   </View>
+                                   <View>
+                                       <Text>{foundUser.name}</Text>
+                                   </View>
+                               </View>
+                           </View>
+                       </TouchableOpacity>
+                       </>
+                    }
+                    </>
+    
             
             :
             <>

@@ -155,6 +155,7 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 	let dataPoint = 0;
 	let dataCombine = [] as listData;
 
+	// If there is no review, for each will not execute. Otherwise, an error will occur.
 	if (data.length > 0) {
 		data.forEach((review) => {
 			let data = {} as descriptionType;

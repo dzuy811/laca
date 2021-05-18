@@ -82,7 +82,7 @@ const UserFriendListScreen = (props:Props) => {
                            <TouchableOpacity 
                            activeOpacity={0.8} 
                            style={{width: '100%'}} 
-                           onPress={() => props.navigation.navigate("Friend profile", {data: friend})}
+                           onPress={() => props.navigation.navigate("Friend profile", {data: friend.otherUser})}
                            >
                                <View style={{flexDirection: 'row', width: '100%', alignItems: 'center'}}>
                                    <View style={{marginHorizontal: 15}}>

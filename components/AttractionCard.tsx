@@ -85,7 +85,8 @@ const AttractionCard:React.FC<CardProps> = (props) => {
 						longitude: props.data.geoPoint._longitude,
 						description: props.data.description,
 						name: props.data.name,
-						distance: distance
+						distance: distance,
+						reward: props.data.reward
 					}); // Navigate to the attraction description tab
 					// Passing the latitude and longitude props
 				}}
