@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons'
 import ImageReviewSection from '../components/review-screen-components/ImageReviewSection'
 import TextBoxReviewSection from '../components/review-screen-components/TextBoxReviewSection'
-import { getData } from '../constants/utility';
+import { getData, storeData } from '../constants/utility';
 
 import axios from 'axios';
 
@@ -86,7 +86,7 @@ console.log("images: ", body.images);
 
 const CameraScreen = ({navigation, route }) => {
     console.log("camera screen route props: ", route);
-    const { journeyID, attractionID } = route.params
+    const { journeyID, attractionID, reward } = route.params
     
 
     const CameraButton: React.FC = () => {
@@ -186,7 +186,9 @@ const CameraScreen = ({navigation, route }) => {
         }
     };
 
-    const navigateBack = (navigation) => {
+    const navigateBack = async (navigation) => {
+        console.log(reward);
+        await getData('total_reward').then(data => {storeData('total_reward',JSON.stringify(parseInt(data) + reward))})
         console.log(navigation)
         navigation.navigate('Home')
     }

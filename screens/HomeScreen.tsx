@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, JSXElementConstructor } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { StyleSheet, Text, View, Alert, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Header } from "react-native-elements";
 import * as Location from "expo-location";
@@ -6,6 +6,10 @@ import LoadingHomeScreen from "../screens/LoadingHomeScreen";
 import AttractionList from "../components/AttractionList";
 import { useNavigation } from '@react-navigation/native'
 import Category from "../components/Category";
+import firebase from "firebase";
+import { getData } from "../constants/utility";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 type homeScreenProps = {
 
@@ -19,7 +23,11 @@ const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
 
     const [data, setData] = useState([])
 
+    const [user, setUser] = useState();
+
     useEffect(() => {
+        getData('total_reward')
+        .then(value => setUser(JSON.parse(value)))
         console.log("homescreen props: ", address);
         
         fetch('https://asia-east2-laca-59b8c.cloudfunctions.net/api/attractions')
@@ -31,13 +39,33 @@ const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
         .catch((err) => console.error(err))
     },[])
 
+    useFocusEffect(
+        React.useCallback(() => {
+          const unsubscribe =  getData('total_reward').then(value => setUser(JSON.parse(value)))
+              console.log('navigation props in homescreen: ....');
+                  
+          return () => unsubscribe;
+        }, [navigation])
+      );
+
+
+
     return (
         <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
                 <Header
                 leftComponent={
-                    <Text style={{color: '#fff'}}>{address || "Location not available"}</Text>
+                    <Text style={{color: '#fff', fontWeight: '600'}}>{address.toUpperCase() || "Location not available"}</Text>
                 }
                 leftContainerStyle={{flex:4}}
+                rightComponent={
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginRight: 10}}>
+                        <Image
+                        source={require('../assets/dollar.png')}
+                        style={{width: 24, height: 24, marginRight: 8}}
+                        />
+                        <Text style={{color: '#E2D0A2'}}>{user}</Text>
+                    </View>
+                }
                 />
                 <View style={style.sectionContainer}>
                     <Text style={style.sectionHeading}>Popular attractions</Text>
