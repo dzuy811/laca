@@ -2,7 +2,8 @@ import axios from 'axios';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react'
 import { Text, View, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getData } from '../constants/utility';
 
@@ -27,11 +28,12 @@ const RankingHeader = () => {
 
 const FriendRanking = () => {
 
+    const navigation = useNavigation();
     const [leaderboard, setLeaderboard] = useState([])
 
     useEffect(() => {
         const userID = firebase.auth().currentUser?.uid
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
+        const url = process.env.API_BACKEND + `/users/${userID}/friendships/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -46,55 +48,59 @@ const FriendRanking = () => {
             {leaderboard ?
                 <View>
                     {leaderboard.map((user, index) =>
-                        <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', height: 90 }}>
-                            <View style={styles.rankingNumberBox}>
-                                {index == 0 ?
-                                    <Image
-                                        source={require('../assets/gold-medal.png')}
-                                        style={styles.logo}
-                                    />
-                                    :
-                                    <>
-                                        {index == 1 ?
-                                            <Image
-                                                source={require('../assets/silver-medal.png')}
-                                                style={styles.logo}
-                                            />
-                                            :
-                                            <>
-                                                {index == 2 ?
-                                                    <Image
-                                                        source={require('../assets/bronze-medal.png')}
-                                                        style={styles.logo}
-                                                    />
-                                                    :
-                                                    <Text style={styles.rankingNumberText}>{index + 1}</Text>
-
-                                                }
-                                            </>
-                                        }
-                                    </>
-                                }
-                            </View>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 3 }}>
-                                <View>
-                                    <Image
-                                        source={{ uri: user.urlAvatar }}
-                                        style={styles.logo}
-                                    />
-                                </View>
-                                <View style={{ marginLeft: 10 }}>
-                                    <Text style={styles.userName}>{user.name}</Text>
-                                </View>
-                            </View>
-                            <View style={{ alignItems: 'center', flex: 3 }}>
-                                <Image
-                                    source={require('../assets/sneakers.png')}
-                                />
-                                <Text>{user.journeyCount}</Text>
-                            </View>
-                        </View>
+                               <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
+                               <View style={styles.rankingNumberBox}>
+                                   {index == 0 ?
+                                       <Image
+                                           source={require('../assets/gold-medal.png')}
+                                           style={styles.logo}
+                                       />
+                                       :
+                                       <>
+                                           {index == 1 ?
+                                               <Image
+                                                   source={require('../assets/silver-medal.png')}
+                                                   style={styles.logo}
+                                               />
+                                               :
+                                               <>
+                                                   {index == 2 ?
+                                                       <Image
+                                                           source={require('../assets/bronze-medal.png')}
+                                                           style={styles.logo}
+                                                       />
+                                                       :
+                                                       <Text style={styles.rankingNumberText}>{index + 1}</Text>
+       
+                                                   }
+                                               </>
+                                           }
+                                       </>
+                                   }
+                               </View>
+       
+                               <TouchableOpacity
+                               onPress={() => navigation.navigate('Friend Profile', {data: user})}
+                               >
+                                   <View style={styles.rankingNameBox}>
+                                       <View>
+                                           <Image
+                                               source={{ uri: user.urlAvatar }}
+                                               style={styles.logo}
+                                           />
+                                       </View>
+                                       <View style={{ marginLeft: 10 }}>
+                                           <Text style={styles.userName}>{user.name}</Text>
+                                       </View>
+                                   </View>
+                               </TouchableOpacity>
+                               <View style={styles.rankingJourneyBox}>
+                                   <Image
+                                       source={require('../assets/sneakers.png')}
+                                   />
+                                   <Text>{user.journeyCount}</Text>
+                               </View>
+                           </View>
                     )}
                 </View>
                 :
@@ -109,9 +115,10 @@ const FriendRanking = () => {
 const GlobalRanking = () => {
 
     const [leaderboard, setLeaderboard] = useState([])
+    const navigation = useNavigation();
 
     useEffect(() => {
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
+        const url = process.env.API_BACKEND + `/users/details/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -126,7 +133,7 @@ const GlobalRanking = () => {
             {/* <RankingHeader /> */}
             {leaderboard.map((user, index) => {
                 return (
-                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center', height: 90 }}>
+                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
                         <View style={styles.rankingNumberBox}>
                             {index == 0 ?
                                 <Image
@@ -157,18 +164,22 @@ const GlobalRanking = () => {
                             }
                         </View>
 
-                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 3 }}>
-                            <View>
-                                <Image
-                                    source={{ uri: user.urlAvatar }}
-                                    style={styles.logo}
-                                />
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('User Profile', {data: user})}
+                        >
+                            <View style={styles.rankingNameBox}>
+                                <View>
+                                    <Image
+                                        source={{ uri: user.urlAvatar }}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
+                                </View>
                             </View>
-                            <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.userName}>{user.name}</Text>
-                            </View>
-                        </View>
-                        <View style={{ alignItems: 'center', flex: 3 }}>
+                        </TouchableOpacity>
+                        <View style={styles.rankingJourneyBox}>
                             <Image
                                 source={require('../assets/sneakers.png')}
                             />
@@ -241,15 +252,26 @@ const styles = StyleSheet.create({
 
     rankingNumberBox: {
         height: '70%',
-        width: 50,
+        width: '15%',
         alignItems: 'center',
         justifyContent: 'center',
-        flex: 1
     },
     rankingNumberText: {
         color: 'black',
         fontSize: 20,
         fontWeight: 'bold'
+    },
+    rankingNameBox: {
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '85%',
+    },
+    rankingJourneyBox: { 
+        alignItems: 'center',
+        width: '10%',
+        position: 'absolute',
+        right: 0
     },
     userName: {
         fontWeight: '600',
