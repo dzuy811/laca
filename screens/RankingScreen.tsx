@@ -78,22 +78,37 @@ const FriendRanking = () => {
                                        </>
                                    }
                                </View>
-       
-                               <TouchableOpacity
-                               onPress={() => navigation.navigate('Friend Profile', {data: user})}
-                               >
-                                   <View style={styles.rankingNameBox}>
-                                       <View>
-                                           <Image
-                                               source={{ uri: user.urlAvatar }}
-                                               style={styles.logo}
-                                           />
-                                       </View>
-                                       <View style={{ marginLeft: 10 }}>
-                                           <Text style={styles.userName}>{user.name}</Text>
-                                       </View>
-                                   </View>
-                               </TouchableOpacity>
+                            {user.id == firebase.auth().currentUser?.uid?
+                            <View style={styles.rankingNameBox}>
+                            <View>
+                                <Image
+                                    source={{ uri: user.urlAvatar }}
+                                    style={styles.logo}
+                                />
+                            </View>
+                            <View style={{ marginLeft: 10 }}>
+                                <Text style={styles.userName}>{user.name}</Text>
+                            </View>
+                        </View>
+                        : 
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('Friend Profile', {data: user})}
+                        >
+                            <View style={styles.rankingNameBox}>
+                                <View>
+                                    <Image
+                                        source={{ uri: user.urlAvatar }}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                            
+                            }
+                              
                                <View style={styles.rankingJourneyBox}>
                                    <Image
                                        source={require('../assets/sneakers.png')}
@@ -117,6 +132,23 @@ const GlobalRanking = () => {
     const [leaderboard, setLeaderboard] = useState([])
     const navigation = useNavigation();
 
+    function checkFriend(id: string, userData: any) {
+        const userID = firebase.auth().currentUser?.uid
+        if (id == userID) {
+            return null;
+        }
+        let friendshipURL = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendships/get?userID=${userID}&otherUserID=${id}`
+        fetch(friendshipURL)
+        .then(message => message.json())
+        .then(data => {
+            if (data.id == undefined) {
+                navigation.navigate('User Profile', {data: userData}) 
+            } else {
+                navigation.navigate('Friend Profile', {data: userData})
+            }
+        })
+    }
+
     useEffect(() => {
         const url = process.env.API_BACKEND + `/users/details/leaderboard`
         axios.get(url)
@@ -132,6 +164,7 @@ const GlobalRanking = () => {
         <View>
             {/* <RankingHeader /> */}
             {leaderboard.map((user, index) => {
+                
                 return (
                     <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
                         <View style={styles.rankingNumberBox}>
@@ -163,9 +196,21 @@ const GlobalRanking = () => {
                                 </>
                             }
                         </View>
-
+                    {user.id == firebase.auth().currentUser.uid?
+                            <View style={styles.rankingNameBox}>
+                                <View>
+                                    <Image
+                                        source={{ uri: user.urlAvatar }}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
+                                </View>
+                            </View>
+                        :
                         <TouchableOpacity
-                        onPress={() => navigation.navigate('User Profile', {data: user})}
+                        onPress={() => checkFriend(user.id, user)}
                         >
                             <View style={styles.rankingNameBox}>
                                 <View>
@@ -179,6 +224,8 @@ const GlobalRanking = () => {
                                 </View>
                             </View>
                         </TouchableOpacity>
+                    }
+                        
                         <View style={styles.rankingJourneyBox}>
                             <Image
                                 source={require('../assets/sneakers.png')}

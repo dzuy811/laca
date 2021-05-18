@@ -33,11 +33,11 @@ export default class AttractionList extends React.Component<AttractionType> {
     render() {
     
         return (
-            <ScrollView style={{width: '100%', backgroundColor: '#fff'}}            >
+            <ScrollView style={{width: '100%', backgroundColor: '#fff'}}>
                 <View  style={style.attractionList}>
                     <FlatList
-                    contentContainerStyle={{paddingHorizontal: 16}}
-                     style={{height: 305, width: '100%', backgroundColor: '#fff'}}
+                    contentContainerStyle={{paddingLeft: 16}}
+                    style={{height: 305, width: '100%', backgroundColor: '#fff'}}
                     showsHorizontalScrollIndicator={false} 
                     data={this.props.attractions}
                     horizontal={true} 
