@@ -45,7 +45,7 @@ router.post("/", (req, res) => {
 		.then((doc) => {
 			res.json({
 				id: doc.id,
-				path: `users/${doc.id}`,
+				path: `/users/${doc.id}`,
 				message: `User document ${doc.id} created successfully.`,
 			});
 		})
@@ -380,7 +380,7 @@ router.post("/histories", async (req, res) => {
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
 			user: userRef,
 			attraction: attractionRef,
-			status: req.body.status,
+			status: "ongoing",
 		};
 
 		// Add new History object to Firestore (POST Method)
@@ -413,7 +413,7 @@ router.put("/histories/:id/finish", async (req, res) => {
 		const db = admin.firestore();
 
 		// Params declaration
-		let { historyID } = req.params.id;
+		let historyID = req.params.id;
 
 		// Document History reference
 		const historyRef = db.collection("histories").doc(historyID);
@@ -421,8 +421,14 @@ router.put("/histories/:id/finish", async (req, res) => {
 		const historyUserRef = historySnapshot.data().user;
 		const historyAttractionRef = historySnapshot.data().attraction;
 
+		// Check if the history reference exist
 		if (!historySnapshot.exists) {
 			throw new Error("History reference not found.");
+		}
+
+		// Check if it has already been finished
+		if (historySnapshot.data().status == "finished") {
+			throw new Error("History has been marked as finished.");
 		}
 
 		// Mark the journey of the user as finished
@@ -432,30 +438,35 @@ router.put("/histories/:id/finish", async (req, res) => {
 		});
 
 		// Transaction to to update current values for visitCount, journeyCount
-		const dbTransaction = db.runTransaction(async (t) => {
-			const docs = await t.getAll(historyUserRef, historyAttractionRef);
-			// Read snapshots via ref(s)
-			let user = docs[0];
-			let attraction = docs[1];
-			if (!user.exists) {
-				throw new Error("User reference not found.");
-			} else if (!attraction.exists) {
-				throw new Error("Attraction reference not found.");
-			}
-			// Read current values of all docs
-			let currentUserJourneyCount = user.data().journeyCount;
-			let currentUserReward = user.data().totalReward;
-			let currentAttractionVisitCount = attraction.data().visitCount;
-			// Update jounrey count prop for user
-			t.update(historyUserRef, {
-				journeyCount: currentUserJourneyCount + 1,
-				totalReward: currentUserReward + attraction.data().reward,
+		const dbTransaction = db
+			.runTransaction(async (t) => {
+				const docs = await t.getAll(historyUserRef, historyAttractionRef);
+				// Read snapshots via ref(s)
+				let user = docs[0];
+				let attraction = docs[1];
+				if (!user.exists) {
+					throw new Error("User reference not found.");
+				} else if (!attraction.exists) {
+					throw new Error("Attraction reference not found.");
+				}
+				// Read current values of all docs
+				let currentUserJourneyCount = user.data().journeyCount;
+				let currentUserReward = user.data().totalReward;
+				let currentAttractionVisitCount = attraction.data().visitCount;
+				// Update jounrey count prop for user
+				t.update(historyUserRef, {
+					journeyCount: currentUserJourneyCount + 1,
+					totalReward: currentUserReward + attraction.data().reward,
+				});
+				// Update visit count prop for attraction
+				t.update(historyAttractionRef, {
+					visitCount: currentAttractionVisitCount + 1,
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+				throw error;
 			});
-			// Update visit count prop for attraction
-			t.update(historyAttractionRef, {
-				visitCount: currentAttractionVisitCount + 1,
-			});
-		});
 		return res.status(200);
 	} catch (error) {
 		res.status(400).json({
@@ -472,7 +483,7 @@ router.put("/histories/:id/cancel", async (req, res) => {
 		const db = admin.firestore();
 
 		// Params declaration
-		let { historyID } = req.params.id;
+		let historyID = req.params.id;
 
 		// Document History reference
 		const historyRef = db.collection("histories").doc(historyID);

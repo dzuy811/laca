@@ -157,7 +157,7 @@ router.post("/send", async (req, res) => {
 
 		return res.status(200).json({
 			id: addedFriendRequest.id,
-			path: `friendRequests/${addedFriendRequest.id}`,
+			path: `/friendRequests/${addedFriendRequest.id}`,
 			message: `friendRequest document ${addedFriendRequest.id} created successfully`,
 		});
 	} catch (error) {
@@ -227,9 +227,7 @@ router.post("/accept", async (req, res) => {
 				let receiveUser = docs[2];
 				// Check existance
 				if (!fr.exists && !sendUser.exists && !receiveUser.exists) {
-					return res.status(400).json({
-						message: "Invalid send user OR receive user OR friend request",
-					});
+					throw new Error("Invalid send user OR receive user OR friend request");
 				}
 				// Update counter for both sender and receiver
 				let sendUserCount = sendUser.data().friendsCount;
@@ -255,12 +253,13 @@ router.post("/accept", async (req, res) => {
 			.then(() => {
 				return res.status(200).json({
 					id: addFriendshipID,
-					path: `friendships/${addFriendshipID}`,
+					path: `/friendships/${addFriendshipID}`,
 					messasge: `SendUserID ${sendUserRef.id} has been friend with ReceiveUserID ${receiveUserRef.id}`,
 				});
 			})
 			.catch((error) => {
 				console.log("Transaction failed: ", error);
+				throw error;
 			});
 	} catch (error) {
 		res.status(400).json({
