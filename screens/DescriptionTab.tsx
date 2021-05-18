@@ -11,6 +11,7 @@ import { LoginButton } from "../components";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
+import { database } from "firebase";
 
 type iItem = {
 	item: typeImageData;
@@ -25,7 +26,8 @@ type Props = {
 			description: string;
 			name: string;
 			id : string;
-			distance: number
+			distance: number;
+			reward: number;
 		};
 	};
 	navigation: any;
@@ -110,16 +112,18 @@ type listData = descriptionType[]
 
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
-	const { latitude, longitude, description, name, id, distance } = route.params;
+	const { latitude, longitude, description, name, id, distance, reward } = route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 
 	// fetch list of reviews 
 	useEffect(() => {
-		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`)
+		console.log('id: ', id);
+		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`
+		fetch(url)
 		.then((response) => response.json())
 		.then((json) => {
             setData(json)
-            // console.log(json) 
+            console.log('json:', json) ;
         })
 		.catch((err) => console.error(err))
 	},[])
@@ -134,14 +138,15 @@ console.log(body);
 
 axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
 .then(res => {
-  console.log(res.data);
   navigation.navigate("Journey Map", {
 	  // rmit 10.730283804989273, 106.69316143068589
 	  // home 10.791044000816369, 106.6839532702234
-    latitude: 10.791044000816369,
-    longitude: 106.6839532702234,
+    latitude: 10.730283804989273,
+    longitude: 106.69316143068589,
 	journeyID: res.data.id,
-	attractionID: id
+	attractionID: id,
+	reward: reward
+	// attractionReward: 
   });
 }).catch(err => console.log(err))
 }
@@ -150,24 +155,28 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 	let dataPoint = 0;
 	let dataCombine = [] as listData;
 
-	data.forEach((review) => {
-		let data = {} as descriptionType;
-
-		// Format the timestamp from date to string
-		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
-
-		data.id = dataPoint.toString();
-		data.content = review.comment.content;
-		data.avatar = review.userInfo.urlAvatar;
-		data.name = review.userInfo.name;
-		data.timeCreated = formattedDate;
-		data.rating = review.comment.rating;
-		data.likeCount = review.comment.likeCount;
-		data.replyCount = review.replyCount;
+	if (data.length > 0) {
+		data.forEach((review) => {
+			let data = {} as descriptionType;
 	
-		dataCombine.push(data);
-	})
+			// Format the timestamp from date to string
+			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+			const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+	
+			data.id = dataPoint.toString();
+			data.content = review.comment.content;
+			data.avatar = review.userInfo.urlAvatar;
+			data.name = review.userInfo.name;
+			data.timeCreated = formattedDate;
+			data.rating = review.comment.rating;
+			data.likeCount = review.comment.likeCount;
+			data.replyCount = review.replyCount;
+		
+			dataCombine.push(data);
+		})
+	}
+
+	
 
 	// Render list of descriptions for Flat List
 	const renderDescription = ({ item }: dataDescription) => (
