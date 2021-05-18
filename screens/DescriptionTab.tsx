@@ -88,6 +88,10 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const [data, setData] = useState<uniqueReviews[]>([]);
 	const [userID, setUserID] = useState<any>();
 	const [text, setText] = useState<string>("");
+	const [deletePost, setDeletePost] = useState<boolean>(false);
+	const [newText, setNewText] = useState<string>("");
+	const [updatePost, setUpdatePost] = useState<boolean>(false);
+
 	let userContent = "";
 
 	// fetch list of reviews 
@@ -122,6 +126,10 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		});
 		}).catch(err => console.log(err))
 	}
+
+	// useEffect(() => {
+		
+	// }, [input])
 
 	let dataPoint = 0;
 	let dataCombination = [] as listData;
@@ -195,7 +203,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>{item.likeCount}</Text>
 				</View>
 				<View style={{ width: '80%'}}>
-					<Text style={{ fontSize: 15 }}>{item.content}</Text>				
+					<Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
 				</View>
 			</View>
 
@@ -401,7 +409,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								</TouchableOpacity>
 								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
 								<TouchableOpacity style={{padding: 5}} onPress={() => {
-									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + "PQEfo4XxfpOThUPZXPGx";
+									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
 									axios.delete(url)
 									.then(res => {
 										console.log(res.data);
@@ -437,15 +445,16 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								onPress={() => {
 									let body = {
 										content: text,
-    									rating: getCurrentUser().rating
 									}
-									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + "JmTVF0qul9fTptyQjzNQ";
+									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
 									axios.put(url, body)
 									.then(res => {
 										console.log(res.data);
 									}).catch(err => console.log(err.response.data))
 									userContent = text;
 									dataCombination[getCurrentUserIndex()].content = text;
+									setNewText(text);
+									setUpdatePost(true);
 									setVisible2(false);
 								}}
 							>
