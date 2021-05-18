@@ -68,6 +68,7 @@ const MainNav: FC = () => {
 							storeData("gender", data.gender);
 							storeData("phone_number", data.phoneNumber);
 							storeData("url_avatar", data.urlAvatar);
+							storeData("total_reward", JSON.stringify(data.totalReward))
 						}
 					})
 					.catch((error) => {

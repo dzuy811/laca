@@ -16,7 +16,10 @@ const getTabBarVisibility = (route: any) => {
 	if (
 		routeName === "Edit profile" ||
 		routeName === "Journey history" ||
-		routeName === "Attraction detail"
+		routeName === "Attraction detail" ||
+        routeName === "User Profile" ||
+        routeName === "Camera screen" ||
+        routeName === "Friend Profile"
 	) {
 		return false;
 	}
@@ -65,7 +68,7 @@ const AppNavigator = (props) => {
                         style: {
                             backgroundColor: '#4B8FD2'
                         },
-                        keyboardHidesTabBar: true
+                        keyboardHidesTabBar: true,
                     }}
 
                 >
@@ -79,11 +82,18 @@ const AppNavigator = (props) => {
                     <Tab.Screen
                         name="Search"
                         component={FriendNavigator}
+                        options={({route}) => ({
+                            tabBarVisible: getTabBarVisibility(route)
+                        })}
                     />
                     <Tab.Screen
                         name="Ranking"
-                        component={RankingNavigator}
-                    />
+                        options={({route}) => ({
+                            tabBarVisible: getTabBarVisibility(route)
+                        })}
+                    >
+                        {() => <RankingNavigator/>}
+                    </Tab.Screen>
                     <Tab.Screen
                         name="Profile"
                         component={ProfileNavigator}

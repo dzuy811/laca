@@ -4,10 +4,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import RankingScreen from '../screens/RankingScreen'
 import {RootStackParamList} from './RankingStackParams'
 import OtherProfileScreen from '../screens/OtherProfileScreen';
+import FriendProfile from '../screens/FriendProfile';
 
 const RankingStack = createStackNavigator<RootStackParamList>();
 
-const FriendNavigator = () => {
+const RankingNavigator = () => {
+    console.log("ranking navigator");
+    
     return (
         <RankingStack.Navigator
         initialRouteName="Ranking"
@@ -20,6 +23,10 @@ const FriendNavigator = () => {
             <RankingStack.Screen
             name="User Profile"
             component={OtherProfileScreen}
+            />
+            <RankingStack.Screen
+            name="Friend Profile"
+            component={FriendProfile}
             />
         </RankingStack.Navigator>
     )
@@ -34,4 +41,4 @@ const style = StyleSheet.create({
     },
 })
 
-export default FriendNavigator
+export default RankingNavigator
