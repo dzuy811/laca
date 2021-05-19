@@ -58,12 +58,12 @@ const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
                 }
                 leftContainerStyle={{flex:4}}
                 rightComponent={
-                    <View style={{flexDirection: 'row', alignItems: 'center', marginRight: 10}}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginRight: 10, width: 80}}>
                         <Image
                         source={require('../assets/dollar.png')}
                         style={{width: 24, height: 24, marginRight: 8}}
                         />
-                        <Text style={{color: '#E2D0A2'}}>{user}</Text>
+                        <Text style={{color: '#E2D0A2', fontSize: 18}}>{user}</Text>
                     </View>
                 }
                 />

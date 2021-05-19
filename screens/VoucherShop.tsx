@@ -109,7 +109,10 @@ const VoucherShop:React.FC<any> = () => {
 				{/* Header */}
 				<View style={{height: 80, backgroundColor: "#4B8FD2", flexDirection: 'row'}}>
 					<View style={[styles.reward]}>
-						<FontAwesome5 style={{ marginRight: 2 }} name="coins" size={24} color="#E2D0A2" />
+					<Image 
+							style={{marginRight: 5, height:20, width: 20}}
+							source={coinImage}
+						/>
 						<Text style={{ marginLeft: 5, fontSize: 18, color: "#E2D0A2" }}>400</Text>
 					</View>
 				</View>
@@ -148,7 +151,8 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         marginLeft: "auto",
 		flexDirection: 'row',
-		margin:20
+		marginHorizontal:20,
+		marginBottom: 10
     },
 	submitButton: {
 		width: 250,
