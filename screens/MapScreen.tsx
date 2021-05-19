@@ -109,6 +109,13 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		setUserLocation(location);
 	};
 
+
+	// Update user current position on change
+	// await Location.watchPositionAsync({}, getUserLocation).remove();
+
+
+	// Location.watchPositionAsync({}, 
+
 	// Fetch User Location
 	useEffect(() => {
 		console.log("Update user location");

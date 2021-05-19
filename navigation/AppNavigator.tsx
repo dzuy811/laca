@@ -20,7 +20,8 @@ const getTabBarVisibility = (route: any) => {
 		routeName === "Attraction detail" ||
         routeName === "User Profile" ||
         routeName === "Camera screen" ||
-        routeName === "Friend Profile"
+        routeName === "Friend Profile" ||
+        routeName === "Journey Map"
 	) {
 		return false;
 	}

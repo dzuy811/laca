@@ -203,8 +203,8 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     voucherBox: {
+        padding: 20,
 		borderColor: "#4B8FD2", 
-		height:windowHeight - 700, 
 		width: windowWidth - 60, 
 		borderWidth: 4, 
 		backgroundColor: "#FDFDFD",
