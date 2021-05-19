@@ -22,7 +22,7 @@ const FriendScreen = ({navigation}) => {
     // fetching user's friend requests
 
     function fetchRequest(userID: string) {
-        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/users/${userID}/`
+        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/users/${userID}/`
         const promise = axios.get(url)
         const data = promise.then(res => res.data)
         return data
@@ -54,7 +54,7 @@ const FriendScreen = ({navigation}) => {
     function searchUser(phone: string) {
         // localhost-home: http://192.168.2.105:5001/laca-59b8c/asia-east2/api
         // deploy: https://asia-east2-laca-59b8c.cloudfunctions.net/api 
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/search/details?phone=${phone}`
+        const url = `http://localhost:5000/laca-59b8c/asia-east2/api/users/search/details?phone=${phone}`
         fetch(url)
         .then(res => res.json())
         .then(data => {
