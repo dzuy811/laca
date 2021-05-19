@@ -138,7 +138,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
 			const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 
-			data.id = dataPoint.toString();
+			data.id = review.comment.id;
 			data.content = review.comment.content;
 			data.avatar = review.userInfo.urlAvatar;
 			data.name = review.userInfo.name;
@@ -291,7 +291,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	// Render list of images for Flat List
 	const renderGalleryImage = ({ item, index }: iItem) => {
-		let link = item.source.toString();
+		let link = item.source;
 		return <Image key={index} source={{ uri: link }} style={styles.galleryImageStyle} />;
 	};
 
@@ -451,6 +451,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 										content: text,
 									}
 									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
+
+									console.log(getCurrentUser());
 									axios.put(url, body)
 									.then(res => {
 										console.log(res.data);
