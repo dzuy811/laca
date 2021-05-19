@@ -34,6 +34,7 @@ const HomeScreen:React.FC<homeScreenProps> = ({address}) => {
         .then((response) => response.json())
         .then((json) => {
             setData(json)
+            console.log(json)
             console.log("Attraction list" ) // For debugging. Check if the effect is called multiple times or not
         })
         .catch((err) => console.error(err))

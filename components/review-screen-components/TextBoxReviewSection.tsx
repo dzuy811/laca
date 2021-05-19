@@ -1,18 +1,21 @@
 import React from 'react'
-import { Text, View, TextInput, StyleSheet } from 'react-native'
+import { Text, View, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native'
 
-const TextBoxReviewSection = ({handleReview}) => {
+
+const TextBoxReviewSection = ({handleReview} ) => {
     return (
         <View style={{ alignItems: 'center' }}>
-                            <TextInput
-                                style={styles.textArea}
-                                underlineColorAndroid="transparent"
-                                placeholder={"Leave your review about the attraction..."}
-                                placeholderTextColor={"#9E9E9E"}
-                                numberOfLines={10}
-                                multiline={true}
-                                onChangeText={reviews => handleReview(reviews)}
-                            />
+                <TextInput
+                    style={styles.textArea}
+                    underlineColorAndroid="transparent"
+                    placeholder={"Leave your review about the attraction..."}
+                    placeholderTextColor={"#9E9E9E"}
+                    numberOfLines={10}
+                    multiline={true}
+                    onChangeText={reviews => handleReview(reviews)}
+                />
+
+                           
         </View>
     )
 }

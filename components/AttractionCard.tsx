@@ -4,8 +4,7 @@ import {
 	View,
 	Text,
 	TouchableOpacity,
-	Image,
-	TouchableHighlightBase,
+	Image
 } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 import * as Location from "expo-location";
@@ -19,6 +18,7 @@ type attractionType = {
 	imageThumbnail: string;
 	geoPoint: any;
 	description?: string;
+	galleryImage: any[]
 };
 
 interface CardProps {
@@ -86,7 +86,9 @@ const AttractionCard:React.FC<CardProps> = (props) => {
 						description: props.data.description,
 						name: props.data.name,
 						distance: distance,
-						reward: props.data.reward
+						reward: props.data.reward,
+						galleryImage: props.data.galleryImage
+
 					}); // Navigate to the attraction description tab
 					// Passing the latitude and longitude props
 				}}

@@ -11,6 +11,7 @@ import AttractionNavigator from "./navigator/AttractionNavigator";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
+
 const Tab = createBottomTabNavigator();
 
 let barStyle: string = "light-content";
