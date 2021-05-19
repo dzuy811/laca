@@ -4,8 +4,7 @@ import {
 	View,
 	Text,
 	TouchableOpacity,
-	Image,
-	TouchableHighlightBase,
+	Image
 } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 
@@ -17,6 +16,7 @@ type attractionType = {
 	imageThumbnail: string;
 	geoPoint: any;
 	description?: string;
+	galleryImage: any[]
 };
 
 interface CardProps {
@@ -29,10 +29,6 @@ export default class AttractionCard extends Component<CardProps> {
 		super(props);
 	}
 
-	componentDidMount() {
-		// console.log(this.props.data);
-	}
-
 	render() {
 		return (
 			<TouchableOpacity
@@ -43,6 +39,7 @@ export default class AttractionCard extends Component<CardProps> {
 						longitude: this.props.data.geoPoint._longitude,
 						description: this.props.data.description,
 						name: this.props.data.name,
+						galleryImage: this.props.data.galleryImage
 					}); // Navigate to the attraction description tab
 					// Passing the latitude and longitude props
 				}}
