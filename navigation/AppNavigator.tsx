@@ -6,6 +6,7 @@ import ProfileNavigator from '../navigator/ProfileNavigator'
 import RankingNavigator from '../navigator/RankingNavigator'
 import FriendNavigator from '../navigator/FriendNavigator';
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import VoucherShop from '../screens/VoucherShop';
 
 
 const Tab = createBottomTabNavigator();
@@ -44,6 +45,10 @@ const AppNavigator = (props) => {
                             }
                             else if (route.name === 'Search') {
                                 iconName = require('../assets/loupe.png')
+                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
+                            }
+                            else if (route.name === "Shop") {
+                                iconName = require('../assets/store.png')
                                 styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
                             }
                             else if (route.name === 'Ranking') {
@@ -85,6 +90,10 @@ const AppNavigator = (props) => {
                         options={({route}) => ({
                             tabBarVisible: getTabBarVisibility(route)
                         })}
+                    />
+                    <Tab.Screen
+                        name="Shop"
+                        component={VoucherShop}
                     />
                     <Tab.Screen
                         name="Ranking"
