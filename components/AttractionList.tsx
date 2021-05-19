@@ -17,7 +17,6 @@ type attractionType = {
     ratings: number,
     imageThumbnail: string,
     geoPoint: any,
-    galleryImage: any[]
 }
 
 interface AttractionType {
@@ -32,7 +31,7 @@ export default class AttractionList extends React.Component<AttractionType> {
     }
 
     render() {
-
+    
         return (
             <ScrollView>
                 <View  style={style.attractionList}>
