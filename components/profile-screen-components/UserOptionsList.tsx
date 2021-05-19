@@ -23,7 +23,7 @@ const UserOptionsList: React.FC<Props> = ({ navigation }: any) => {
 
 			</View>
 			<View style={styles.container}>
-				<UserOption navigation={navigation} color="#ffd56b" icon={require('../../assets/coupon.png')} name="Vouchers" />
+				<UserOption navigation={navigation} color="#ffd56b" icon={require('../../assets/coupon.png')} name="My vouchers" />
 
 			</View>
 			<View style={styles.container}>

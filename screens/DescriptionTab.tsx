@@ -141,8 +141,8 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
   navigation.navigate("Journey Map", {
 	  // rmit 10.730283804989273, 106.69316143068589
 	  // home 10.791044000816369, 106.6839532702234
-    latitude: 10.730283804989273,
-    longitude: 106.69316143068589,
+    latitude: latitude,
+    longitude: longitude,
 	journeyID: res.data.id,
 	attractionID: id,
 	reward: reward
@@ -186,7 +186,6 @@ axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
-
 						<Text style={styles.profileName}>{item.name}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>

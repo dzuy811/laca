@@ -37,16 +37,16 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 
 
 	//Background task defined
-	const GET_USER_LOCATION = 'GET_USER_LOCATION'
-	TaskManager.defineTask(GET_USER_LOCATION, async () => {
-		const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
-		console.log("wtfL ", a);
+	// const GET_USER_LOCATION = 'GET_USER_LOCATION'
+	// TaskManager.defineTask(GET_USER_LOCATION, async () => {
+	// 	const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
+	// 	console.log("wtfL ", a);
 		
-		  return a
-		  ? BackgroundFetch.Result.NewData
-		  : BackgroundFetch.Result.NoData
+	// 	  return a
+	// 	  ? BackgroundFetch.Result.NewData
+	// 	  : BackgroundFetch.Result.NoData
 		
-	})
+	// })
 
 
 	// Fetch and Set the state of destination's geolocation
@@ -85,7 +85,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
         //     });}
 		// }
 		// initBackgroundFetch()
-		BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
+		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
 		setDestinationStr(`${latitude},${longitude}`)
 		console.log(destinationStr);
 		
@@ -155,7 +155,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 				parseFloat(destinationStr.split(",")[1])
 			);
 			// if the user is within the radius of 100meters -> user has arrived!
-			if (dist <= 1) {
+			if (dist <= 0.05) {
 				setIsArrived(true);
 				console.log("journey:", journeyID);
 				

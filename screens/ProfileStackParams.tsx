@@ -3,5 +3,6 @@ export type RootStackParamList = {
     "Edit profile": keyof RootStackParamList;
     "My journeys": keyof RootStackParamList;
     "Friends": keyof RootStackParamList;
-    "Friend profile": keyof RootStackParamList
+    "Friend profile": keyof RootStackParamList;
+    "My vouchers": keyof RootStackParamList;
 };

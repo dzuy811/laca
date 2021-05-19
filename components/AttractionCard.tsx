@@ -118,7 +118,7 @@ const AttractionCard:React.FC<CardProps> = (props) => {
 						</View>
 						<View style={style.reward}>
 							<AntDesign style={{ marginRight: 2 }} name="star" size={24} color="#FF5353" />
-							<Text style={{ marginLeft: 2, fontSize: 16 }}>{props.data.rating}/5(92)</Text>
+							<Text style={{ marginLeft: 2, fontSize: 16 }}>{props.data.rating}/5</Text>
 						</View>
 					</View>
 				</View>
