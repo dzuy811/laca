@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, Image } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
+
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+const coinImage = require("../assets/coin.png");
 
 type voucherScreenProps = {
     
@@ -19,23 +23,47 @@ type dataVoucher = {
 	item: voucherType;
 };
 
-const [data, setData] = useState<any>();
+const VoucherShop:React.FC<voucherScreenProps> = () => {
+	const [data, setData] = useState<any>([
+		{
+			"id": 1
+		},
+		{
+			"id": 2
+		},
+		{
+			"id": 3
+		}
+	]);
 
-const VoucherCard = ({ item }: dataVoucher) => (
-		<View style={{ marginBottom: 30}}>
-			{item.expiryDateTime}
+	const VoucherCard = ({ item }: dataVoucher) => (
+		<View style={style.voucherBox}>
+			<View style={{width:"40%"}}>
+				<Image 
+					style={{width: 100, height: 80, margin:10}} 
+					source={{uri: "https://manwah.com.vn/wp-content/uploads/sites/22/2021/01/Artboard-107@10x.png"}} 
+				/>
+			</View>
+			<View style={{width:"60%", margin: 4, marginTop: 10}}>
+				<Text style={{fontSize: 15}}>Discount Voucher 25% on all items</Text>
+				<Text style={{fontSize: 15}}>Expired: 18.05.2021</Text>
+				<Text style={{fontSize: 15}}>Quantity: 4</Text>
+				<Image
+					source={coinImage}
+				/>
+
+			</View>
+			
 		</View>
 	);
 
-
-const VoucherShop:React.FC<voucherScreenProps> = () => {
     return(
         <View>
             {/* Header */}
-            <View style={{height: 20, backgroundColor: "#4B8FD2", flexDirection: 'row'}}>
+            <View style={{height: 80, backgroundColor: "#4B8FD2", flexDirection: 'row'}}>
                 <View style={[style.reward]}>
                     <FontAwesome5 style={{ marginRight: 2 }} name="coins" size={24} color="#E2D0A2" />
-                    <Text style={{ marginLeft: 2, fontSize: 18 }}>400</Text>
+                    <Text style={{ marginLeft: 5, fontSize: 18, color: "#E2D0A2" }}>400</Text>
                 </View>
             </View>
 
@@ -69,11 +97,14 @@ const style = StyleSheet.create({
 		borderTopLeftRadius: 20,
 		borderTopRightRadius: 20,
 	},
-	cardBody: {
-		paddingTop: 15,
-		paddingLeft: 25,
-		paddingRight: 10,
-		paddingBottom: 30,
+	voucherBox: {
+		margin: 30, 
+		borderColor: "#4B8FD2", 
+		height:windowHeight - 600, 
+		width: windowWidth - 80, 
+		borderWidth: 2, 
+		flexDirection: 'row',
+		backgroundColor: "#FDFDFD"
 	},
 	firstInfo: {
 		flexDirection: "row",
@@ -84,8 +115,10 @@ const style = StyleSheet.create({
 		fontSize: 24,
 	},
 	reward: {
-		// alignItems: "center",
-        // alignSelf: 'flex-end'
-        marginLeft: "auto"
+		alignItems: "center",
+        alignSelf: 'flex-end',
+        marginLeft: "auto",
+		flexDirection: 'row',
+		margin:20
     },
 });
