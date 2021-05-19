@@ -9,11 +9,6 @@ import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
 
-type iItem = {
-	item: typeImageData;
-	index: number;
-};
-
 type Props = {
 	route: {
 		params: {
@@ -26,11 +21,6 @@ type Props = {
 		};
 	};
 	navigation: any;
-};
-
-type typeImageData = { 
-	id: string,
-	source: string 
 };
 
 type descriptionType = { 
@@ -115,8 +105,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			userID: await getData('id'),
 			attractionID: id
 		}
-		console.log(body); 
-
 		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
 		.then(res => {
 		console.log(res.data);
@@ -127,7 +115,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		}).catch(err => console.log(err))
 	}
 
-	let dataPoint = 0;
 	let dataCombination = [] as listData;
 
 	if(data.length > 0) {
@@ -150,7 +137,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 			// Store the images by index
 				if(review.comment.images.length > 0) {
-					// let index = 1;
 					let imgArray:any = [];
 					for(let i = 0; i < review.comment.images.length; i++) {
 						let index = i + 1;
@@ -256,6 +242,15 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									</>
 								)}
 							</View>
+							<>
+							{/* Horizontal line between each review  */}
+							{index != dataCombination.length - 1 ? (
+								<View style={{ borderBottomColor: '#EDEDED', borderBottomWidth: 1, opacity: 0.6, position: "relative" }} />
+							) : (
+								<>
+								</>
+							)}
+							</>
 						</>
 					)}
 				</>
@@ -276,26 +271,26 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							</>
 						)}
 					</View>
-				</>
-			)}
-
-			{/* Horizontal line between each review  */}
-			{index != dataCombination.length - 1 ? (
-				<View style={{ borderBottomColor: '#EDEDED', borderBottomWidth: 1, opacity: 0.6 }} />
-			) : (
-				<>
+					<>
+					{/* Horizontal line between each review  */}
+					{index != dataCombination.length - 1 ? (
+						<View style={{ borderBottomColor: '#EDEDED', borderBottomWidth: 1, opacity: 0.6, position: "relative" }} />
+					) : (
+						<>
+						</>
+					)}
+					</>
 				</>
 			)}
 		</View>
 	);
 
 	// Render list of images for Flat List
-	const renderGalleryImage = ({ item, index }: iItem) => {
-		let link = item.source;
-		return <Image key={index} source={{ uri: link }} style={styles.galleryImageStyle} />;
+	const renderGalleryImage = ({ item, index }: any) => {
+		return <Image key={index} source={{ uri: item }} style={styles.galleryImageStyle} />;
 	};
 
-	const renderReviewImage = ({ item, index }: iItem) => {
+	const renderReviewImage = ({ item, index }: any) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.reviewImageStyle} />;
 	};
 
@@ -312,16 +307,14 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	function getCurrentUser():any {
 		for(let i = 0; i < dataCombination.length; i++) {
-			if(dataCombination[i].uid == userID)
-				return dataCombination[i];
+			if(dataCombination[i].uid == userID) return dataCombination[i];
 		}
 		return {};
 	}
 
 	function getCurrentUserIndex():number {
 		for(let i = 0; i < dataCombination.length; i++) {
-			if(dataCombination[i].uid == userID)
-				return i;
+			if(dataCombination[i].uid == userID) return i;
 		}
 		return 0;
 	}
@@ -406,7 +399,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						>
 							<View>
 								<TouchableOpacity style={{padding: 5}} onPress={() => {
-									toggleSecondOverlay()
+									toggleSecondOverlay();
 									setVisible1(false);
 								}}>
 									<Text style={styles.textOverlap}>Edit</Text>
@@ -420,6 +413,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									}).catch(err => console.log(err.response.data))
 									dataCombination.splice(getCurrentUserIndex(), 1);
 									setVisible1(false);
+									setDeletePost(true);
 								}}>
 									<Text style={styles.textOverlap}>Delete</Text>
 								</TouchableOpacity>
@@ -451,8 +445,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 										content: text,
 									}
 									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
-
-									console.log(getCurrentUser());
 									axios.put(url, body)
 									.then(res => {
 										console.log(res.data);
