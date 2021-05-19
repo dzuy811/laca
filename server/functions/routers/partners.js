@@ -81,6 +81,7 @@ router.post("/", async (req, res) => {
 			name: req.body.name,
 			phone: req.body.phone,
 			address: [req.body.address_line_1, req.body.address_line_2],
+			imageUrl: req.body.imageUrl,
 			createdAt: admin.firestore.Timestamp.fromDate(new Date()),
 		};
 
@@ -113,6 +114,7 @@ router.put("/:id", async (req, res) => {
 		const updatedPartner = {
 			name: req.body.name,
 			phone: req.body.phone,
+			imageUrl: req.body.imageUrl,
 			address: [req.body.address_line_1, req.body.address_line_2],
 		};
 

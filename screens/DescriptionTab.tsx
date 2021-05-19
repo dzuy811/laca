@@ -1,14 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, FlatList, Animated, TouchableOpacity, TextInput, Pressable } from "react-native";
+import {
+	View,
+	Text,
+	StyleSheet,
+	Image,
+	FlatList,
+	Animated,
+	TouchableOpacity,
+	TextInput,
+	Pressable,
+	Dimensions,
+	ActivityIndicator,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
-import moment from 'moment';
-import { Rating, Overlay } from 'react-native-elements';
+import moment from "moment";
+import { Rating, Overlay } from "react-native-elements";
 import { LoginButton } from "../components";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
 import { database } from "firebase";
+import ImageZoom from "react-native-image-pan-zoom";
+
+type iItem = {
+	item: typeImageData;
+	index: number;
+};
 
 type Props = {
 	route: {
@@ -37,6 +55,10 @@ type descriptionType = {
 	likeCount: number,
 	replyCount: number,
 	images: any[]
+}
+type typeImageData = {
+	id: string;
+	source: string;
 };
 
 type dataDescription = {
@@ -86,8 +108,10 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const [updatePost, setUpdatePost] = useState<boolean>(false);
 
 	let userContent = "";
+	const [dialog, setDialog] = useState<any>(false);
+	const [currentImgIndex, setCurrentImgIndex] = useState<number>(0);
 
-	// fetch list of reviews 
+	// fetch list of reviews
 	useEffect(() => {
 		console.log('id: ', id);
 		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`
@@ -175,13 +199,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
-					<View style={{ width: '10%' }}>
-						<Rating 
-							imageSize={15} 
-							readonly 
-							startingValue={item.rating} 
-							style={styles.rating} 
-						/>
+					<View style={{ width: "10%" }}>
+						<Rating imageSize={15} readonly startingValue={item.rating} style={styles.rating} />
 					</View>
 				</View>
 			</View>
@@ -192,7 +211,9 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
 						<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
-					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>{item.likeCount}</Text>
+					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>
+						{item.likeCount}
+					</Text>
 				</View>
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
@@ -223,7 +244,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				</>
 			)}
 		</View>
-	)
+	);
 
 	// Render list of descriptions for Flat List
 	const renderDescription = ({ item, index }: dataDescription) => (
@@ -302,18 +323,35 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	const renderReviewImage = ({ item, index }: any) => {
 		return <Image key={index} source={{ uri: item.source }} style={styles.reviewImageStyle} />;
+	}
+	const renderImage = ({ item, index }: any) => {
+		return (
+			<TouchableOpacity
+				key={index}
+				onPress={() => {
+					setCurrentImgIndex(index);
+					toggleDialogOverlay();
+				}}
+			>
+				<Image source={{ uri: item }} style={styles.galleryImageStyle}></Image>
+			</TouchableOpacity>
+		);
 	};
 
 	const [visible1, setVisible1] = useState(false);
 	const [visible2, setVisible2] = useState(false);
 
-    const toggleFirstOverlay = () => {
-      setVisible1(!visible1);
-    };
+	const toggleFirstOverlay = () => {
+		setVisible1(!visible1);
+	};
 
 	const toggleSecondOverlay = () => {
-      setVisible2(!visible2);
-    };
+		setVisible2(!visible2);
+	};
+
+	const toggleDialogOverlay = () => {
+		setDialog(!dialog);
+	};
 
 	function getCurrentUser():any {
 		for(let i = 0; i < dataCombination.length; i++) {
@@ -335,7 +373,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				{/* Header */}
 				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} headerDistance={distance}/>
 
-				<View style={{ flex: 1, backgroundColor: "white"}}>
+				<View style={{ flex: 1, backgroundColor: "white" }}>
 					<View>
 						<Animated.ScrollView
 							style={{ backgroundColor: "white" }}
@@ -355,8 +393,8 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							<View style={{ marginLeft: "10%" }}>
 								<FlatList
 									data={galleryImage}
-									renderItem={renderGalleryImage}
-									keyExtractor={(item) => item.id}
+									renderItem={renderImage}
+									keyExtractor={(item, index) => index}
 									horizontal={true}
 									showsHorizontalScrollIndicator={false}
 									style={styles.flatListGallery}
@@ -399,13 +437,13 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				</LinearGradient>
 
 				{/* Modal for editing/deleting */}
-			    <View style={{position: 'absolute', bottom: 0}}>
-					<View style={{position: 'absolute', bottom: 0}}>
+				<View style={{ position: "absolute", bottom: 0 }}>
+					<View style={{ position: "absolute", bottom: 0 }}>
 						<Overlay
 							isVisible={visible1}
 							onBackdropPress={() => toggleFirstOverlay()}
 							animationType="slide"
-							overlayStyle={{position: 'absolute', bottom: 20, width: "100%"}}
+							overlayStyle={{ position: "absolute", bottom: 20, width: "100%" }}
 						>
 							<View>
 								<TouchableOpacity style={{padding: 5}} onPress={() => {
@@ -430,16 +468,16 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							</View>
 						</Overlay>
 					</View>
-            	</View>
+				</View>
 				{/* Modal for editing the post */}
 				<View>
 					<Overlay
 						isVisible={visible2}
 						onBackdropPress={() => toggleSecondOverlay()}
 						animationType="slide"
-						overlayStyle={{position: 'absolute', bottom: 40, width: "100%"}}
+						overlayStyle={{ position: "absolute", bottom: 40, width: "100%" }}
 					>
-						<View style={{alignItems: "center"}}>
+						<View style={{ alignItems: "center" }}>
 							<TextInput
 								style={{height: 100}}
 								placeholder="Type here!"
@@ -471,8 +509,45 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						</View>
 					</Overlay>
 				</View>
+				{/* Modal for Zooming Image*/}
+				<View key={"PopUpImage"}>
+					<Overlay
+						isVisible={dialog}
+						onBackdropPress={() => toggleDialogOverlay()}
+						animationType="slide"
+						overlayStyle={{
+							position: "relative",
+							width: 400,
+							height: 400,
+							backgroundColor: "#fff",
+						}}
+					>
+						{console.log("Popped Up!")}
+						<ImageZoom
+							cropWidth={370}
+							cropHeight={370}
+							imageWidth={370}
+							imageHeight={370}
+							style={{ left: 5, marginTop: 5 }}
+							enableDoubleClickZoom={false}
+						>
+							{currentImgIndex !== null && typeof currentImgIndex !== "undefined" ? (
+								<Image
+									style={{ width: 380, height: 380 }}
+									source={{
+										// renderImage
+										uri: galleryImage[currentImgIndex],
+									}}
+								/>
+							) : (
+								<>
+									<ActivityIndicator size="small" color="#0000ff" />
+								</>
+							)}
+						</ImageZoom>
+					</Overlay>
+				</View>
 			</View>
-			
 		</>
 	);
 };
@@ -547,26 +622,26 @@ const styles = StyleSheet.create({
 	},
 	rating: {
 		paddingVertical: 10,
-		justifyContent: 'flex-end'
+		justifyContent: "flex-end",
 	},
 	centeredView: {
-        flex: 1,
-        justifyContent: "center", 
-		position: 'absolute',
+		flex: 1,
+		justifyContent: "center",
+		position: "absolute",
 		bottom: 0,
-        marginTop: 22,
-    },
+		marginTop: 22,
+	},
 	overlay: {
-        paddingVertical: 15,
-		position: 'absolute',
-        paddingHorizontal: 20,
-        width: '86%'
-    },
+		paddingVertical: 15,
+		position: "absolute",
+		paddingHorizontal: 20,
+		width: "86%",
+	},
 	textOverlap: {
-		position: 'relative',
+		position: "relative",
 		fontSize: 20,
-		textAlign: 'center',
-		color: "#828282"
+		textAlign: "center",
+		color: "#828282",
 	},
 	submitButton: {
 		width: 300,
@@ -576,8 +651,8 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: "#fff",
 		alignItems: "center",
-		marginBottom: 20
-	}
+		marginBottom: 20,
+	},
 });
 
 export default DescriptionTab;
