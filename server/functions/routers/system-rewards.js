@@ -62,7 +62,7 @@ router.post("/", async (req, res) => {
 		const db = admin.firestore();
 
 		// Declare body params
-		const { description, rewardPrice, expiryDatetime, totalQuantity } = req.body;
+		const { description, rewardPrice, expiryDatetime, totalQuantity, imageUrl } = req.body;
 
 		// Pre-process json string to Date on structured format
 		const formatDatetime = dayjs(expiryDatetime, "HH:mm:ss DD-MM-YYYY").toDate();
@@ -71,6 +71,7 @@ router.post("/", async (req, res) => {
 			description: description,
 			rewardPrice: rewardPrice,
 			totalQuantity: totalQuantity,
+			imageUrl: imageUrl,
 			expiryDate: admin.firestore.Timestamp.fromDate(formatDatetime),
 		};
 
@@ -97,7 +98,7 @@ router.put("/:id", async (req, res) => {
 		const db = admin.firestore();
 
 		// Update body for Reward System
-		const { description, rewardPrice, expiryDatetime, totalQuantity } = req.body;
+		const { description, rewardPrice, expiryDatetime, totalQuantity, imageUrl } = req.body;
 
 		// Declare reference to reward system
 		const rewardSystemRef = db.collection("system_rewards").doc(req.params.id);
@@ -110,6 +111,7 @@ router.put("/:id", async (req, res) => {
 			description: description,
 			rewardPrice: rewardPrice,
 			totalQuantity: totalQuantity,
+			imageUrl: imageUrl,
 			expiryDatetime: admin.firestore.Timestamp.fromDate(formatDatetime),
 		};
 
