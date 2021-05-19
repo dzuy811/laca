@@ -4,8 +4,7 @@ import {
 	View,
 	Text,
 	TouchableOpacity,
-	Image,
-	TouchableHighlightBase,
+	Image
 } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 

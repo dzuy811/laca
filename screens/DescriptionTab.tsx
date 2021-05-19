@@ -34,12 +34,12 @@ type typeImageData = {
 };
 
 type descriptionType = { 
-	id: string; 
-	uid: string;
-	name: string; 
-	avatar: string; 
-	content: string; 
-	timeCreated: string; 
+	id: string,
+	uid: string,
+	name: string, 
+	avatar: string, 
+	content: string, 
+	timeCreated: string, 
 	rating: number,
 	likeCount: number,
 	replyCount: number,
@@ -49,38 +49,12 @@ type descriptionType = {
 type dataDescription = {
 	item: descriptionType,
 	index?: number
-	item: descriptionType;
-	index?: number;
 };
 
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : infoUser
 };
-
-// Mock data for Gallery Pictures
-const Data = [
-	{
-		id: "01",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "02",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "03",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "04",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "05",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-];
 
 type comment = {
 	id: string,
@@ -93,8 +67,6 @@ type comment = {
 	rating : number,
 	replyCount: number
 };
-
-
 
 type infoUser = {
 	id: string,
@@ -110,7 +82,6 @@ type infoUser = {
 
 type listData = descriptionType[];
 
-
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id, galleryImage } = route.params;
@@ -121,7 +92,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const [newText, setNewText] = useState<string>("");
 	const [updatePost, setUpdatePost] = useState<boolean>(false);
 
-
 	let userContent = "";
 
 	// fetch list of reviews 
@@ -130,8 +100,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		.then((response) => response.json())
 		.then((json) => {
             setData(json)
-
-            console.log(json)
 			getUser().then(data => setUserID(data))
         })
 		.catch((err) => console.error(err))
@@ -148,13 +116,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			attractionID: id
 		}
 		console.log(body); 
-  
-	async function takeJourney() {
-		let body = {
-		userID: await getData('id'),
-		attractionID: id
-		}
-		console.log(body);
 
 		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
 		.then(res => {
@@ -211,37 +172,11 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const ReviewSection = ({ item, index }: dataDescription) => (
 		<View style={{ marginBottom: 10}}>
 			{/* Avatar + Name + Rating star + Timestamp */}
-	data.forEach((review) => {
-		let data = {} as descriptionType;
-
-		// Format the timestamp from date to string
-		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
-
-		data.id = dataPoint.toString();
-		data.content = review.comment.content;
-		data.avatar = review.userInfo.urlAvatar;
-		data.name = review.userInfo.name;
-		data.timeCreated = formattedDate;
-		data.rating = review.comment.rating;
-		data.likeCount = review.comment.likeCount;
-		data.replyCount = review.comment.replyCount;
-		data.uid = review.userInfo.id;
-
-		// Take the content of the current user
-		if(data.uid == userID) userContent = data.content;
-
-		dataCombination.push(data);
-	})
-
-	const ReviewSection = ({ item }: dataDescription) => (
-		<View style={{ marginBottom: 10}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
 						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
-
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
@@ -352,69 +287,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 				</>
 			)}
 		</View>
-	)
-
-	// Render list of descriptions for Flat List
-	const renderDescription = ({ item, index }: dataDescription) => (
-		<View key={index} style={{ marginBottom: 30}}>
-			{userID == item.uid ? (
-				<>		
-					<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
-						
-						<ReviewSection item={item} />
-					</TouchableOpacity>
-					{/* Reply section */}
-					<View style={{ marginLeft: "25%"}}>
-						{item.replyCount == 0 ? // if there is not any reply
-						(
-							<View>
-							</View>
-						) : (
-							<View style={{}}>
-									<TouchableOpacity onPress={() => 
-										// console.log(navigation),
-										
-										navigation.navigate("ReviewScreen", {
-											id : item.id,
-											content:item.content,
-											rating:item.rating,
-											urlAvatar:item.avatar,
-											timestamp:item.timeCreated,
-											username : item.name,
-											likeCount : item.likeCount
-										}
-										// console.log(item.id),
-
-										// console.log("Reply")
-
-										)
-									}>
-										<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-									</TouchableOpacity>
-							</View>
-						)}
-					</View>
-				</>
-			) : (
-				<>
-					<ReviewSection item={item} />
-					{/* Reply section */}
-					<View style={{ marginTop: 10, marginLeft: "25%"}}>
-						{item.replyCount == 0 ? // if there is not any reply
-						(
-							<View>
-							</View>
-						) : (
-							<View style={{}}>
-									<TouchableOpacity onPress={() => console.log("Reply")}>
-										<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-									</TouchableOpacity>
-							</View>
-						)}
-					</View>
-				</>
-			)} 
-		</View>
 	);
 
 	// Render list of images for Flat List
@@ -499,7 +371,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							</View>
 						</Animated.ScrollView>
 					</View>
-					
 				</View>
 
 				{/* Journey Starting Button */}
@@ -550,11 +421,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									dataCombination.splice(getCurrentUserIndex(), 1);
 									setVisible1(false);
 								}}>
-									}}>
-									<Text style={styles.textOverlap}>Edit</Text>
-								</TouchableOpacity>
-								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
-								<TouchableOpacity style={{padding: 5}} onPress={() => console.log("Delete")}>
 									<Text style={styles.textOverlap}>Delete</Text>
 								</TouchableOpacity>
 							</View>
@@ -595,14 +461,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									setUpdatePost(true);
 									setVisible2(false);
 								}}
-								style={{height: 50, textAlign: "auto"}}
-								placeholder="Type here!"
-								onChangeText={text => setText(text)}
-								defaultValue={userContent}
-							/>
-							<Pressable 
-								style={styles.submitButton}
-								onPress={() => alert("hello world")}
 							>
 								<Text style={{color: "#E2D0A2"}}>Submit</Text>
 							</Pressable>
