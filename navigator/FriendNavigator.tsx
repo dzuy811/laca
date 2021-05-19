@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import FriendScreen from '../screens/FriendScreen'
 import {RootStackParamList} from './FriendStackParams'
 import OtherProfileScreen from '../screens/OtherProfileScreen';
+import FriendProfile from '../screens/FriendProfile';
 
 const FriendStack = createStackNavigator<RootStackParamList>();
 
@@ -20,6 +21,10 @@ const FriendNavigator = () => {
             <FriendStack.Screen
             name="User Profile"
             component={OtherProfileScreen}
+            />
+            <FriendStack.Screen
+            name="Friend Profile"
+            component={FriendProfile}
             />
         </FriendStack.Navigator>
     )

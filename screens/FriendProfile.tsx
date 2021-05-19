@@ -58,7 +58,7 @@ function FriendProfile({ route, navigation }) {
                     onBackdropPress={() => toggleOverlay()}
                     overlayStyle={styles.overlay}
                     >
-                        <Text style={{fontSize: 16}}>Are you sure you want to revmove {data.otherUser.name} as your friend?</Text>
+                        <Text style={{fontSize: 16}}>Are you sure you want to revmove {data.name} as your friend?</Text>
                         <View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
                             <TouchableOpacity onPress={() => toggleOverlay()}>
                                 <Text style={styles.cancelButton}>CANCEL</Text>
@@ -75,7 +75,7 @@ function FriendProfile({ route, navigation }) {
 
             {/* Image */}
             <View style={styles.container}>
-                <Image style={styles.image} source={{ uri: data.otherUser.urlAvatar }} resizeMode={"cover"} />
+                <Image style={styles.image} source={{ uri: data.urlAvatar }} resizeMode={"cover"} />
             </View>
 
             {/* Form */}
@@ -89,7 +89,7 @@ function FriendProfile({ route, navigation }) {
                         Phone number
                     </Text>
                     <Text>
-                        {data.otherUser.phoneNumber}
+                        {data.phoneNumber}
                     </Text>
                 </View>
                 <View style={styles.dataContainer}>
@@ -101,7 +101,7 @@ function FriendProfile({ route, navigation }) {
                         Name
                     </Text>
                     <Text>
-                        {data.otherUser.name}
+                        {data.name}
                     </Text>
                 </View>
                 <View style={styles.dataContainer}>
@@ -115,10 +115,38 @@ function FriendProfile({ route, navigation }) {
                         Gender
 					</Text>
                     <Text>
-                        {data.otherUser.gender}
+                        {data.gender}
                     </Text>
                 </View>
 
+                <View style={styles.dataContainer}>
+                    <Text
+                        style={{
+                            height: 26,
+                            fontSize: 14,
+                            color: "#BDBDBD",
+                        }}
+                    >
+                        Province
+					</Text>
+                    <Text>
+                        {data.address[0]}
+                    </Text>
+                </View>
+                <View style={styles.dataContainer}>
+                    <Text
+                        style={{
+                            height: 26,
+                            fontSize: 14,
+                            color: "#BDBDBD",
+                        }}
+                    >
+                        District
+					</Text>
+                    <Text>
+                        {data.address[1]}
+                    </Text>
+                </View>
             </View>
 
         </View>

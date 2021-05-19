@@ -13,6 +13,7 @@ import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'
+import firebase from "firebase";
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -32,19 +33,20 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [destinationStr, setDestinationStr] = useState<string>("");
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
+	const { latitude, longitude, journeyID, attractionID, reward} = route.params
 
 
 	//Background task defined
-	const GET_USER_LOCATION = 'GET_USER_LOCATION'
-	TaskManager.defineTask(GET_USER_LOCATION, async () => {
-		const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
-		console.log("wtfL ", a);
+	// const GET_USER_LOCATION = 'GET_USER_LOCATION'
+	// TaskManager.defineTask(GET_USER_LOCATION, async () => {
+	// 	const a =  await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High});	
+	// 	console.log("wtfL ", a);
 		
-		  return a
-		  ? BackgroundFetch.Result.NewData
-		  : BackgroundFetch.Result.NoData
+	// 	  return a
+	// 	  ? BackgroundFetch.Result.NewData
+	// 	  : BackgroundFetch.Result.NoData
 		
-	})
+	// })
 
 
 	// Fetch and Set the state of destination's geolocation
@@ -83,7 +85,10 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
         //     });}
 		// }
 		// initBackgroundFetch()
-		setDestinationStr(Object.values(route.params!).join(","));
+		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
+		setDestinationStr(`${latitude},${longitude}`)
+		console.log(destinationStr);
+		
 		// BackgroundFetch.unregisterTaskAsync(GET_USER_LOCATION)
 	}, []);
 	
@@ -103,6 +108,13 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		let location = await Location.getCurrentPositionAsync({});
 		setUserLocation(location);
 	};
+
+
+	// Update user current position on change
+	// await Location.watchPositionAsync({}, getUserLocation).remove();
+
+
+	// Location.watchPositionAsync({}, 
 
 	// Fetch User Location
 	useEffect(() => {
@@ -150,9 +162,11 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 				parseFloat(destinationStr.split(",")[1])
 			);
 			// if the user is within the radius of 100meters -> user has arrived!
-			if (dist <= 0.1) {
+			if (dist <= 0.05) {
 				setIsArrived(true);
-				navigation.navigate("Camera screen");
+				console.log("journey:", journeyID);
+				
+				navigation.navigate("Camera screen", {journeyID: journeyID, attractionID: attractionID, reward: reward});
 				return;
 			}
 			setIsArrived(false);

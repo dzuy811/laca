@@ -4,17 +4,13 @@ import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
 import MainNav from "./navigation/mainNav";
-
+import VoucherShop from "./screens/VoucherShop";
 import HomeScreen from "./screens/HomeScreen";
 import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import AttractionList from "./components/AttractionList";
-import AttractionCard from "./components/AttractionCard";
-import { NavigationContainer } from "@react-navigation/native";
-import UserProfile from "./screens/UserProfile";
-import ReviewScreen from "./screens/ReviewScreen";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -29,9 +25,14 @@ export default function App() {
 
 	return (
 		<SafeAreaProvider>
-			<StatusBar />
+			<StatusBar
+			style="light"
+			backgroundColor="#4B8FD2"
+			/>
 			{/* <MainNav /> */}
-			<ReviewScreen/>
+			{/* <ReviewScreen/> */}
+			<MainNav />
+			{/* <VoucherShop /> */}
 
 		</SafeAreaProvider>
 	);
