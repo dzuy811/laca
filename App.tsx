@@ -31,9 +31,8 @@ export default function App() {
 	return (
 		<SafeAreaProvider>
 			<StatusBar />
-			{/* <MainNav /> */}
-			{/* <ReviewScreen/> */}
-			<PostComment/>
+			<MainNav />
+
 		</SafeAreaProvider>
 	);
 }

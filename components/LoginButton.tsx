@@ -9,12 +9,6 @@ interface Props {
 	onPress: () => void;
 }
 
-function changeColor(title: string) {
-	if (title == "LOGIN") {
-		return { pressed: true, backgroundColor: "red", backgroundColor2: "black" };
-	}
-}
-
 const LoginButton: FC<Props> = (props) => {
 	const styles = StyleSheet.create({
 		containerSignUp: {
