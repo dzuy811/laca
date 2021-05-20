@@ -2,7 +2,8 @@ import axios from 'axios';
 import firebase from 'firebase';
 import React, { useEffect, useState } from 'react'
 import { Text, View, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getData } from '../constants/utility';
 
@@ -12,13 +13,13 @@ const RankingHeader = () => {
         <View>
             <View style={{ flexDirection: 'row' }}>
                 <View style={{ width: '20%' }}>
-                    <Text>Rank</Text>
+                    <Text style={styles.textHeading}>Rank</Text>
                 </View>
                 <View style={{ width: '60%' }}>
-                    <Text>Name</Text>
+                    <Text style={styles.textHeading}>Name</Text>
                 </View>
                 <View style={{ width: '20%' }}>
-                    <Text>Journey</Text>
+                    <Text style={styles.textHeading}>Journey</Text>
                 </View>
             </View>
         </View>
@@ -27,11 +28,12 @@ const RankingHeader = () => {
 
 const FriendRanking = () => {
 
+    const navigation = useNavigation();
     const [leaderboard, setLeaderboard] = useState([])
 
     useEffect(() => {
         const userID = firebase.auth().currentUser?.uid
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
+        const url = process.env.API_BACKEND + `/users/${userID}/friendships/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -43,30 +45,77 @@ const FriendRanking = () => {
 
     return (
         <View>
-            <RankingHeader />
             {leaderboard ?
                 <View>
                     {leaderboard.map((user, index) =>
-                        <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <View style={{ width: '20%' }}>
-                                <Text>{index + 1}</Text>
+                               <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
+                               <View style={styles.rankingNumberBox}>
+                                   {index == 0 ?
+                                       <Image
+                                           source={require('../assets/gold-medal.png')}
+                                           style={styles.logo}
+                                       />
+                                       :
+                                       <>
+                                           {index == 1 ?
+                                               <Image
+                                                   source={require('../assets/silver-medal.png')}
+                                                   style={styles.logo}
+                                               />
+                                               :
+                                               <>
+                                                   {index == 2 ?
+                                                       <Image
+                                                           source={require('../assets/bronze-medal.png')}
+                                                           style={styles.logo}
+                                                       />
+                                                       :
+                                                       <Text style={styles.rankingNumberText}>{index + 1}</Text>
+       
+                                                   }
+                                               </>
+                                           }
+                                       </>
+                                   }
+                               </View>
+                            {user.id == firebase.auth().currentUser?.uid?
+                            <View style={styles.rankingNameBox}>
+                            <View>
+                                <Image
+                                    source={{ uri: user.urlAvatar }}
+                                    style={styles.logo}
+                                />
                             </View>
-
-                            <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
+                            <View style={{ marginLeft: 10 }}>
+                                <Text style={styles.userName}>{user.name}</Text>
+                            </View>
+                        </View>
+                        : 
+                        <TouchableOpacity
+                        onPress={() => navigation.navigate('Friend Profile', {data: user})}
+                        >
+                            <View style={styles.rankingNameBox}>
                                 <View>
                                     <Image
                                         source={{ uri: user.urlAvatar }}
                                         style={styles.logo}
                                     />
                                 </View>
-                                <View>
-                                    <Text>{user.name}</Text>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
                                 </View>
                             </View>
-                            <View style={{ width: '20%' }}>
-                                <Text>{user.journeyCount}</Text>
-                            </View>
-                        </View>
+                        </TouchableOpacity>
+                            
+                            }
+                              
+                               <View style={styles.rankingJourneyBox}>
+                                   <Image
+                                       source={require('../assets/sneakers.png')}
+                                   />
+                                   <Text>{user.journeyCount}</Text>
+                               </View>
+                           </View>
                     )}
                 </View>
                 :
@@ -81,9 +130,27 @@ const FriendRanking = () => {
 const GlobalRanking = () => {
 
     const [leaderboard, setLeaderboard] = useState([])
+    const navigation = useNavigation();
+
+    function checkFriend(id: string, userData: any) {
+        const userID = firebase.auth().currentUser?.uid
+        if (id == userID) {
+            return null;
+        }
+        let friendshipURL = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendships/get?userID=${userID}&otherUserID=${id}`
+        fetch(friendshipURL)
+        .then(message => message.json())
+        .then(data => {
+            if (data.id == undefined) {
+                navigation.navigate('User Profile', {data: userData}) 
+            } else {
+                navigation.navigate('Friend Profile', {data: userData})
+            }
+        })
+    }
 
     useEffect(() => {
-        const url = `http://localhost:5000/laca-59b8c/asia-east2/api/users/details/leaderboard`
+        const url = process.env.API_BACKEND + `/users/details/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -95,26 +162,74 @@ const GlobalRanking = () => {
 
     return (
         <View>
-            <RankingHeader />
-            {leaderboard.map((user) => {
+            {/* <RankingHeader /> */}
+            {leaderboard.map((user, index) => {
+                
                 return (
-                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ width: '20%' }}>
-                            <Text>{user.rank}</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
-                            <View>
+                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
+                        <View style={styles.rankingNumberBox}>
+                            {index == 0 ?
                                 <Image
-                                    source={{ uri: user.urlAvatar }}
+                                    source={require('../assets/gold-medal.png')}
                                     style={styles.logo}
                                 />
-                            </View>
-                            <View>
-                                <Text>{user.name}</Text>
-                            </View>
+                                :
+                                <>
+                                    {index == 1 ?
+                                        <Image
+                                            source={require('../assets/silver-medal.png')}
+                                            style={styles.logo}
+                                        />
+                                        :
+                                        <>
+                                            {index == 2 ?
+                                                <Image
+                                                    source={require('../assets/bronze-medal.png')}
+                                                    style={styles.logo}
+                                                />
+                                                :
+                                                <Text style={styles.rankingNumberText}>{index + 1}</Text>
+
+                                            }
+                                        </>
+                                    }
+                                </>
+                            }
                         </View>
-                        <View style={{ width: '20%' }}>
+                    {user.id == firebase.auth().currentUser.uid?
+                            <View style={styles.rankingNameBox}>
+                                <View>
+                                    <Image
+                                        source={{ uri: user.urlAvatar }}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
+                                </View>
+                            </View>
+                        :
+                        <TouchableOpacity
+                        onPress={() => checkFriend(user.id, user)}
+                        >
+                            <View style={styles.rankingNameBox}>
+                                <View>
+                                    <Image
+                                        source={{ uri: user.urlAvatar }}
+                                        style={styles.logo}
+                                    />
+                                </View>
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={styles.userName}>{user.name}</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    }
+                        
+                        <View style={styles.rankingJourneyBox}>
+                            <Image
+                                source={require('../assets/sneakers.png')}
+                            />
                             <Text>{user.journeyCount}</Text>
                         </View>
                     </View>
@@ -174,10 +289,41 @@ const RankingScreen = () => {
 
 const styles = StyleSheet.create({
     logo: {
-        width: 30,
-        height: 30,
+        width: 40,
+        height: 40,
         borderRadius: 50
     },
+    textHeading: {
+        fontWeight: '700'
+    },
+
+    rankingNumberBox: {
+        height: '70%',
+        width: '15%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    rankingNumberText: {
+        color: 'black',
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    rankingNameBox: {
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '85%',
+    },
+    rankingJourneyBox: { 
+        alignItems: 'center',
+        width: '10%',
+        position: 'absolute',
+        right: 0
+    },
+    userName: {
+        fontWeight: '600',
+        fontSize: 16
+    }
 })
 
 export default RankingScreen

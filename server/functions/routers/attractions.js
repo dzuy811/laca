@@ -38,6 +38,7 @@ router.post("/", (req, res) => {
 			req.body.geoPoint["longitude"]
 		),
 		createdAt: admin.firestore.Timestamp.fromDate(new Date()),
+		images: req.body.images
 	};
 
 	admin

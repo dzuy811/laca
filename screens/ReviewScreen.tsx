@@ -1,9 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
 import { Rating } from 'react-native-elements';
+import { AntDesign } from "@expo/vector-icons";
 import moment from 'moment';
 
+
+type props = {
+	navigation: any,
+	route : {
+		params:{
+		id : string,
+		content: string,
+		rating: number,
+		urlAvatar:string,
+		timeStamp: string,
+		username : string,
+		likeCount: number,
+		}
+
+
+	}
+}
 
 type typeImageData = { id: string; source: string };
 
@@ -12,10 +30,18 @@ type IItem = {
 	index: number;
 };
 
-type DescriptionType = { id: string; name: string; avatar: string; content: string ; timeCreated: string;
-	rating : number; };
+type descriptionType = { 
+	id: string; 
+	name: string; 
+	avatar: string; 
+	content: string; 
+	timeCreated: string; 
+	rating: number,
+	likeCount: number,
+	replyCount: number
+};
 type dataDescrip = {
-	item: DescriptionType;
+	item: descriptionType;
 };
 
 type comment = {
@@ -41,32 +67,13 @@ type InforUser = {
 	urlAvatar : string
 }
 
-
-type ListData = DescriptionType[]
-
+type ListData = descriptionType[]
 
 interface uniqueReviews  {
 	comment: comment,
 	userInfo : InforUser
 
 }
-
-
-
-
-
-type Props = {
-	route: {
-		params: {
-			latitude: number;
-			longitude: number;
-			description: string;
-			name: string;
-			id : string;
-		};
-	};
-	navigation: any;
-};
 
 const Data = [
 	{
@@ -94,12 +101,15 @@ const Data = [
 const PassedData = {
 	name : "Dat",
 	content : "i enjoyed the trip so much",
+	timeCreated: "18:20 12-3-2020",
 	avatar : "https://media.vneconomy.vn/w900/images/upload/2021/04/20/8-crop-15385326887281768852049.jpg",
-	rating : 4
+	rating : 4,
+	likeCount: 3
 
 
 }
 
+// const ReviewScreen = ({navigation,route} : props) =>{
 const ReviewScreen = () =>{
 	const offset = useRef(new Animated.Value(0)).current;
 	const description = "aaaaaaaaaa";
@@ -108,8 +118,13 @@ const ReviewScreen = () =>{
 	};
 
 	const [data, setData] = useState<uniqueReviews[]>([]);
-	let id = "WVqYqkOT5OLDLChK6jsG"
+	let id = "JmTVF0qul9fTptyQjzNQ"
 
+	// const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params
+
+
+
+	// let name = `Review of ${username}`
 	// fetch list of reviews 
 	useEffect(() => {
 		console.log("effect called")
@@ -127,7 +142,7 @@ const ReviewScreen = () =>{
 	let dataCombine = [] as ListData
 
 	data.forEach((review) => {
-		let ThisData = {} as DescriptionType  
+		let ThisData = {} as descriptionType  
 		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
 		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
 		ThisData.id = dataPoint.toString()
@@ -139,15 +154,22 @@ const ReviewScreen = () =>{
 		ThisData.rating = review.comment.rating
 		dataCombine.push(ThisData)
 	})
+	dataCombine.forEach((datapoint) => {
+		console.log("=============================================\n\n\n")
+		console.log("hahaa")
+		console.log(datapoint.avatar)
+	})
 
 
 
 	const renderDescription = ({ item }: dataDescrip) => (
-		<View>
+
+		<View style={{ marginBottom: 30}}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				{/* <Text style={styles.profileName}>{item.name}</Text> */}
-				<View style={{width: '73%'}}>
+				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
+					<View style={{width: '73%'}}>
+
 						<Text style={styles.profileName}>{item.name}</Text>
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
@@ -159,9 +181,34 @@ const ReviewScreen = () =>{
 							style={styles.rating} 
 						/>
 					</View>
+				</View>
+
 			</View>
-			<View style={styles.DescriptionBox}>
-				<Text style={{ fontSize: 12 }}>{item.content}</Text>
+			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
+				<View style={{width: '10%',  marginRight: "2%"}}>
+					<TouchableOpacity onPress={() => console.log("The up vote test")}>
+						<AntDesign name="up" size={30} color={item.likeCount != 0 ? "green" : "black"} />
+					</TouchableOpacity>
+					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{item.likeCount}</Text>
+				</View>
+				<View style={{ width: '80%'}}>
+					<Text style={{ fontSize: 15 }}>{item.content}</Text>
+				</View>
+				
+				{/* Reply section */}
+				<View style={{ paddingLeft: "10%" }}>
+					{item.replyCount == 0 ? // if there is not any reply
+					(
+						<View>
+						</View>
+					) : (
+						<View>
+								<TouchableOpacity onPress={() => console.log("Reply")}>
+									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
+								</TouchableOpacity>
+						</View>
+					)}
+				</View>
 			</View>
 		</View>
 	);
@@ -170,9 +217,15 @@ const ReviewScreen = () =>{
 	
     return (<>
         <View style={{ flex: 1 }} >
-		{/* <AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} /> */}
+		<View style={{
+			flex:0.23,
+			backgroundColor:"#4B8FD2",
+			borderBottomRightRadius:18,
+			borderBottomLeftRadius:18
+		}}>
+
+		</View>
 		<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
-			{/* <AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} /> */}
 			<Animated.ScrollView
 			style={{ backgroundColor: "white" }}
 			showsVerticalScrollIndicator={false}
@@ -182,15 +235,18 @@ const ReviewScreen = () =>{
 				useNativeDriver: false,
 			})}
 			>
+					{/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route */}
 
-			<Text style={styles.DescriptionTitle}>Review</Text>
-			{/* <Text style = {styles.DescriptionBox}> {description}</Text> */}
+
+			<Text style={styles.descriptionTitle}>Review</Text>
+			<View style={{paddingBottom : 20 }}>
 			<View style={{ flexDirection: "row" }}>
 				<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
-				{/* <Text style={styles.profileName}>{PassedData.name}</Text> */}
-				<View style={{width: '73%'}}>
+				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
+					<View style={{width: '73%'}}>
+
 						<Text style={styles.profileName}>{PassedData.name}</Text>
-						{/* <Text style={styles.timeStamp}>{item.timeCreated}</Text> */}
+						<Text style={styles.timeStamp}>{PassedData.timeCreated}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
 						<Rating 
@@ -200,6 +256,22 @@ const ReviewScreen = () =>{
 							style={styles.rating} 
 						/>
 					</View>
+				</View>	
+			</View>
+			
+
+
+			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
+				<View style={{width: '10%',  marginRight: "2%"}}>
+					<TouchableOpacity onPress={() => console.log("The up vote test")}>
+						<AntDesign name="up" size={30} color={PassedData.likeCount != 0 ? "green" : "black"} />
+					</TouchableOpacity>
+					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{PassedData.likeCount}</Text>
+				</View>
+				<View style={{ width: '80%'}}>
+					<Text style={{ fontSize: 15 }}>{PassedData.content}</Text>
+				</View>
+				</View>
 			</View>
 			<View style={{ marginLeft: "10%" }}>
 				<FlatList
@@ -211,8 +283,8 @@ const ReviewScreen = () =>{
 					style={styles.flatList}
 				/>
 			</View>
-			<Text style={styles.DescriptionTitle}>reply</Text>
-			<View style={{ paddingBottom: 100 }}>
+			<Text style={styles.descriptionTitle}>reply</Text>
+			<View style={{ paddingBottom: 0 }}>
 				
 				<FlatList
 					data={dataCombine}
@@ -220,12 +292,14 @@ const ReviewScreen = () =>{
 					keyExtractor={(item) => item.id}
 				></FlatList>
 			</View>
-
-			
-
-
-
-			
+			<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
+			<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
+			<TouchableOpacity style={styles.containerButton}>
+				<Text style = {styles.buttonText}>type your comment here</Text>
+				
+			</TouchableOpacity>
+				
+			</View>
 			</Animated.ScrollView>
 
 		</View>
@@ -239,7 +313,6 @@ const ReviewScreen = () =>{
 
 const styles = StyleSheet.create({
 	header: {
-		/* aero/dark */
 		position: "relative",
 		height: 200,
 		top: 0,
@@ -249,6 +322,20 @@ const styles = StyleSheet.create({
 		backgroundColor: "#4B8FD2",
 		borderBottomRightRadius: 30,
 		borderBottomLeftRadius: 30,
+	},
+	descriptionTitle: {
+		marginTop: "4%",
+		fontSize: 25,
+		marginLeft: "10%",
+		color: "rgb(211,184,115)",
+		paddingBottom: "2%",
+	},
+	descriptionBox: {
+		paddingBottom: "5%",
+		paddingRight: "10%",
+		paddingLeft: "10%",
+		fontSize: 14,
+		textAlign: "left",
 	},
 	nameLocation: {
 		textAlign: "center",
@@ -275,21 +362,6 @@ const styles = StyleSheet.create({
 		marginLeft: 120,
 		marginTop: "3%",
 	},
-
-	DescriptionTitle: {
-		marginTop: "4%",
-		fontSize: 25,
-		marginLeft: "10%",
-		color: "rgb(211,184,115)",
-		paddingBottom: "2%",
-	},
-	DescriptionBox: {
-		paddingBottom: "5%",
-		paddingRight: "10%",
-		paddingLeft: "10%",
-		fontSize: 14,
-		textAlign: "left",
-	},
 	imageStyle: {
 		marginRight: 30,
 		height: 220,
@@ -305,17 +377,16 @@ const styles = StyleSheet.create({
 	},
 
 	profileImage: {
-		marginLeft: "8%",
+		marginLeft: 30,
 		height: 40,
 		width: 40,
 		borderRadius: 40,
 		overflow: "hidden",
 	},
 	profileName: {
-		fontSize: 14,
+		fontSize: 16,
 		fontWeight: "400",
-		paddingLeft: "2%",
-		paddingTop: 10,
+		marginLeft: 5
 	},
 	timeStamp: {
 		fontSize: 12,
@@ -325,6 +396,37 @@ const styles = StyleSheet.create({
 	rating: {
 		paddingVertical: 10,
 		justifyContent: 'flex-end'
+	},
+	containerButton : {
+		width: 250,
+		backgroundColor : "#E7E7E7",
+		marginLeft:"5%",
+		borderRadius: 12
+	},
+	centeredView: {
+        flex: 1,
+        justifyContent: "center", 
+		position: 'absolute',
+		bottom: 0,
+        marginTop: 22,
+    },
+	overlay: {
+        paddingVertical: 15,
+		position: 'absolute',
+        paddingHorizontal: 20,
+        width: '86%'
+    },
+	textOverlap: {
+		position: 'relative',
+		fontSize: 20,
+		textAlign: 'center',
+		color: "#828282"
+	},
+	buttonText: {
+		margin:11,
+		position:"relative",
+		alignContent:"center"
+		
 	}
 
 })

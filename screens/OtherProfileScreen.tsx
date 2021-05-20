@@ -23,7 +23,7 @@ function OtherProfileScreen({ route, navigation }) {
     const requestID = route.params.requestID
 
     function acceptRequest(requestID: string) {
-        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/accept`
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/accept`
         let body = {
             friendRequestID: requestID
         }
@@ -40,7 +40,7 @@ function OtherProfileScreen({ route, navigation }) {
     }
 
     function removeRequest(requestID: string) {
-        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/${requestID}/remove`
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/${requestID}/remove`
         axios.delete(url)
             .then(res => {
                 navigation.goBack()
@@ -54,7 +54,7 @@ function OtherProfileScreen({ route, navigation }) {
 
     function checkUserRelationship(data: {}) {
         let user = firebase.auth().currentUser
-        let url = `http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/get?userID=${data.id}&otherUserID=${user?.uid}`
+        let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendrequests/get?userID=${data.id}&otherUserID=${user?.uid}`
         console.log(url);
         axios.get(url)
             .then(res => {
@@ -67,16 +67,16 @@ function OtherProfileScreen({ route, navigation }) {
                     console.log('send user is not the requested')
                     setIsRequestSentByCurrentUser(false)
                 }
-                console.log("dasdasds")
             })
             .catch(err => {
+                console.log(err);                
                 setIsRequested(false)
             })
     }
 
     function sendRequest() {
         let user = firebase.auth().currentUser
-        let url = 'http://localhost:5000/laca-59b8c/asia-east2/api/friendrequests/send'
+        let url = 'https://asia-east2-laca-59b8c.cloudfunctions.net/api/laca-59b8c/asia-east2/api/friendrequests/send'
         let body = {
             sendUserID: user?.uid,
             receiveUserID: data.id

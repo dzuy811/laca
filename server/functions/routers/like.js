@@ -17,6 +17,9 @@ router.post("/", (req, res) => {
 		.collection("like")
 		.add(newLike)
 		.then((doc) => {
+			newLike.rid.update({
+				likeCount: admin.firestore.FieldValue.increment(1)
+			})
 			res.json({
 				message: `document ${doc.id} created successfully`,
 			});
@@ -27,6 +30,7 @@ router.post("/", (req, res) => {
 			});
 			console.error(err);
 		});
+	
 });
 
 // tested
@@ -80,10 +84,16 @@ router.get("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
 	try {
 		const LikeRef = admin.firestore().collection("like").doc(req.params.id);
+		const revRef =(await LikeRef.get()).data().rid;
 		LikeRef.get().then((snap) => {
 			if (snap.exists) {
+				
 				LikeRef.delete().then(() => {
+					revRef.update({
+						likeCount : admin.firestore.FieldValue.increment(-1)
+					})
 					res.json({
+						
 						message: `document ${req.params.id} deleted`,
 					});
 				});

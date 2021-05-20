@@ -1,19 +1,16 @@
 import React, { FC, useState, useEffect } from "react";
 import { getFocusedRouteNameFromRoute, NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./authstack";
-import { Image, StyleSheet, Platform } from "react-native";
+import { Image, StyleSheet, Platform, Alert } from "react-native";
 import { storeData, getData } from "../constants/utility";
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 
 import firebase from "firebase";
 
-import AttractionNavigator from '../navigator/AttractionNavigator'
-import ProfileNavigator from '../navigator/ProfileNavigator'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import RankingScreen from '../screens/RankingScreen'
-import FriendScreen from '../screens/FriendScreen'
-import FriendNavigator from '../navigator/FriendNavigator';
+
+import InitialNavigator from './InitialNavigator'
 
 // Function to hide tab bar for some screen
 // docs: https://reactnavigation.org/docs/screen-options-resolution/
@@ -71,6 +68,7 @@ const MainNav: FC = () => {
 							storeData("gender", data.gender);
 							storeData("phone_number", data.phoneNumber);
 							storeData("url_avatar", data.urlAvatar);
+							storeData("total_reward", JSON.stringify(data.totalReward))
 						}
 					})
 					.catch((error) => {
@@ -125,6 +123,7 @@ const MainNav: FC = () => {
       
         return token;
     }
+
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => {
 
@@ -134,67 +133,7 @@ const MainNav: FC = () => {
     return (
         <NavigationContainer>
             {user != null ?
-                <Tab.Navigator
-                    screenOptions={({ route }) => ({
-                        tabBarIcon: ({ focused, color, size }) => {
-                            let iconName;
-                            let styleIcon;
-                            if (route.name === 'La Cà') {
-                                iconName = require('../assets/sneaker.png')
-                            }
-                            else if (route.name === 'Shop') {
-                                iconName = require('../assets/store.png')
-                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
-                            }
-                            else if (route.name === 'Ranking') {
-                                iconName = require('../assets/bar-chart.png')
-                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
-                            }
-                            else if (route.name === 'Profile') {
-                                iconName = require('../assets/user.png')
-                                styleIcon = focused ? styles.focusIcon : styles.unFocusIcon
-                            }
-
-                            // You can return any component that you like here!
-                            return <Image
-                                source={iconName}
-                                style={[styles.tabBarIcon, focused ? styles.focusIcon : styles.unFocusIcon]}
-                            />;
-                        },
-                    })}
-                    tabBarOptions={{
-                        activeTintColor: '#DFEBF7',
-                        inactiveTintColor: '#8DBAE2',
-                        style: {
-                            backgroundColor: '#4B8FD2'
-                        },
-                        keyboardHidesTabBar: true
-                    }}
-
-                >
-                    <Tab.Screen
-                        name="La Cà"
-                        component={AttractionNavigator}
-                        options={({ route }) => ({
-                            tabBarVisible: getTabBarVisibility(route)
-                        })}
-                    />
-                    <Tab.Screen
-                        name="Shop"
-                        component={FriendNavigator}
-                    />
-                    <Tab.Screen
-                        name="Ranking"
-                        component={RankingScreen}
-                    />
-                    <Tab.Screen
-                        name="Profile"
-                        component={ProfileNavigator}
-                        options={({ route }) => ({
-                            tabBarVisible: getTabBarVisibility(route)
-                        })}
-                    />
-                </Tab.Navigator>
+                <InitialNavigator loading={true}/>
 			 : (
 				<AuthStack />
 			)}
