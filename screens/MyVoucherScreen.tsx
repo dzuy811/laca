@@ -35,7 +35,7 @@ type dataVoucher = {
 
 
 
-const ViewVoucher = (props) => {
+const ViewVoucher = (props:any) => {
     // console.log(props);
     
     return (
