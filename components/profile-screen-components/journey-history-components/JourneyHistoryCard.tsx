@@ -31,16 +31,18 @@ const JourneyHistoryCard = ({ data }: JourneyCardProps) => {
 				<Text style={style.journeyDate}>{formatDateString(timestamp)}</Text>
 			</View>
 			<View style={{ marginTop: 3 }}>
-				<Text style={{ fontSize: 18 }}>{attraction.name}</Text>
+				<Text style={{ fontSize: 18 }}>
+					{attraction.name ? attraction.name : "Unknown Location"}
+				</Text>
 			</View>
 			<View style={[{ marginTop: 10, flexDirection: "row", flexWrap: "wrap" }]}>
 				<Text style={style.addressText}>69 Đồng Khởi</Text>
 			</View>
-			<View style={[{ marginTop: 14, flexDirection: "row", alignItems: 'center' }]}>
-				<Image 
-				source={require("../../../assets/dollar.png")}
-				/>
-				<Text style={{ marginLeft: 4, fontSize: 14, color: "#E2D0A2" }}>{attraction.reward}</Text>
+			<View style={[{ marginTop: 14, flexDirection: "row", alignItems: "center" }]}>
+				<Image source={require("../../../assets/dollar.png")} />
+				<Text style={{ marginLeft: 4, fontSize: 14, color: "#E2D0A2" }}>
+					{attraction.reward ? attraction.reward : 0}
+				</Text>
 			</View>
 		</View>
 	);

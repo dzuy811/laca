@@ -7,6 +7,7 @@ import {
 	TouchableOpacity,
 	ScrollView,
 	FlatList,
+	ActivityIndicator,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { Header } from "react-native-elements";
@@ -98,9 +99,17 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 					{histories ? (
 						<FlatList data={histories} renderItem={renderHistory} />
 					) : (
-						<View style={{ marginLeft: 24 }}>
-							<Text>There aren't any histories yet!</Text>
-						</View>
+						<>
+							{userJourneyCount == 0 ? (
+								<View style={{ marginLeft: 24 }}>
+									<Text>There aren't any histories yet!</Text>
+								</View>
+							) : (
+								<View style={{ marginLeft: 2 }}>
+									<ActivityIndicator size="large" color="#2966A3" />
+								</View>
+							)}
+						</>
 					)}
 				</ScrollView>
 			</View>
