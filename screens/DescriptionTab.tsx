@@ -20,7 +20,7 @@ import { LoginButton } from "../components";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
-import {useNavigation} from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { database } from "firebase";
 import ImageZoom from "react-native-image-pan-zoom";
 
@@ -196,84 +196,89 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	}
 
 	const ReviewSection = ({ item, index }: dataDescription) => {
-        const navigation = useNavigation();
-        return (
-
-        
-		<View style={{ marginBottom: 10}}>
-			{/* Avatar + Name + Rating star + Timestamp */}
-			<View style={{ flexDirection: "row" }}>
-				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
-					<View style={{width: '73%'}}>
-						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
-						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
-					</View>
-					<View style={{ width: '10%' }}>
-						<Rating 
-							imageSize={15} 
-							readonly 
-							startingValue={item.rating} 
-							style={styles.rating} 
-						/>
-					</View>
-				</View>
-
-			{/* Up vote + Content */}
-			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
-				<View style={{width: '10%',  marginRight: "2%"}}>
-					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
-					</TouchableOpacity>
-					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>{item.likeCount}</Text>
-				</View>
-                {/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params */}
-
-                <TouchableOpacity onPress={() =>{
-                    console.log("this review's id:",item.id)
-                    navigation.navigate("ReviewScreen",{
-                        id :  item.id,
-                        content:item.content,
-                        rating: item.rating,
-                        urlAvatar : item.avatar,
-                        timeStamp: item.timeCreated,
-                        username:item.name,
-                        likeCount:item.likeCount,
-                        images:route.params.galleryImage
-                    })
-                }}>
-                    <View style={{ width: '80%'}}>
-                        <Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
-                    </View>
-                </TouchableOpacity>
-				
-			</View>
-
-			{/* Images */}
-			{item.images != undefined ? (
-				<View>
-					{item.images.length > 0 ? (
-						<View style={{ marginLeft: "15%", marginTop: "3%" }}>
-							<FlatList
-								data={item.images}
-								renderItem={renderReviewImage}
-								keyExtractor={(item) => item.id}
-								horizontal={true} 
-								showsHorizontalScrollIndicator={false}
-								style={styles.flatListReview}
-							/>
+		const navigation = useNavigation();
+		return (
+			<View style={{ marginBottom: 10 }}>
+				{/* Avatar + Name + Rating star + Timestamp */}
+				<View style={{ flexDirection: "row" }}>
+					<Image source={{ uri: item.avatar }} style={styles.profileImage} />
+					<View
+						style={{
+							marginLeft: 10,
+							flexDirection: "row",
+							flexWrap: "wrap",
+							alignItems: "flex-start",
+						}}
+					>
+						<View style={{ width: "73%" }}>
+							<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
+							<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 						</View>
-					) : (
-						<>
-						</>
-					)}
+						<View style={{ width: "10%" }}>
+							<Rating imageSize={15} readonly startingValue={item.rating} style={styles.rating} />
+						</View>
+					</View>
 				</View>
-			) : (
-				<>
-				</>
-			)}
-		</View>
-	)}
+
+				{/* Up vote + Content */}
+				<View style={{ marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10 }}>
+					<View style={{ width: "10%", marginRight: "2%" }}>
+						<TouchableOpacity onPress={() => console.log("The up vote test")}>
+							<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
+						</TouchableOpacity>
+						<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>
+							{item.likeCount}
+						</Text>
+					</View>
+					{/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params */}
+
+					<TouchableOpacity
+						onPress={() => {
+							console.log("this review's id:", item.id);
+							navigation.navigate("ReviewScreen", {
+								id: item.id,
+								content: item.content,
+								rating: item.rating,
+								urlAvatar: item.avatar,
+								timeStamp: item.timeCreated,
+								username: item.name,
+								likeCount: item.likeCount,
+								images: route.params.galleryImage,
+							});
+						}}
+					>
+						<View style={{ width: "80%" }}>
+							<Text style={{ fontSize: 15 }}>
+								{updatePost && item.uid == userID ? newText : item.content}
+							</Text>
+						</View>
+					</TouchableOpacity>
+				</View>
+
+				{/* Images */}
+				{item.images != undefined ? (
+					<View>
+						{item.images.length > 0 ? (
+							<View style={{ marginLeft: "15%", marginTop: "3%" }}>
+								<FlatList
+									data={item.images}
+									renderItem={renderReviewImage}
+									keyExtractor={(item, index) => index.toString()}
+									horizontal={true}
+									showsHorizontalScrollIndicator={false}
+									style={styles.flatListReview}
+								/>
+							</View>
+						) : (
+							<></>
+						)}
+					</View>
+				) : (
+					<></>
+				)}
+			</View>
+		);
+	};
 
 	// Render list of descriptions for Flat List
 	const renderDescription = ({ item, index }: dataDescription) => {
