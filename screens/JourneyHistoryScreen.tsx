@@ -7,6 +7,7 @@ import {
 	TouchableOpacity,
 	ScrollView,
 	FlatList,
+	ActivityIndicator
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { Header } from "react-native-elements";
@@ -16,18 +17,25 @@ import { getData } from "../constants/utility";
 const JourneyHistoryScreen: React.FC<any> = (props) => {
 	const [histories, setHistories] = useState<any>();
 	const [userJourneyCount, setUserJourneyCount] = useState<number>();
+	const [loading, setLoading] = useState(true)
 
 	// Dynamically fetch histories based on user's id
 	const fetchHistoryByUserID = async () => {
+		let mounted = true;
 		try {
 			const userID = await getData("id");
 			fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/histories`)
 				.then((res) => res.json())
 				.then((json) => {
-					setHistories(json);
+					if (mounted) {
+						setHistories(json);
+					}
 				});
 		} catch (error) {
 			console.log(error);
+		}
+		return () => {
+			mounted = false
 		}
 	};
 
@@ -38,7 +46,6 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 				.then((res) => res.json())
 				.then((json) => {
 					setUserJourneyCount(json.journeyCount);
-					console.log(json);
 				});
 		} catch (error) {
 			console.log(error);
@@ -56,19 +63,25 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 
 	// Fetch on component's mount
 	useEffect(() => {
-		fetchHistoryByUserID();
-		fetchUserJourneyCount();
+		fetchUserJourneyCount().then(res => {
+			fetchHistoryByUserID().then(res => setLoading(false));
+		});
+		return () => {
+			// fetchHistoryByUserID();
+			// fetchUserJourneyCount();
+		}
+		
 	}, []);
 
 	// Log histories
 	useEffect(() => {
 		if (histories != null && typeof histories !== "undefined") {
-			console.log(histories);
+			// console.log(histories);
 		}
 	}, [histories]);
 
 	return (
-		<View>
+		<View style={{height: '100%'}}>
 			<Header
 				leftComponent={
 					<TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -78,32 +91,40 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 				centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>Journey History</Text>}
 			/>
 			{/* Journey History card section */}
-			<View style={{ marginTop: 20 }}>
-				<View style={{ paddingLeft: 25 }}>
-					{userJourneyCount ? (
-						<>
-							<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
-								Completed journey ({userJourneyCount})
-							</Text>
-						</>
-					) : (
-						<>
-							<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
-								Completed journey (N/A)
-							</Text>
-						</>
-					)}
+			{loading ?
+				<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+					<ActivityIndicator size="large" color="#2966A3" />
 				</View>
-				<ScrollView>
-					{histories ? (
-						<FlatList data={histories} renderItem={renderHistory} />
-					) : (
-						<View style={{ marginLeft: 24 }}>
-							<Text>There aren't any histories yet!</Text>
-						</View>
-					)}
-				</ScrollView>
-			</View>
+				:
+
+				<View style={{ marginTop: 20 }}>
+					<View style={{ paddingLeft: 25 }}>
+						{userJourneyCount ? (
+							<>
+								<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
+									Completed journey ({userJourneyCount})
+							</Text>
+							</>
+						) : (
+							<>
+								<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
+									Completed journey (N/A)
+							</Text>
+							</>
+						)}
+					</View>
+					<ScrollView>
+						{histories ? (
+							<FlatList data={histories} renderItem={renderHistory} />
+						) : (
+							<View style={{ marginLeft: 24 }}>
+								<Text>There aren't any histories yet!</Text>
+							</View>
+						)}
+					</ScrollView>
+				</View>
+			}
+
 		</View>
 	);
 };

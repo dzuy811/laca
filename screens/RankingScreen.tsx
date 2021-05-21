@@ -163,8 +163,7 @@ const GlobalRanking = () => {
     return (
         <View>
             {/* <RankingHeader /> */}
-            {leaderboard.map((user, index) => {
-                
+            {leaderboard.map((user, index) => {                
                 return (
                     <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
                         <View style={styles.rankingNumberBox}>

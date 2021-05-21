@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Pressable} from 'react-native'
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Pressable, ActivityIndicator} from 'react-native'
 import { Header, Button, Overlay } from 'react-native-elements'
 import { AntDesign } from "@expo/vector-icons";
 import QRCode from 'react-native-qrcode-svg';
@@ -80,7 +80,7 @@ const MyVoucherScreen = () => {
         return (
         <View key={index} style={styles.voucherBox}>
             <View style={{width: '100%'}}>
-                <Overlay style={{width: '100%'}} isVisible={visible} onBackdropPress={() => toggleOverlay()}>
+                <Overlay overlayStyle={{borderRadius: 20}} style={{width: '100%'}} isVisible={visible} onBackdropPress={() => toggleOverlay()}>
                     <ViewVoucher imageUrl={item.imageUrl} code={item.code} content = {item.content} />
                 </Overlay>
             </View>
@@ -100,7 +100,7 @@ const MyVoucherScreen = () => {
                     <View style={{marginTop: 10}}>
                         <Text style={{fontSize: 15}}>Expired: {item.expiryDateTime}</Text>
                     </View>
-                    <View style={{flexDirection: 'row', marginTop: 10}}>
+                    <View style={{flexDirection: 'row', marginTop: 10, alignItems:'center'}}>
                         <Image 
                             style={{marginRight: 5, height:20, width: 20}}
                             source={coinImage}
@@ -163,7 +163,7 @@ const MyVoucherScreen = () => {
   
 
     return (
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%', height: '100%'}}>
             <Header
 				leftComponent={
 					<TouchableOpacity onPress={() => navigation.goBack()}>
@@ -173,7 +173,9 @@ const MyVoucherScreen = () => {
 				centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>My vouchers</Text>}
 			/>
             {loading? 
-            <Text>Loading</Text>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%'}}>
+                    <ActivityIndicator size="large" color="#2966A3"/>
+            </View>
             :
             <View>
                 <FlatList
@@ -192,15 +194,16 @@ const styles = StyleSheet.create({
     partnerLogo: {
         width: 80,
         height: 80,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        
     },
     voucherOverlay: {
         alignItems: 'center',
         width: windowWidth * 0.8,
-        height: '60%'
+        padding: 20
     },
     overlaySectionContainer: {
-        marginTop: 10
+        marginTop: 10,
     },
     voucherBox: {
         padding: 20,
@@ -210,7 +213,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#FDFDFD",
 		marginTop: 30,
 		marginLeft: 30,
-		marginRight: 30
+		marginRight: 30,
 	},
     submitButton: {
 		width: 250,
