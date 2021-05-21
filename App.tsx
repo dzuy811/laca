@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
@@ -8,7 +8,7 @@ import VoucherShop from "./screens/VoucherShop";
 import HomeScreen from "./screens/HomeScreen";
 import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
-
+import AppContext from './components/AppContext'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 
@@ -23,6 +23,19 @@ export default function App() {
 		LogBox.ignoreLogs(["Setting a timer"]);
 	}, []);
 
+	const [onJourney, setOnJourney] = useState(false)
+	const [currentJourneyID, setCurrentJourneyID] = useState("")
+	const [currentAttractionID, setCurrentAttractionID] = useState(null);
+
+	const userGlobalData = {
+		onJourney: onJourney,
+		setOnJourney,
+		currentJourneyID: currentJourneyID,
+		setCurrentJourneyID,
+		currentAttractionID: currentAttractionID,
+		setCurrentAttractionID
+	}
+
 	return (
 		<SafeAreaProvider>
 			<StatusBar
@@ -31,7 +44,9 @@ export default function App() {
 			/>
 			{/* <MainNav /> */}
 			{/* <ReviewScreen/> */}
-			<MainNav />
+			<AppContext.Provider value={userGlobalData}>
+				<MainNav />
+			</AppContext.Provider>
 			{/* <VoucherShop /> */}
 
 		</SafeAreaProvider>

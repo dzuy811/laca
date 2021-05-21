@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { View, Text, StyleSheet, Image, Platform, TouchableWithoutFeedback, Keyboard, Modal, Pressable, Alert } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import * as firebase from 'firebase'
@@ -10,6 +10,7 @@ import { AntDesign } from '@expo/vector-icons'
 import ImageReviewSection from '../components/review-screen-components/ImageReviewSection'
 import TextBoxReviewSection from '../components/review-screen-components/TextBoxReviewSection'
 import { getData, storeData } from '../constants/utility';
+import AppContext from '../components/AppContext' 
 
 import axios from 'axios';
 
@@ -87,6 +88,7 @@ console.log("images: ", body.images);
 const CameraScreen = ({navigation, route }) => {
     console.log("camera screen route props: ", route);
     const { journeyID, attractionID, reward } = route.params
+    const userGlobalData = useContext(AppContext)
     
 
     const CameraButton: React.FC = () => {
@@ -236,7 +238,7 @@ const CameraScreen = ({navigation, route }) => {
                     >
                         <Image style={{height: 250, width: 250}} source={require('../assets/2124.jpg')} />
                         <Text style={{fontSize: 26}}>Finish journey</Text>
-                        <Text>You earn 100 points</Text>
+                        <Text>You earn {reward} points</Text>
                         <Button
                         titleStyle={styles.congratTitle}
                         buttonStyle={styles.congratButton}
@@ -275,6 +277,7 @@ const CameraScreen = ({navigation, route }) => {
                                     uploadReview(image, rating, review, journeyID, attractionID)
                                     .then(() => {
                                         toggleCongrat()
+                                        userGlobalData.setOnJourney(false)
                                     })
                                     
                                 }}
