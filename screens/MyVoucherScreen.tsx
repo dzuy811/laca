@@ -23,7 +23,8 @@ type voucherType = {
     redeemed: number,
     rewardPrice: number,
 	imageUrl: string,
-    code: string
+    code: string,
+    status: string
 }
 
 type dataVoucher = {
@@ -75,7 +76,8 @@ const MyVoucherScreen = () => {
   
     const VoucherCard = ({ item, index }: dataVoucher) => {
 
-
+        console.log("item: ", item);
+        
         
         return (
         <View key={index} style={styles.voucherBox}>
@@ -110,16 +112,17 @@ const MyVoucherScreen = () => {
                 </View>
             </View>
     
-            {/* Exchange Button */}
-            <View style={{alignItems: "center", marginTop: 10}}>
-                    <Pressable 
-                        style={styles.submitButton}
+            {/* Redeem Button */}
+                <View style={{alignItems: "center", marginTop: 10}}>
+                    <Button 
                         onPress={() => {
                             toggleOverlay()
                         }}
-                    >
-                        <Text style={{color: "#E2D0A2", fontWeight: "bold"}}>Redeem</Text>
-                    </Pressable>
+                        buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
+                        paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
+                        disabled={item.status=='used'? true:false}
+                        title={item.status=="used"? "Used" : "Redeem"}
+                    />
                 </View>
         </View>
     )};
@@ -143,6 +146,7 @@ const MyVoucherScreen = () => {
 				eachData.rewardPrice = element.partnerReward.rewardPrice;
 				eachData.imageUrl = element.partnerReward.partner.imageUrl;
                 eachData.code = element.code
+                eachData.status = element.redeemStatus
 
 				const timestamp = new Date(element.partnerReward.expiryDatetime._seconds * 1000);
 				const formattedDate = (moment(timestamp)).format('DD.MM.YYYY');
