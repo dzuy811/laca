@@ -32,11 +32,7 @@ export default function App() {
 		<SafeAreaProvider>
 			<StatusBar />
 			<MainNav />
-			{/* <ReviewScreen/>
-			<PostComment/>  */}
 
-			 
-			  
 		</SafeAreaProvider>
 	);
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity,TextInput,Pressable,KeyboardAvoidingView,Platform } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
 import ReplyChange from "../components/review-screen-components/ReplyChange";
-import { Rating,Overlay } from 'react-native-elements';
+import { Rating,Overlay,Header } from 'react-native-elements';
 import { AntDesign } from "@expo/vector-icons";
 import moment from 'moment';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -56,6 +56,9 @@ type InforUser = {
 	urlAvatar : string
 }
 
+type imgprop = { id:string,
+	source : string}
+
 
 type ListData = descriptionType[]
 
@@ -70,41 +73,23 @@ interface uniqueReviews  {
 
 
 
-type Props = {
-	route: {
-		params: {
-			latitude: number;
-			longitude: number;
-			description: string;
-			name: string;
-			id : string;
-		};
-	};
-	navigation: any;
-};
+type props = {
+	navigation: any,
+	route : {
+		params:{
+		id : string,
+		content: string,
+		rating: number,
+		urlAvatar:string,
+		timeStamp: string,
+		username : string,
+		likeCount: number,
+		images: any[]
+		}
 
-const Data = [
-	{
-		id: "01",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "02",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "03",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "04",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "05",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-];
+
+	}
+}
 
 const PassedData = {
 	name : "Dat",
@@ -117,7 +102,7 @@ const PassedData = {
 
 }
 
-const PostComment = () =>{
+const PostComment = ({navigation,route}:props) =>{
 	const offset = useRef(new Animated.Value(0)).current;
 	const description = "aaaaaaaaaa";
 	const [text, setText] = useState<string>("");
@@ -128,16 +113,30 @@ const PostComment = () =>{
 		return <Image key={index} source={{ uri: item.source }} style={styles.imageStyle} />;
 	};
 
+	const {id,content,rating,urlAvatar,timeStamp,username,likeCount,images} = route.params
+	console.log(images)
 	const [data, setData] = useState<uniqueReviews[]>([]);
-	let id = "JmTVF0qul9fTptyQjzNQ";
-	let rid = "0NefT72ZDBlnlVsgnOem";
-	let userContent = "";
-	let wordHolder = "please type your reply here";
+	
 
 	async function getUser() {
-		let id = await getData("id");
-		return id;
+		let uid = await getData("id");
+		return uid;
 	}
+
+	let imgData: imgprop[] = []
+	let imgCount = 0
+	images.forEach(imgi =>{
+		imgCount ++;
+		let imgdt = {
+			id: imgCount.toString(),
+			source : imgi
+		}
+		imgData.push(imgdt)
+		
+
+	})
+
+	console.log(imgData)
 
 	// fetch list of reviews 
 	useEffect(() => {
@@ -148,34 +147,33 @@ const PostComment = () =>{
             setData(json)
 			console.log("==============================")
             console.log(json) // For debugging. Check if the effect is called multiple times or not
-			getUser().then(data => setUserID(data))
+			getUser().then(data => {
+				
+				setUserID(data)
+				console.log("user id: ", data);
+				
+			})
         })
 		.catch((err) => console.error(err))
 	},[])
 
 	let dataPoint = 0
 	let dataCombine = [] as ListData
-
-	data.forEach((review) => {
-		let ThisData = {} as descriptionType  
-		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
-		ThisData.id = dataPoint.toString()
-		dataPoint ++
-		ThisData.content = review.comment.content
-		ThisData.avatar = review.userInfo.urlAvatar
-		ThisData.timeCreated = formattedDate;
-		ThisData.name = review.userInfo.name
-		ThisData.rating = review.comment.rating
-		dataCombine.push(ThisData)
-	})
-
-	let content = "fuck expo"
-	// dataCombine.forEach((datapoint) => {
-	// 	console.log("=============================================\n\n\n")
-	// 	console.log("hahaa")
-	// 	console.log(datapoint.avatar)
-	// })
+	if(data.length > 0) {
+		data.forEach((review) => {
+			let ThisData = {} as descriptionType  
+			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+			const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+			ThisData.id = dataPoint.toString()
+			dataPoint ++
+			ThisData.content = review.comment.content
+			ThisData.avatar = review.userInfo.urlAvatar
+			ThisData.timeCreated = formattedDate;
+			ThisData.name = review.userInfo.name
+			ThisData.rating = review.comment.rating
+			dataCombine.push(ThisData)
+		})
+	}
 	console.log("                    \n\n\n\n")
 
 
@@ -244,27 +242,32 @@ const PostComment = () =>{
 			Accept: 'application/json',
 			'Content-Type': 'application/json' },
 			body :JSON.stringify({
-				rid:"JmTVF0qul9fTptyQjzNQ",
+				rid:"TW5PcoyFPFYeSqHfrqd",
 				uid:userID,
 				content : text
 			})
 		})
 
+        navigation.goBack()
+		
+
 		console.log(userID)
 		console.log(text)
 	}
+
+	const [visible, setVisible] = useState(false);
 	
 	
     return (<>
         <View style={{ flex: 1 }} >
-		<View style={{
-			flex:0.23,
-			backgroundColor:"#4B8FD2",
-			borderBottomRightRadius:18,
-			borderBottomLeftRadius:18
-		}}>
-
-		</View>
+		<Header
+                leftComponent={
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <AntDesign name="arrowleft" size={24} color="#fff" />
+                    </TouchableOpacity>
+                }
+                centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>Reply</Text>}
+            />
 		<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
 			<Animated.ScrollView
 			style={{ backgroundColor: "white" }}
@@ -279,18 +282,18 @@ const PostComment = () =>{
 			<Text style={styles.descriptionTitle}>Review</Text>
 			<View style={{paddingBottom : 20 }}>
 			<View style={{ flexDirection: "row" }}>
-				<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
+				<Image source={{uri: urlAvatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
 
-						<Text style={styles.profileName}>{PassedData.name}</Text>
-						<Text style={styles.timeStamp}>{PassedData.timeCreated}</Text>
+						<Text style={styles.profileName}>{username}</Text>
+						<Text style={styles.timeStamp}>{timeStamp}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
 						<Rating 
 							imageSize={15} 
 							readonly 
-							startingValue={PassedData.rating} 
+							startingValue={rating} 
 							style={styles.rating} 
 						/>
 					</View>
@@ -302,19 +305,19 @@ const PostComment = () =>{
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
 				<View style={{width: '10%',  marginRight: "2%"}}>
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={30} color={PassedData.likeCount != 0 ? "green" : "black"} />
+						<AntDesign name="up" size={30} color={likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
-					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{PassedData.likeCount}</Text>
+					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{likeCount}</Text>
 				</View>
 				<View style={{ width: '80%'}}>
-					<Text style={{ fontSize: 15 }}>{PassedData.content}</Text>
+					<Text style={{ fontSize: 15 }}>{content}</Text>
 				</View>
 				</View>
 			</View>
 			
 			<View style={{ marginLeft: "10%" }}>
 				<FlatList
-					data={Data}
+					data={imgData}
 					renderItem={renderImage}
 					keyExtractor={(item) => item.id}
 					horizontal={true}
@@ -339,7 +342,7 @@ const PostComment = () =>{
 			</Animated.ScrollView>
 			<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"} >
-				<ReplyChange handleReview={handleReview} word = {content} submitFunc = {submitFunc} />
+				<ReplyChange handleReview={handleReview} word = {`What do you want to reply to ${username}`} submitFunc = {submitFunc} />
 			</KeyboardAvoidingView>
              
 		</View>

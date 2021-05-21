@@ -32,7 +32,7 @@ const AttractionNavigator:React.FC<props> = ({navigation}) => {
         <Stack.Screen name="Journey Map" component={MapScreen} />
         <Stack.Screen name="Camera screen" component={CameraScreen}/>
         <Stack.Screen name = "ReviewScreen" component={ReviewScreen}/>
-        <Stack.Screen name = "posting reply Screen" component ={PostComment}/>
+        <Stack.Screen name = "ReplyScreen" component ={PostComment}/>
       </Stack.Navigator>
 
   )}
