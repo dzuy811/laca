@@ -1,5 +1,5 @@
 export type RootStackParamList = {
     "User Profile": undefined;
-    "Search user": undefined;
+    "Ranking": undefined;
     "Friend Profile": undefined;
 };

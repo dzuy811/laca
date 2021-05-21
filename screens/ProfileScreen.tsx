@@ -11,7 +11,7 @@ const ProfileScreen = ({ navigation }: any) => {
 
 	useEffect(() => {
 		async function getUserInfo() {
-			// Get user's information from collection
+			// Get user's information from collection			
 			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
 			let dataInfo = user_info.data();
 			setData(dataInfo) 
@@ -22,11 +22,11 @@ const ProfileScreen = ({ navigation }: any) => {
     },[])
 
 	return (
-		<View>
+		<View style={{backgroundColor: '#fff', flex:1}}>
 			<View>
 				<ProfileHeader setData={setData} data={data} navigation={navigation} />
 			</View>
-			<View style={{ marginTop: 50 }}>
+			<View style={{ marginTop: 10, paddingHorizontal: 6 }}>
 				<UserOptionsList navigation={navigation} />
 			</View>
 		</View>

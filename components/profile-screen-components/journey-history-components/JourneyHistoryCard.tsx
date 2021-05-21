@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 import moment from "moment";
 
@@ -31,16 +31,18 @@ const JourneyHistoryCard = ({ data }: JourneyCardProps) => {
 				<Text style={style.journeyDate}>{formatDateString(timestamp)}</Text>
 			</View>
 			<View style={{ marginTop: 3 }}>
-				<Text style={{ fontSize: 18 }}>{attraction.name}</Text>
+				<Text style={{ fontSize: 18 }}>
+					{attraction.name ? attraction.name : "Unknown Location"}
+				</Text>
 			</View>
 			<View style={[{ marginTop: 10, flexDirection: "row", flexWrap: "wrap" }]}>
-				<Text style={style.addressText}>(??) km</Text>
-				<Text style={[style.addressText, { marginLeft: 5, marginRight: 5 }]}>-</Text>
 				<Text style={style.addressText}>69 Đồng Khởi</Text>
 			</View>
-			<View style={[{ marginTop: 14, flexDirection: "row" }]}>
-				<FontAwesome5 style={{ marginRight: 2 }} name="coins" size={24} color="#E2D0A2" />
-				<Text style={{ marginLeft: 2, fontSize: 14, color: "#E2D0A2" }}>{attraction.reward}</Text>
+			<View style={[{ marginTop: 14, flexDirection: "row", alignItems: "center" }]}>
+				<Image source={require("../../../assets/dollar.png")} />
+				<Text style={{ marginLeft: 4, fontSize: 14, color: "#E2D0A2" }}>
+					{attraction.reward ? attraction.reward : 0}
+				</Text>
 			</View>
 		</View>
 	);

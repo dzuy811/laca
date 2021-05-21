@@ -1,32 +1,34 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
-import FriendScreen from '../screens/FriendScreen'
-import {RootStackParamList} from './FriendStackParams'
+import RankingScreen from '../screens/RankingScreen'
+import {RootStackParamList} from './RankingStackParams'
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import FriendProfile from '../screens/FriendProfile';
 
-const FriendStack = createStackNavigator<RootStackParamList>();
+const RankingStack = createStackNavigator<RootStackParamList>();
 
-const FriendNavigator = () => {
+const RankingNavigator = () => {
+    console.log("ranking navigator");
+    
     return (
-        <FriendStack.Navigator
-        initialRouteName="Search user"
+        <RankingStack.Navigator
+        initialRouteName="Ranking"
         headerMode="none"
         >
-            <FriendStack.Screen
-            name="Search user"
-            component={FriendScreen}
+            <RankingStack.Screen
+            name="Ranking"
+            component={RankingScreen}
             />
-            <FriendStack.Screen
+            <RankingStack.Screen
             name="User Profile"
             component={OtherProfileScreen}
             />
-            <FriendStack.Screen
+            <RankingStack.Screen
             name="Friend Profile"
             component={FriendProfile}
             />
-        </FriendStack.Navigator>
+        </RankingStack.Navigator>
     )
 }
 
@@ -39,4 +41,4 @@ const style = StyleSheet.create({
     },
 })
 
-export default FriendNavigator
+export default RankingNavigator
