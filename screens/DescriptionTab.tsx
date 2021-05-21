@@ -35,71 +35,72 @@ type Props = {
 			longitude: number;
 			description: string;
 			name: string;
-			id : string;
+			id: string;
 			distance: number;
 			reward: number;
-			galleryImage: any[]
+			galleryImage: any[];
 		};
 	};
 	navigation: any;
 };
 
-type descriptionType = { 
-	id: string,
-	uid: string,
-	name: string, 
-	avatar: string, 
-	content: string, 
-	timeCreated: string, 
-	rating: number,
-	likeCount: number,
-	replyCount: number,
-	images: any[]
-}
+type descriptionType = {
+	id: string;
+	uid: string;
+	name: string;
+	avatar: string;
+	content: string;
+	timeCreated: string;
+	rating: number;
+	likeCount: number;
+	replyCount: number;
+	images: any[];
+};
 type typeImageData = {
 	id: string;
 	source: string;
 };
 
 type dataDescription = {
-	item: descriptionType,
-	index?: number
+	item: descriptionType;
+	index?: number;
 };
 
-interface uniqueReviews  {
-	comment: comment,
-	userInfo : infoUser
-};
+interface uniqueReviews {
+	comment: comment;
+	userInfo: infoUser;
+}
 
 type comment = {
-	id: string,
-	timeCreated: any,
-	likeCount: number,
-	images: string[], 
-	uid: any,
-	content: string,
-	aid: string,
-	rating : number,
-	replyCount: number
+	id: string;
+	timeCreated: any;
+	likeCount: number;
+	images: string[];
+	uid: any;
+	content: string;
+	aid: string;
+	rating: number;
+	replyCount: number;
 };
 
 type infoUser = {
-	id: string,
-	gender : string,
-	address : string[],
-	name: string,
-	phoneNumber: string,
-	friendsCount : number,
-	totalReward : number,
-	journeyCount : number,
-	urlAvatar : string
+	id: string;
+	gender: string;
+	address: string[];
+	name: string;
+	phoneNumber: string;
+	friendsCount: number;
+	totalReward: number;
+	journeyCount: number;
+	urlAvatar: string;
 };
 
 type listData = descriptionType[];
 
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
-	const { latitude, longitude, description, name, id, distance, reward, galleryImage} = route.params;
+	const { latitude, longitude, description, name, id, distance, reward, galleryImage } =
+		route.params;
 	const [data, setData] = useState<uniqueReviews[]>([]);
 	const [userID, setUserID] = useState<any>();
 	const [text, setText] = useState<string>("");
@@ -110,19 +111,21 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	let userContent = "";
 	const [dialog, setDialog] = useState<any>(false);
 	const [currentImgIndex, setCurrentImgIndex] = useState<number>(0);
+	const [currentReviewImg, setCurrentReviewImg] = useState<any>("https://i.imgur.com/knFzSA7.png"); // current index of img array in a review // set Default image at initial point
+	const [reviewDialog, setReviewDialog] = useState<boolean>(false);
 
 	// fetch list of reviews
 	useEffect(() => {
-		console.log('id: ', id);
-		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`
+		console.log("id: ", id);
+		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`;
 		fetch(url)
-		.then((response) => response.json())
-		.then((json) => {
-            setData(json)
-			getUser().then(data => setUserID(data))
-        })
-		.catch((err) => console.error(err))
-	},[])
+			.then((response) => response.json())
+			.then((json) => {
+				setData(json);
+				getUser().then((data) => setUserID(data));
+			})
+			.catch((err) => console.error(err));
+	}, []);
 
 	async function getUser() {
 		let id = await getData("id");
@@ -131,33 +134,35 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	async function takeJourney() {
 		let body = {
-			userID: await getData('id'),
-			attractionID: id
-		}
-		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
-		.then(res => {
-		console.log(res.data);
-		navigation.navigate("Journey Map", {
-				// rmit 10.730283804989273, 106.69316143068589
-				// home 10.791044000816369, 106.6839532702234
-				latitude: latitude,
-				longitude: longitude,
-				journeyID: res.data.id,
-				attractionID: id,
-				reward: reward
-		});
-		}).catch(err => console.log(err))
+			userID: await getData("id"),
+			attractionID: id,
+		};
+		axios
+			.post("https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories", body)
+			.then((res) => {
+				console.log(res.data);
+				navigation.navigate("Journey Map", {
+					// rmit 10.730283804989273, 106.69316143068589
+					// home 10.791044000816369, 106.6839532702234
+					latitude: latitude,
+					longitude: longitude,
+					journeyID: res.data.id,
+					attractionID: id,
+					reward: reward,
+				});
+			})
+			.catch((err) => console.log(err));
 	}
 
 	let dataCombination = [] as listData;
 
-	if(data.length > 0) {
+	if (data.length > 0) {
 		data.forEach((review) => {
 			let data = {} as descriptionType;
 
 			// Format the timestamp from date to string
 			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-			const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+			const formattedDate = moment(timestamp).format("HH:mm DD-MM-YYYY");
 
 			data.id = review.comment.id;
 			data.content = review.comment.content;
@@ -170,164 +175,202 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 			data.uid = review.userInfo.id;
 
 			// Store the images by index
-				if(review.comment.images.length > 0) {
-					let imgArray:any = [];
-					for(let i = 0; i < review.comment.images.length; i++) {
-						let index = i + 1;
-						imgArray.push({
-							"id": index,
-							"source": review.comment.images[i]
-						})
-					}
-					data.images = imgArray;
+			if (review.comment.images.length > 0) {
+				let imgArray: any = [];
+				for (let i = 0; i < review.comment.images.length; i++) {
+					let index = i + 1;
+					imgArray.push({
+						id: index,
+						source: review.comment.images[i],
+					});
 				}
+				data.images = imgArray;
+			}
 
 			// Take the content of the current user
-			if(data.uid == userID) userContent = data.content;
+			if (data.uid == userID) userContent = data.content;
 
 			dataCombination.push(data);
-		})
+		});
 	}
 
-	const ReviewSection = ({ item, index }: dataDescription) => (
-		<View style={{ marginBottom: 10}}>
-			{/* Avatar + Name + Rating star + Timestamp */}
-			<View style={{ flexDirection: "row" }}>
-				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
-					<View style={{width: '73%'}}>
-						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
-						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
-					</View>
-					<View style={{ width: "10%" }}>
-						<Rating imageSize={15} readonly startingValue={item.rating} style={styles.rating} />
-					</View>
-				</View>
-			</View>
-
-			{/* Up vote + Content */}
-			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
-				<View style={{width: '10%',  marginRight: "2%"}}>
-					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
-					</TouchableOpacity>
-					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>
-						{item.likeCount}
-					</Text>
-				</View>
-				<View style={{ width: '80%'}}>
-					<Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
-				</View>
-			</View>
-
-			{/* Images */}
-			{item.images != undefined ? (
-				<View>
-					{item.images.length > 0 ? (
-						<View style={{ marginLeft: "15%", marginTop: "3%" }}>
-							<FlatList
-								data={item.images}
-								renderItem={renderReviewImage}
-								keyExtractor={(item) => item.id}
-								horizontal={true} 
-								showsHorizontalScrollIndicator={false}
-								style={styles.flatListReview}
-							/>
+	const ReviewSection = ({ item, index }: dataDescription) => {
+		return (
+			<View style={{ marginBottom: 10 }}>
+				{/* Avatar + Name + Rating star + Timestamp */}
+				<View style={{ flexDirection: "row" }}>
+					<Image source={{ uri: item.avatar }} style={styles.profileImage} />
+					<View
+						style={{
+							marginLeft: 10,
+							flexDirection: "row",
+							flexWrap: "wrap",
+							alignItems: "flex-start",
+						}}
+					>
+						<View style={{ width: "73%" }}>
+							<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
+							<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 						</View>
-					) : (
-						<>
-						</>
-					)}
+						<View style={{ width: "10%" }}>
+							<Rating imageSize={15} readonly startingValue={item.rating} style={styles.rating} />
+						</View>
+					</View>
 				</View>
-			) : (
-				<>
-				</>
-			)}
-		</View>
-	);
 
-	// Render list of descriptions for Flat List
-	const renderDescription = ({ item, index }: dataDescription) => (
-		<View key={String(index)} style={{ marginBottom: 30}}>
-			{userID == item.uid ? (
-				<>		
-					{deletePost ? (
-						<>
-						</>
-					) : (
-						<>
-							<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
-								<ReviewSection item={item} />
-							</TouchableOpacity>
-							{/* Reply section */}
-							<View style={{ marginLeft: "25%", marginBottom: "5%"}}>
-								{item.replyCount != 0 ? // if the review has reply
-								(
-									<View>
-										<TouchableOpacity onPress={() => console.log("Reply")}>
-											<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-										</TouchableOpacity>
-									</View>
-								) : (
-									<>
-									</>
-								)}
-							</View>
-							<>
-							{/* Horizontal line between each review  */}
-							{index != dataCombination.length - 1 ? (
-								<View style={{ borderBottomColor: '#EDEDED', borderBottomWidth: 1, opacity: 0.6, position: "relative" }} />
-							) : (
-								<>
-								</>
-							)}
-							</>
-						</>
-					)}
-				</>
-			) : (
-				<>
-					<ReviewSection item={item} />
-					{/* Reply section */}
-					<View style={{ marginTop: 10, marginLeft: "25%"}}>
-						{item.replyCount != 0 ? // if the review has reply
-						(
-							<View>
-								<TouchableOpacity onPress={() => console.log("Reply")}>
-									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-								</TouchableOpacity>
+				{/* Up vote + Content */}
+				<View style={{ marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10 }}>
+					<View style={{ width: "10%", marginRight: "2%" }}>
+						<TouchableOpacity onPress={() => console.log("The up vote test")}>
+							<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
+						</TouchableOpacity>
+						<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>
+							{item.likeCount}
+						</Text>
+					</View>
+					<View style={{ width: "80%" }}>
+						<Text style={{ fontSize: 15 }}>
+							{updatePost && item.uid == userID ? newText : item.content}
+						</Text>
+					</View>
+				</View>
+
+				{/* Images */}
+				{item.images != undefined ? (
+					<View>
+						{item.images.length > 0 ? (
+							<View style={{ marginLeft: "15%", marginTop: "3%" }}>
+								<FlatList
+									data={item.images}
+									renderItem={renderReviewImage}
+									keyExtractor={(item: any, index: number) => index.toString()}
+									horizontal={true}
+									showsHorizontalScrollIndicator={false}
+									style={styles.flatListReview}
+								/>
 							</View>
 						) : (
-							<>
-							</>
+							<></>
 						)}
 					</View>
+				) : (
+					<></>
+				)}
+			</View>
+		);
+	};
+
+	// Render list of descriptions for Flat List
+	const renderDescription = ({ item, index }: dataDescription) => {
+		return (
+			<View key={String(index)} style={{ marginBottom: 30 }}>
+				{userID == item.uid ? (
 					<>
-					{/* Horizontal line between each review  */}
-					{index != dataCombination.length - 1 ? (
-						<View style={{ borderBottomColor: '#EDEDED', borderBottomWidth: 1, opacity: 0.6, position: "relative" }} />
-					) : (
-						<>
-						</>
-					)}
+						{deletePost ? (
+							<></>
+						) : (
+							<>
+								<TouchableOpacity activeOpacity={0.7} onPress={() => toggleFirstOverlay()}>
+									<ReviewSection item={item} index={index} />
+								</TouchableOpacity>
+								{/* Reply section */}
+								<View style={{ marginLeft: "25%", marginBottom: "5%" }}>
+									{item.replyCount != 0 ? ( // if the review has reply
+										<View>
+											<TouchableOpacity onPress={() => console.log("Reply")}>
+												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
+													{" "}
+													View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
+												</Text>
+											</TouchableOpacity>
+										</View>
+									) : (
+										<></>
+									)}
+								</View>
+								<>
+									{/* Horizontal line between each review  */}
+									{index != dataCombination.length - 1 ? (
+										<View
+											style={{
+												borderBottomColor: "#EDEDED",
+												borderBottomWidth: 1,
+												opacity: 0.6,
+												position: "relative",
+											}}
+										/>
+									) : (
+										<></>
+									)}
+								</>
+							</>
+						)}
 					</>
-				</>
-			)}
-		</View>
-	);
+				) : (
+					<>
+						<ReviewSection item={item} />
+						{/* Reply section */}
+						<View style={{ marginTop: 10, marginLeft: "25%" }}>
+							{item.replyCount != 0 ? ( // if the review has reply
+								<View>
+									<TouchableOpacity onPress={() => console.log("Reply")}>
+										<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
+											{" "}
+											View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
+										</Text>
+									</TouchableOpacity>
+								</View>
+							) : (
+								<></>
+							)}
+						</View>
+						<>
+							{/* Horizontal line between each review  */}
+							{index != dataCombination.length - 1 ? (
+								<View
+									style={{
+										borderBottomColor: "#EDEDED",
+										borderBottomWidth: 1,
+										opacity: 0.6,
+										position: "relative",
+									}}
+								/>
+							) : (
+								<></>
+							)}
+						</>
+					</>
+				)}
+			</View>
+		);
+	};
 
 	// Render list of images for Flat List
 	const renderGalleryImage = ({ item, index }: any) => {
-		return <Image key={index} source={{ uri: item }} style={styles.galleryImageStyle} />;
+		return (
+			<TouchableOpacity>
+				<Image key={index} source={{ uri: item }} style={styles.galleryImageStyle} />
+			</TouchableOpacity>
+		);
 	};
 
 	const renderReviewImage = ({ item, index }: any) => {
-		return <Image key={index} source={{ uri: item.source }} style={styles.reviewImageStyle} />;
-	}
+		return (
+			<TouchableOpacity
+				key={index.toString()}
+				onPress={() => {
+					setCurrentReviewImg(item.source);
+					toggleReviewDialogOverlay();
+				}}
+			>
+				<Image key={index} source={{ uri: item.source }} style={styles.reviewImageStyle} />
+			</TouchableOpacity>
+		);
+	};
 	const renderImage = ({ item, index }: any) => {
 		return (
 			<TouchableOpacity
-				key={index}
+				key={index.toString()}
 				onPress={() => {
 					setCurrentImgIndex(index);
 					toggleDialogOverlay();
@@ -353,16 +396,20 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		setDialog(!dialog);
 	};
 
-	function getCurrentUser():any {
-		for(let i = 0; i < dataCombination.length; i++) {
-			if(dataCombination[i].uid == userID) return dataCombination[i];
+	const toggleReviewDialogOverlay = () => {
+		setReviewDialog(!reviewDialog);
+	};
+
+	function getCurrentUser(): any {
+		for (let i = 0; i < dataCombination.length; i++) {
+			if (dataCombination[i].uid == userID) return dataCombination[i];
 		}
 		return {};
 	}
 
-	function getCurrentUserIndex():number {
-		for(let i = 0; i < dataCombination.length; i++) {
-			if(dataCombination[i].uid == userID) return i;
+	function getCurrentUserIndex(): number {
+		for (let i = 0; i < dataCombination.length; i++) {
+			if (dataCombination[i].uid == userID) return i;
 		}
 		return 0;
 	}
@@ -371,7 +418,12 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		<>
 			<View style={{ flex: 1 }}>
 				{/* Header */}
-				<AnimatedHeader animatedValue={offset} navigation={navigation} headerName={name} headerDistance={distance}/>
+				<AnimatedHeader
+					animatedValue={offset}
+					navigation={navigation}
+					headerName={name}
+					headerDistance={distance}
+				/>
 
 				<View style={{ flex: 1, backgroundColor: "white" }}>
 					<View>
@@ -394,7 +446,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								<FlatList
 									data={galleryImage}
 									renderItem={renderImage}
-									keyExtractor={(item, index) => index}
+									keyExtractor={(item: any, index: number) => index.toString()}
 									horizontal={true}
 									showsHorizontalScrollIndicator={false}
 									style={styles.flatListGallery}
@@ -407,7 +459,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								<FlatList
 									data={dataCombination.reverse()}
 									renderItem={renderDescription}
-									keyExtractor={(item) => item.id}
+									keyExtractor={(item: any, index: number) => index.toString()}
 								></FlatList>
 							</View>
 						</Animated.ScrollView>
@@ -428,7 +480,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						zIndex: 2,
 					}}
 				>
-				<LoginButton
+					<LoginButton
 						title="Take the journey"
 						onPress={() => takeJourney()}
 						color="#4B8FD2"
@@ -446,23 +498,33 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							overlayStyle={{ position: "absolute", bottom: 20, width: "100%" }}
 						>
 							<View>
-								<TouchableOpacity style={{padding: 5}} onPress={() => {
-									toggleSecondOverlay();
-									setVisible1(false);
-								}}>
+								<TouchableOpacity
+									style={{ padding: 5 }}
+									onPress={() => {
+										toggleSecondOverlay();
+										setVisible1(false);
+									}}
+								>
 									<Text style={styles.textOverlap}>Edit</Text>
 								</TouchableOpacity>
-								<View style={{ borderBottomColor: '#828282', borderBottomWidth: 1 }} />
-								<TouchableOpacity style={{padding: 5}} onPress={() => {
-									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
-									axios.delete(url)
-									.then(res => {
-										console.log(res.data);
-									}).catch(err => console.log(err.response.data))
-									dataCombination.splice(getCurrentUserIndex(), 1);
-									setVisible1(false);
-									setDeletePost(true);
-								}}>
+								<View style={{ borderBottomColor: "#828282", borderBottomWidth: 1 }} />
+								<TouchableOpacity
+									style={{ padding: 5 }}
+									onPress={() => {
+										let url =
+											"https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" +
+											getCurrentUser().id;
+										axios
+											.delete(url)
+											.then((res) => {
+												console.log(res.data);
+											})
+											.catch((err) => console.log(err.response.data));
+										dataCombination.splice(getCurrentUserIndex(), 1);
+										setVisible1(false);
+										setDeletePost(true);
+									}}
+								>
 									<Text style={styles.textOverlap}>Delete</Text>
 								</TouchableOpacity>
 							</View>
@@ -479,24 +541,30 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					>
 						<View style={{ alignItems: "center" }}>
 							<TextInput
-								style={{height: 100}}
+								style={{ height: 100 }}
 								placeholder="Type here!"
-								onChangeText={(text) => {setText(text);}}
+								onChangeText={(text) => {
+									setText(text);
+								}}
 								defaultValue={!updatePost ? userContent : newText}
 								multiline={true}
 								numberOfLines={8}
 							/>
-							<Pressable 
+							<Pressable
 								style={styles.submitButton}
 								onPress={() => {
 									let body = {
 										content: text,
-									}
-									let url = "https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" + getCurrentUser().id;
-									axios.put(url, body)
-									.then(res => {
-										console.log(res.data);
-									}).catch(err => console.log(err.response.data))
+									};
+									let url =
+										"https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/" +
+										getCurrentUser().id;
+									axios
+										.put(url, body)
+										.then((res) => {
+											console.log(res.data);
+										})
+										.catch((err) => console.log(err.response.data));
 									userContent = text;
 									dataCombination[getCurrentUserIndex()].content = text;
 									setNewText(text);
@@ -504,7 +572,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									setVisible2(false);
 								}}
 							>
-								<Text style={{color: "#E2D0A2"}}>Submit</Text>
+								<Text style={{ color: "#E2D0A2" }}>Submit</Text>
 							</Pressable>
 						</View>
 					</Overlay>
@@ -522,7 +590,6 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 							backgroundColor: "#fff",
 						}}
 					>
-						{console.log("Popped Up!")}
 						<ImageZoom
 							cropWidth={370}
 							cropHeight={370}
@@ -537,6 +604,43 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 									source={{
 										// renderImage
 										uri: galleryImage[currentImgIndex],
+									}}
+								/>
+							) : (
+								<>
+									<ActivityIndicator size="small" color="#0000ff" />
+								</>
+							)}
+						</ImageZoom>
+					</Overlay>
+				</View>
+				{/* Modal for Zooming Image*/}
+				<View key={"PopUpReviewImage"}>
+					<Overlay
+						isVisible={reviewDialog}
+						onBackdropPress={() => toggleReviewDialogOverlay()}
+						animationType="slide"
+						overlayStyle={{
+							position: "relative",
+							width: 400,
+							height: 400,
+							backgroundColor: "#fff",
+						}}
+					>
+						<ImageZoom
+							cropWidth={370}
+							cropHeight={370}
+							imageWidth={370}
+							imageHeight={370}
+							style={{ left: 5, marginTop: 5 }}
+							enableDoubleClickZoom={false}
+						>
+							{currentReviewImg !== null && typeof currentReviewImg !== "undefined" ? (
+								<Image
+									style={{ width: 380, height: 380 }}
+									source={{
+										// renderImage
+										uri: currentReviewImg,
 									}}
 								/>
 							) : (
