@@ -69,7 +69,7 @@ router.get("/reviews/:id", async (req, res) => {
 
 			return res.json(attraction);
 		}
-		return res.json({ error: "haizza" });
+		return res.json([]);
 	} catch (err) {
 		console.log(err);
 	}
@@ -94,7 +94,7 @@ router.get("/:id", async (req, res) => {
 			});
 			return res.json(attraction[0]);
 		}
-		return res.json({ error: "haizza" });
+		return res.json({});
 	} catch (err) {
 		console.log(err);
 	}

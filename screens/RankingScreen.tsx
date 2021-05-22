@@ -33,7 +33,7 @@ const FriendRanking = () => {
 
     useEffect(() => {
         const userID = firebase.auth().currentUser?.uid
-        const url = process.env.API_BACKEND + `/users/${userID}/friendships/leaderboard`
+        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -150,7 +150,7 @@ const GlobalRanking = () => {
     }
 
     useEffect(() => {
-        const url = process.env.API_BACKEND + `/users/details/leaderboard`
+        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
         axios.get(url)
             .then(res => {
                 setLeaderboard(res.data.leaderboard);
@@ -163,8 +163,7 @@ const GlobalRanking = () => {
     return (
         <View>
             {/* <RankingHeader /> */}
-            {leaderboard.map((user, index) => {
-                
+            {leaderboard.map((user, index) => {                
                 return (
                     <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
                         <View style={styles.rankingNumberBox}>

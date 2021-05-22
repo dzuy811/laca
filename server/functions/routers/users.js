@@ -36,7 +36,7 @@ router.post("/", (req, res) => {
 		name: req.body.name,
 		gender: req.body.gender,
 		urlAvatar: req.body.urlAvatar,
-		reviewCount: 0
+		reviewCount: 0,
 	};
 
 	admin
@@ -603,13 +603,13 @@ router.get("/:id/histories", async (req, res) => {
 		for await (let history of historyQuery.docs) {
 			// Retrieve attraction's object from document reference
 			const attractionRef = await history.data().attraction.get();
-			const attraction = attractionRef.data();
+			let attraction = attractionRef.data();
 			// Check if there's any empty query
 			if (attraction || typeof attraction !== "undefined") {
 				console.log("Attraction exist");
 			} else {
 				console.log(`Attraction not exist`);
-				throw new Error("Not found error");
+				attraction = { id: null };
 			}
 			histories.push({
 				id: history.id,
@@ -621,12 +621,13 @@ router.get("/:id/histories", async (req, res) => {
 					id: attractionRef.id,
 					...attraction,
 				},
+				status: history.data().status,
 			});
 		}
 		return res.json(histories);
 	} catch (error) {
 		res.status(400).json({
-			message: `ERROR 400`,
+			message: `ERROR 400 ${error}`,
 		});
 		console.log(error);
 	}

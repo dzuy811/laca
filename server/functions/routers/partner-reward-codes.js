@@ -266,11 +266,16 @@ router.put("/acquire", async (req, res) => {
 			.limit(1)
 			.get();
 
+		if (!userRef && typeof userRef !== "undefined") {
+			throw new Error("No user reference found.");
+		}
+
 		if (querySnapshot.empty) {
 			throw Error("No codes available.");
 		}
 
 		const codeRef = db.collection("partner_reward_codes").doc(querySnapshot.docs[0].id);
+		console.log(codeRef.id);
 		let dbTransaction = db
 			.runTransaction(async (t) => {
 				const docs = await t.getAll(userRef, partnerRewardRef, codeRef);
@@ -282,6 +287,7 @@ router.put("/acquire", async (req, res) => {
 				let currentPartnerRewardRedeemed = partnerReward.data().redeemed;
 				let currentPartnerRewardRewardPrice = partnerReward.data().rewardPrice;
 				let expiryDate = new Date(partnerReward.data().expiryDatetime._seconds * 1000);
+				let codeExpiryDatetime = new Date(code.data().codeExpiryDatetime._seconds * 1000);
 				let currentCodeUser = code.data().user;
 				// Check conditions before updating
 				if (currentUserTotalReward < currentPartnerRewardRewardPrice) {
@@ -293,7 +299,7 @@ router.put("/acquire", async (req, res) => {
 				if (currentCodeUser && typeof currentCodeUser !== "undefined") {
 					throw new Error("Partner Reward Code has already been taken, please try again!");
 				}
-				if (new Date() >= expiryDate) {
+				if (new Date() >= codeExpiryDatetime) {
 					throw new Error("Partner Reward has been expired.");
 				}
 				if (!currentPartnerRewardRedeemed && typeof currentPartnerRewardRedeemed === "undefined") {
@@ -314,8 +320,11 @@ router.put("/acquire", async (req, res) => {
 			})
 			.catch((err) => {
 				console.log(err);
-				throw err;
+				return res.status(400).json({
+					message: `ERROR! ${error}`,
+				});
 			});
+
 		return res.status(200).json({
 			id: codeRef.id,
 			path: `/partner_reward_codes/${codeRef.id}`,
