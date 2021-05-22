@@ -114,13 +114,21 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 						)}
 					</View>
 					<ScrollView>
-						{histories ? (
-							<FlatList data={histories} renderItem={renderHistory} />
-						) : (
-							<View style={{ marginLeft: 24 }}>
-								<Text>There aren't any histories yet!</Text>
-							</View>
-						)}
+					{histories ? (
+						<FlatList data={histories} renderItem={renderHistory} />
+					) : (
+						<>
+							{userJourneyCount == 0 ? (
+								<View style={{ marginLeft: 24 }}>
+									<Text>There aren't any histories yet!</Text>
+								</View>
+							) : (
+								<View style={{ marginLeft: 2 }}>
+									<ActivityIndicator size="large" color="#2966A3" />
+								</View>
+							)}
+						</>
+					)}
 					</ScrollView>
 				</View>
 			}

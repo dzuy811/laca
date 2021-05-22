@@ -14,7 +14,15 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const Tab = createBottomTabNavigator();
 
-let barStyle: string = "light-content";
+type types = {
+	onJourney: boolean,
+	setOnJourney: (onJourney: boolean) => void,
+	currentJourneyID: string,
+	setCurrentJourneyID: (journeyID: string) => void,
+	currentAttractionID: string | null,
+	setCurrentAttractionID: (attractionID: string) => void
+}
+
 
 export default function App() {
 	// surpress warnings for virtualizedLists
@@ -25,9 +33,9 @@ export default function App() {
 
 	const [onJourney, setOnJourney] = useState(false)
 	const [currentJourneyID, setCurrentJourneyID] = useState("")
-	const [currentAttractionID, setCurrentAttractionID] = useState(null);
+	const [currentAttractionID, setCurrentAttractionID] = useState("");
 
-	const userGlobalData = {
+	const userGlobalData:types = {
 		onJourney: onJourney,
 		setOnJourney,
 		currentJourneyID: currentJourneyID,
