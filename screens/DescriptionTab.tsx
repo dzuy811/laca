@@ -243,10 +243,11 @@ const DescriptionTab = ({ route, navigation }: Props) => {
                     })
                 }}>
                     <View style={{ width: '80%'}}>
+						<Text>aaaa</Text>
                         <Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
                     </View>
                 </TouchableOpacity>
-				
+			</View>
 			</View>
 
 			{/* Images */}
@@ -292,7 +293,19 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								<View style={{ marginLeft: "25%", marginBottom: "5%" }}>
 									{item.replyCount != 0 ? ( // if the review has reply
 										<View>
-											<TouchableOpacity onPress={() => console.log("Reply")}>
+											<TouchableOpacity onPress={() =>{
+												console.log("this review's id:",item.id)
+												navigation.navigate("ReviewScreen",{
+													id :  item.id,
+													content:item.content,
+													rating: item.rating,
+													urlAvatar : item.avatar,
+													timeStamp: item.timeCreated,
+													username:item.name,
+													likeCount:item.likeCount,
+													images:route.params.galleryImage
+												})
+											}}>
 												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
 													{" "}
 													View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
@@ -300,7 +313,26 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 											</TouchableOpacity>
 										</View>
 									) : (
-										<></>
+										<View>
+											<TouchableOpacity onPress={() =>{
+												console.log("this review's id:",item.id)
+												navigation.navigate("ReplyScreen",{
+													id :  item.id,
+													content:item.content,
+													rating: item.rating,
+													urlAvatar : item.avatar,
+													timeStamp: item.timeCreated,
+													username:item.name,
+													likeCount:item.likeCount,
+													images:route.params.galleryImage
+												})
+											}}>
+												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
+													{" "}
+													Add reply
+												</Text>
+											</TouchableOpacity>
+										</View>
 									)}
 								</View>
 								<>

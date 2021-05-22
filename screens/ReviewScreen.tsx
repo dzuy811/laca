@@ -216,7 +216,7 @@ const ReviewScreen = ({navigation,route} : props) =>{
 				</View>
 				
 				{/* Reply section */}
-				<View style={{ paddingLeft: "10%" }}>
+				{/* <View style={{ paddingLeft: "10%" }}>
 					{item.replyCount == 0 ? // if there is not any reply
 					(
 						<View>
@@ -228,7 +228,7 @@ const ReviewScreen = ({navigation,route} : props) =>{
 								</TouchableOpacity>
 						</View>
 					)}
-				</View>
+				</View> */}
 			</View>
 		</View>
 	);
