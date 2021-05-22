@@ -24,7 +24,8 @@ type voucherType = {
     rewardPrice: number,
 	imageUrl: string,
     code: string,
-    status: string
+    status: string,
+    isExpired: boolean
 }
 
 type dataVoucher = {
@@ -114,15 +115,31 @@ const MyVoucherScreen = () => {
     
             {/* Redeem Button */}
                 <View style={{alignItems: "center", marginTop: 10}}>
-                    <Button 
-                        onPress={() => {
-                            toggleOverlay()
-                        }}
-                        buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
-                        paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
-                        disabled={item.status=='used'? true:false}
-                        title={item.status=="used"? "Used" : "Redeem"}
+
+                    {item.isExpired?
+                     <Button 
+                     onPress={() => {
+                         toggleOverlay()
+                     }}
+                     buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
+                     paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
+                     disabled={true}
+                     title={"Expired"}
                     />
+                    :
+                    <Button 
+                    onPress={() => {
+                        toggleOverlay()
+                    }}
+                    buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
+                    paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
+                    disabled={item.status=='used'? true:false}
+                    title={item.status=="used"? "Used" : "Redeem"}
+                    />
+                
+                    }
+
+                   
                 </View>
         </View>
     )};
@@ -149,6 +166,10 @@ const MyVoucherScreen = () => {
                 eachData.status = element.redeemStatus
 
 				const timestamp = new Date(element.partnerReward.expiryDatetime._seconds * 1000);
+                const timeNow = Date.now()
+                
+                eachData.isExpired = timeNow > element.partnerReward.expiryDatetime._seconds*1000;
+                
 				const formattedDate = (moment(timestamp)).format('DD.MM.YYYY');
 
 				eachData.expiryDateTime = formattedDate;
