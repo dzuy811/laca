@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity,KeyboardAvoidingView,Platform } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
 import { Rating , Header} from 'react-native-elements';
 import { AntDesign } from "@expo/vector-icons";
 import moment from 'moment';
 import { getData } from "../constants/utility";
 import firebase from "firebase";
+import ReplyChange from "../components/review-screen-components/ReplyChange";
+
 
 
 type props = {
@@ -19,7 +21,8 @@ type props = {
 		timeStamp: string,
 		username : string,
 		likeCount: number,
-		images: any[]
+		images: any[],
+		refreshFunction:any
 		}
 	}
 }
@@ -86,6 +89,31 @@ const ReviewScreen = ({navigation,route} : props) =>{
 
 	const [user, setUser] = useState<any>(firebase.auth().currentUser);
 	const [UserInfor, setUserInfor] = useState({});
+	const [text, setText] = useState<string>("");
+	const submitFunc = () =>{
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply`,{
+			method: "POST",
+			headers: { 
+			Accept: 'application/json',
+			'Content-Type': 'application/json' },
+			body :JSON.stringify({
+				rid:id,
+				uid:userID,
+				content : text
+			})
+		})
+		.then( (res) =>{
+			if (res.status == 200){
+				refresh();
+				setViewBox(false)
+				
+			}
+		}
+			
+		)
+		console.log(userID)
+		console.log(text)
+	}
 
 	async function getUser() {
 		let uid = await getData("id");
@@ -103,7 +131,9 @@ const ReviewScreen = ({navigation,route} : props) =>{
 	const [data, setData] = useState<uniqueReviews[]>([]);
 	const [userID, setUserID] = useState<any>();
 
-	const {id,content,rating,urlAvatar,timeStamp,username,likeCount,images} = route.params
+	const [ViewBox,setViewBox] = useState(false);
+
+	const {id,content,rating,urlAvatar,timeStamp,username,likeCount,images,refreshFunction} = route.params
 
 	let imgData: imgprop[] = []
 	let imgCount = 0
@@ -118,11 +148,48 @@ const ReviewScreen = ({navigation,route} : props) =>{
 
 	})
 
-	console.log(imgData)
+	const refresh = () => {
+		
+		console.log("effect called")
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply/reviews/${id}`)
+		.then((response) => response.json())
+		.then((json) => {
+			setData(json)
+			console.log("==============================")
+			console.log(json) // For debugging. Check if the effect is called multiple times or not
+			getUser().then(data => {
+				
+				setUserID(data)
+				console.log("user id: ", data);
+				
+			})
+		})
+		.catch((err) => console.error(err))
+		
+	
+		console.log(data[0])
+	
+		console.log("before Fetch user")
+		async function getUserInfo() {
+			// Get user's information from collection
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
+			let dataInfo = user_info.data();
+			setUserInfor(dataInfo) 
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+		getUserInfo();
+		setDataCombine();
+
+	}
+
 
 
 	// let name = `Review of ${username}`
 	// fetch list of reviews 
+	console.log("before fetch reply")
+	console.log(id)
+
 	useEffect(() => {
 		console.log("effect called")
 		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply/reviews/${id}`)
@@ -141,6 +208,9 @@ const ReviewScreen = ({navigation,route} : props) =>{
 		.catch((err) => console.error(err))
 	},[])
 
+	console.log(data[0])
+
+	console.log("before Fetch user")
 	useEffect(() => {
 		async function getUserInfo() {
 			// Get user's information from collection
@@ -153,33 +223,38 @@ const ReviewScreen = ({navigation,route} : props) =>{
 		getUserInfo();
     },[])
 
-	// useEffect(() => {
-	// 	console.log("fetching user ...")
-		
-	// })
 
 	let dataPoint = 0
 	let dataCombine = [] as ListData
-	if(data.length > 0) {
-		data.forEach((review) => {
-			let ThisData = {} as descriptionType  
-			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-			const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
-			ThisData.id = dataPoint.toString()
-			dataPoint ++
-			ThisData.content = review.comment.content
-			ThisData.avatar = review.userInfo.urlAvatar
-			ThisData.timeCreated = formattedDate;
-			ThisData.name = review.userInfo.name
-			ThisData.rating = review.comment.rating
-			dataCombine.push(ThisData)
-		})
-		dataCombine.forEach((datapoint) => {
-			console.log("=============================================\n\n\n")
-			console.log("hahaa")
-			console.log(datapoint.avatar)
-		})
+	
+	const setDataCombine = () =>{
+		if(data.length > 0) {
+			data.forEach((review) => {
+				let ThisData = {} as descriptionType  
+				const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+				const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+				ThisData.id = dataPoint.toString()
+				dataPoint ++
+				ThisData.content = review.comment.content
+				ThisData.avatar = review.userInfo.urlAvatar
+				ThisData.timeCreated = formattedDate;
+				ThisData.name = review.userInfo.name
+				ThisData.rating = review.comment.rating
+				dataCombine.push(ThisData)
+			})
+			dataCombine.forEach((datapoint) => {
+				console.log("=============================================\n\n\n")
+				console.log("hahaa")
+				console.log(datapoint.avatar)
+			})
+		}
 	}
+
+	const handleReview = (review:string) =>{
+		setText(review)
+    }
+
+	setDataCombine();
 
 
 	const renderDescription = ({ item }: dataDescrip) => (
@@ -194,41 +269,41 @@ const ReviewScreen = ({navigation,route} : props) =>{
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
-						<Rating 
+						{/* <Rating 
 							imageSize={15} 
 							readonly 
 							startingValue={item.rating} 
 							style={styles.rating} 
-						/>
+						/> */}
 					</View>
 				</View>
 
 			</View>
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
-				<View style={{width: '10%',  marginRight: "2%"}}>
+				{/* <View style={{width: '10%',  marginRight: "2%"}}>
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
 						<AntDesign name="up" size={30} color={item.likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
 					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{item.likeCount}</Text>
-				</View>
+				</View> */}
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
 				</View>
 				
 				{/* Reply section */}
-				{/* <View style={{ paddingLeft: "10%" }}>
+				<View style={{ paddingLeft: "10%" }}>
 					{item.replyCount == 0 ? // if there is not any reply
 					(
 						<View>
 						</View>
 					) : (
 						<View>
-								<TouchableOpacity onPress={() => console.log("Reply")}>
+								{/* <TouchableOpacity onPress={() => console.log("Reply")}>
 									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-								</TouchableOpacity>
+								</TouchableOpacity> */}
 						</View>
 					)}
-				</View> */}
+				</View>
 			</View>
 		</View>
 	);
@@ -239,7 +314,10 @@ const ReviewScreen = ({navigation,route} : props) =>{
         <View style={{ flex: 1 }} >
 		<Header
                 leftComponent={
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <TouchableOpacity onPress={() => {
+						navigation.goBack();
+						refreshFunction()
+					}}>
                         <AntDesign name="arrowleft" size={24} color="#fff" />
                     </TouchableOpacity>
                 }
@@ -247,7 +325,7 @@ const ReviewScreen = ({navigation,route} : props) =>{
             />
 		<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
 			<Animated.ScrollView
-			style={{ backgroundColor: "white" }}
+			style={{ backgroundColor: "white" ,marginBottom: 15}}
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{}}
 			scrollEventThrottle={16}
@@ -303,7 +381,7 @@ const ReviewScreen = ({navigation,route} : props) =>{
 					style={styles.flatList}
 				/>
 			</View>
-			<Text style={styles.descriptionTitle}>reply</Text>
+			<Text style={styles.descriptionTitle}>Reply</Text>
 			<View style={{ paddingBottom: 0 }}>
 				
 				<FlatList
@@ -312,26 +390,35 @@ const ReviewScreen = ({navigation,route} : props) =>{
 					keyExtractor={(item) => item.id}
 				></FlatList>
 			</View>
-			<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
-			<Image source={{uri: UserInfor.urlAvatar}} style={styles.profileImage} />
-			<TouchableOpacity style={styles.containerButton} onPress={() =>{
-				 navigation.navigate("ReplyScreen",{
-					id :  id,
-					content:content,
-					rating: rating,
-					urlAvatar : urlAvatar,
-					timeStamp: timeStamp,
-					username: username,
-					likeCount:likeCount,
-					images:route.params.images
-				 })
-			}}>
-				<Text style = {styles.buttonText}>type your comment here</Text>
+			{ !ViewBox ? (
+				<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
+				<Image source={{uri: UserInfor.urlAvatar}} style={styles.profileImage} />
+				<TouchableOpacity style={styles.containerButton} onPress={() =>{
+					 console.log("do it ");
+					 setViewBox(true);
+				}}>
+					<Text style = {styles.buttonText}>Type your comment here</Text>
+					
+				</TouchableOpacity>
+					
+				</View>
+			) : (
+				<></>
+			)
 				
-			</TouchableOpacity>
-				
-			</View>
+			}
 			</Animated.ScrollView>
+			{ViewBox?  (
+				<KeyboardAvoidingView
+					behavior={Platform.OS === "ios" ? "padding" : "height"} >
+						<ReplyChange handleReview={handleReview} word = {`Type your reply here`} submitFunc = {submitFunc} />
+				</KeyboardAvoidingView>
+			) : (
+				<></>
+			)
+				
+			}
+			
 
 		</View>
 

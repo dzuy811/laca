@@ -6,7 +6,6 @@ import DescriptionTab from '../screens/DescriptionTab';
 import { MapScreen } from '../screens';
 import CameraScreen from '../screens/CameraScreen';
 import ReviewScreen from "../screens/ReviewScreen";
-import PostComment from '../screens/PostCommentScreen';
 
 const Stack = createStackNavigator();
 
@@ -28,7 +27,6 @@ const AttractionNavigator:React.FC<props> = ({address}) => {
         <Stack.Screen name="Journey Map" component={MapScreen} />
         <Stack.Screen name="Camera screen" component={CameraScreen}/>
         <Stack.Screen name = "ReviewScreen" component={ReviewScreen}/>
-        <Stack.Screen name = "ReplyScreen" component ={PostComment}/>
       </Stack.Navigator>
 
   )}

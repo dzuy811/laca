@@ -11,6 +11,7 @@ import {
 	Pressable,
 	Dimensions,
 	ActivityIndicator,
+	
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons";
@@ -20,9 +21,10 @@ import { LoginButton } from "../components";
 import AnimatedHeader from "../components/AnimatedHeader";
 import axios from "axios";
 import { getData } from "../constants/utility";
-import {useNavigation} from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { database } from "firebase";
 import ImageZoom from "react-native-image-pan-zoom";
+
 
 type iItem = {
 	item: typeImageData;
@@ -157,124 +159,127 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 
 	let dataCombination = [] as listData;
 
-	if (data.length > 0) {
-		data.forEach((review) => {
-			let data = {} as descriptionType;
-
-			// Format the timestamp from date to string
-			const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-			const formattedDate = moment(timestamp).format("HH:mm DD-MM-YYYY");
-
-			data.id = review.comment.id;
-			data.content = review.comment.content;
-			data.avatar = review.userInfo.urlAvatar;
-			data.name = review.userInfo.name;
-			data.timeCreated = formattedDate;
-			data.rating = review.comment.rating;
-			data.likeCount = review.comment.likeCount;
-			data.replyCount = review.comment.replyCount;
-			data.uid = review.userInfo.id;
-
-			// Store the images by index
-			if (review.comment.images.length > 0) {
-				let imgArray: any = [];
-				for (let i = 0; i < review.comment.images.length; i++) {
-					let index = i + 1;
-					imgArray.push({
-						id: index,
-						source: review.comment.images[i],
-					});
-				}
-				data.images = imgArray;
-			}
-
-			// Take the content of the current user
-			if (data.uid == userID) userContent = data.content;
-
-			dataCombination.push(data);
-		});
+	const refresh = () => {
+		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`;
+		fetch(url)
+			.then((response) => response.json())
+			.then((json) => {
+				setData(json);
+				getUser().then((data) => setUserID(data));
+				setDataCombine();
+			})
+			.catch((err) => console.error(err));
 	}
 
+	const setDataCombine = () =>{
+		if (data.length > 0) {
+			data.forEach((review) => {
+				let data = {} as descriptionType;
+	
+				// Format the timestamp from date to string
+				const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+				const formattedDate = moment(timestamp).format("HH:mm DD-MM-YYYY");
+	
+				data.id = review.comment.id;
+				data.content = review.comment.content;
+				data.avatar = review.userInfo.urlAvatar;
+				data.name = review.userInfo.name;
+				data.timeCreated = formattedDate;
+				data.rating = review.comment.rating;
+				data.likeCount = review.comment.likeCount;
+				data.replyCount = review.comment.replyCount;
+				data.uid = review.userInfo.id;
+	
+				// Store the images by index
+				if (review.comment.images.length > 0) {
+					let imgArray: any = [];
+					for (let i = 0; i < review.comment.images.length; i++) {
+						let index = i + 1;
+						imgArray.push({
+							id: index,
+							source: review.comment.images[i],
+						});
+					}
+					data.images = imgArray;
+				}
+	
+				// Take the content of the current user
+				if (data.uid == userID) userContent = data.content;
+	
+				dataCombination.push(data);
+			});
+		}
+	}
+
+	setDataCombine();
+
 	const ReviewSection = ({ item, index }: dataDescription) => {
-        const navigation = useNavigation();
-        return (
-
-        
-		<View style={{ marginBottom: 10}}>
-			{/* Avatar + Name + Rating star + Timestamp */}
-			<View style={{ flexDirection: "row" }}>
-				<Image source={{uri: item.avatar}} style={styles.profileImage} />
-				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
-					<View style={{width: '73%'}}>
-						<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
-						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
-					</View>
-					<View style={{ width: '10%' }}>
-						<Rating 
-							imageSize={15} 
-							readonly 
-							startingValue={item.rating} 
-							style={styles.rating} 
-						/>
-					</View>
-				</View>
-
-			{/* Up vote + Content */}
-			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
-				<View style={{width: '10%',  marginRight: "2%"}}>
-					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
-					</TouchableOpacity>
-					<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>{item.likeCount}</Text>
-				</View>
-                {/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params */}
-
-                <TouchableOpacity onPress={() =>{
-                    console.log("this review's id:",item.id)
-                    navigation.navigate("ReviewScreen",{
-                        id :  item.id,
-                        content:item.content,
-                        rating: item.rating,
-                        urlAvatar : item.avatar,
-                        timeStamp: item.timeCreated,
-                        username:item.name,
-                        likeCount:item.likeCount,
-                        images:route.params.galleryImage
-                    })
-                }}>
-                    <View style={{ width: '80%'}}>
-						<Text>aaaa</Text>
-                        <Text style={{ fontSize: 15 }}>{updatePost && item.uid == userID ? newText : item.content}</Text>				
-                    </View>
-                </TouchableOpacity>
-			</View>
-			</View>
-
-			{/* Images */}
-			{item.images != undefined ? (
-				<View>
-					{item.images.length > 0 ? (
-						<View style={{ marginLeft: "15%", marginTop: "3%" }}>
-							<FlatList
-								data={item.images}
-								renderItem={renderReviewImage}
-								keyExtractor={(item) => item.id}
-								horizontal={true} 
-								showsHorizontalScrollIndicator={false}
-								style={styles.flatListReview}
-							/>
+		const navigation = useNavigation();
+		return (
+			<View style={{ marginBottom: 10 }}>
+				{/* Avatar + Name + Rating star + Timestamp */}
+				<View style={{ flexDirection: "row" }}>
+					<Image source={{ uri: item.avatar }} style={styles.profileImage} />
+					<View
+						style={{
+							marginLeft: 10,
+							flexDirection: "row",
+							flexWrap: "wrap",
+							alignItems: "flex-start",
+						}}
+					>
+						<View style={{ width: "73%" }}>
+							<Text style={styles.profileName}>{item.name != "" ? item.name : ""}</Text>
+							<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 						</View>
-					) : (
-						<>
-						</>
-					)}
+						<View style={{ width: "10%" }}>
+							<Rating imageSize={15} readonly startingValue={item.rating} style={styles.rating} />
+						</View>
+					</View>
 				</View>
-			) : (
-				<>
-				</>
-			)}
-		</View>
-	)}
+
+				{/* Up vote + Content */}
+				<View style={{ marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10 }}>
+					<View style={{ width: "10%", marginRight: "2%" }}>
+						<TouchableOpacity onPress={() => console.log("The up vote test")}>
+							<AntDesign name="up" size={35} color={item.likeCount != 0 ? "green" : "black"} />
+						</TouchableOpacity>
+						<Text style={{ position: "absolute", marginLeft: "40%", paddingTop: 20 }}>
+							{item.likeCount}
+						</Text>
+					</View>
+					{/* const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params */}
+						<View style={{ width: "80%" }}>
+							<Text style={{ fontSize: 15 }}>
+								{updatePost && item.uid == userID ? newText : item.content}
+							</Text>
+						</View>
+				</View>
+
+				{/* Images */}
+				{item.images != undefined ? (
+					<View>
+						{item.images.length > 0 ? (
+							<View style={{ marginLeft: "15%", marginTop: "3%" }}>
+								<FlatList
+									data={item.images}
+									renderItem={renderReviewImage}
+									keyExtractor={(item, index) => index.toString()}
+									horizontal={true}
+									showsHorizontalScrollIndicator={false}
+									style={styles.flatListReview}
+								/>
+							</View>
+						) : (
+							<></>
+						)}
+					</View>
+				) : (
+					<></>
+				)}
+			</View>
+		);
+	};
 
 	// Render list of descriptions for Flat List
 	const renderDescription = ({ item, index }: dataDescription) => {
@@ -293,19 +298,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								<View style={{ marginLeft: "25%", marginBottom: "5%" }}>
 									{item.replyCount != 0 ? ( // if the review has reply
 										<View>
-											<TouchableOpacity onPress={() =>{
-												console.log("this review's id:",item.id)
-												navigation.navigate("ReviewScreen",{
-													id :  item.id,
-													content:item.content,
-													rating: item.rating,
-													urlAvatar : item.avatar,
-													timeStamp: item.timeCreated,
-													username:item.name,
-													likeCount:item.likeCount,
-													images:route.params.galleryImage
-												})
-											}}>
+											<TouchableOpacity onPress={() => console.log("Reply")}>
 												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
 													{" "}
 													View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
@@ -313,26 +306,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 											</TouchableOpacity>
 										</View>
 									) : (
-										<View>
-											<TouchableOpacity onPress={() =>{
-												console.log("this review's id:",item.id)
-												navigation.navigate("ReplyScreen",{
-													id :  item.id,
-													content:item.content,
-													rating: item.rating,
-													urlAvatar : item.avatar,
-													timeStamp: item.timeCreated,
-													username:item.name,
-													likeCount:item.likeCount,
-													images:route.params.galleryImage
-												})
-											}}>
-												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
-													{" "}
-													Add reply
-												</Text>
-											</TouchableOpacity>
-										</View>
+										<> </>
 									)}
 								</View>
 								<>
@@ -360,15 +334,49 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						<View style={{ marginTop: 10, marginLeft: "25%" }}>
 							{item.replyCount != 0 ? ( // if the review has reply
 								<View>
-									<TouchableOpacity onPress={() => console.log("Reply")}>
-										<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
+									<TouchableOpacity onPress={() => {
+										console.log("this review's id:", item.id);
+										navigation.navigate("ReviewScreen", {
+											id: item.id,
+											content: item.content,
+											rating: item.rating,
+											urlAvatar: item.avatar,
+											timeStamp: item.timeCreated,
+											username: item.name,
+											likeCount: item.likeCount,
+											images: route.params.galleryImage,
+											refreshFunction:refresh
+										});
+									}}>
+										<Text style={{ color: "#40D0EF", fontWeight: "bold" , marginBottom: 15}}>
 											{" "}
 											View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
 										</Text>
 									</TouchableOpacity>
 								</View>
 							) : (
-								<></>
+								<View>
+											<TouchableOpacity onPress={() => {
+												console.log("this review's id:", item.id);
+												navigation.navigate("ReviewScreen", {
+													id: item.id,
+													content: item.content,
+													rating: item.rating,
+													urlAvatar: item.avatar,
+													timeStamp: item.timeCreated,
+													username: item.name,
+													likeCount: item.likeCount,
+													images: route.params.galleryImage,
+													refreshFunction : refresh
+
+												});
+											}}>
+												<Text style={{ color: "#40D0EF", fontWeight: "bold", marginBottom: 15 }}>
+													{" "}
+													Add a reply
+												</Text>
+											</TouchableOpacity>
+										</View>
 							)}
 						</View>
 						<>
@@ -510,6 +518,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								></FlatList>
 							</View>
 						</Animated.ScrollView>
+						
 					</View>
 				</View>
 
