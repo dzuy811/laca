@@ -4,7 +4,7 @@ import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
 import MainNav from "./navigation/mainNav";
-import VoucherShop from "./screens/VoucherShop";
+import MyVoucherScreen from "./screens/MyVoucherScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
@@ -42,13 +42,9 @@ export default function App() {
 			style="light"
 			backgroundColor="#4B8FD2"
 			/>
-			{/* <MainNav /> */}
-			{/* <ReviewScreen/> */}
 			<AppContext.Provider value={userGlobalData}>
 				<MainNav />
 			</AppContext.Provider>
-			{/* <VoucherShop /> */}
-
 		</SafeAreaProvider>
 	);
 }
