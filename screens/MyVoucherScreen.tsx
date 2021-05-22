@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Pressable} from 'react-native'
+import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, Pressable, ActivityIndicator} from 'react-native'
 import { Header, Button, Overlay } from 'react-native-elements'
 import { AntDesign } from "@expo/vector-icons";
 import QRCode from 'react-native-qrcode-svg';
@@ -23,7 +23,9 @@ type voucherType = {
     redeemed: number,
     rewardPrice: number,
 	imageUrl: string,
-    code: string
+    code: string,
+    status: string,
+    isExpired: boolean
 }
 
 type dataVoucher = {
@@ -35,7 +37,7 @@ type dataVoucher = {
 
 
 
-const ViewVoucher = (props) => {
+const ViewVoucher = (props:any) => {
     // console.log(props);
     
     return (
@@ -75,12 +77,13 @@ const MyVoucherScreen = () => {
   
     const VoucherCard = ({ item, index }: dataVoucher) => {
 
-
+        console.log("item: ", item);
+        
         
         return (
         <View key={index} style={styles.voucherBox}>
             <View style={{width: '100%'}}>
-                <Overlay style={{width: '100%'}} isVisible={visible} onBackdropPress={() => toggleOverlay()}>
+                <Overlay overlayStyle={{borderRadius: 20}} style={{width: '100%'}} isVisible={visible} onBackdropPress={() => toggleOverlay()}>
                     <ViewVoucher imageUrl={item.imageUrl} code={item.code} content = {item.content} />
                 </Overlay>
             </View>
@@ -100,7 +103,7 @@ const MyVoucherScreen = () => {
                     <View style={{marginTop: 10}}>
                         <Text style={{fontSize: 15}}>Expired: {item.expiryDateTime}</Text>
                     </View>
-                    <View style={{flexDirection: 'row', marginTop: 10}}>
+                    <View style={{flexDirection: 'row', marginTop: 10, alignItems:'center'}}>
                         <Image 
                             style={{marginRight: 5, height:20, width: 20}}
                             source={coinImage}
@@ -110,16 +113,33 @@ const MyVoucherScreen = () => {
                 </View>
             </View>
     
-            {/* Exchange Button */}
-            <View style={{alignItems: "center", marginTop: 10}}>
-                    <Pressable 
-                        style={styles.submitButton}
-                        onPress={() => {
-                            toggleOverlay()
-                        }}
-                    >
-                        <Text style={{color: "#E2D0A2", fontWeight: "bold"}}>Redeem</Text>
-                    </Pressable>
+            {/* Redeem Button */}
+                <View style={{alignItems: "center", marginTop: 10}}>
+
+                    {item.isExpired?
+                     <Button 
+                     onPress={() => {
+                         toggleOverlay()
+                     }}
+                     buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
+                     paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
+                     disabled={true}
+                     title={"Expired"}
+                    />
+                    :
+                    <Button 
+                    onPress={() => {
+                        toggleOverlay()
+                    }}
+                    buttonStyle={{backgroundColor: "#E2D0A2", width: 300,
+                    paddingHorizontal: 10, paddingVertical: 12,borderRadius: 30}}
+                    disabled={item.status=='used'? true:false}
+                    title={item.status=="used"? "Used" : "Redeem"}
+                    />
+                
+                    }
+
+                   
                 </View>
         </View>
     )};
@@ -143,8 +163,13 @@ const MyVoucherScreen = () => {
 				eachData.rewardPrice = element.partnerReward.rewardPrice;
 				eachData.imageUrl = element.partnerReward.partner.imageUrl;
                 eachData.code = element.code
+                eachData.status = element.redeemStatus
 
 				const timestamp = new Date(element.partnerReward.expiryDatetime._seconds * 1000);
+                const timeNow = Date.now()
+                
+                eachData.isExpired = timeNow > element.partnerReward.expiryDatetime._seconds*1000;
+                
 				const formattedDate = (moment(timestamp)).format('DD.MM.YYYY');
 
 				eachData.expiryDateTime = formattedDate;
@@ -163,7 +188,7 @@ const MyVoucherScreen = () => {
   
 
     return (
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%', height: '100%'}}>
             <Header
 				leftComponent={
 					<TouchableOpacity onPress={() => navigation.goBack()}>
@@ -173,7 +198,9 @@ const MyVoucherScreen = () => {
 				centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>My vouchers</Text>}
 			/>
             {loading? 
-            <Text>Loading</Text>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%'}}>
+                    <ActivityIndicator size="large" color="#2966A3"/>
+            </View>
             :
             <View>
                 <FlatList
@@ -192,15 +219,16 @@ const styles = StyleSheet.create({
     partnerLogo: {
         width: 80,
         height: 80,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        
     },
     voucherOverlay: {
         alignItems: 'center',
         width: windowWidth * 0.8,
-        height: '60%'
+        padding: 20
     },
     overlaySectionContainer: {
-        marginTop: 10
+        marginTop: 10,
     },
     voucherBox: {
         padding: 20,
@@ -210,7 +238,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#FDFDFD",
 		marginTop: 30,
 		marginLeft: 30,
-		marginRight: 30
+		marginRight: 30,
 	},
     submitButton: {
 		width: 250,

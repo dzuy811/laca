@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import {
 	View,
 	Text,
@@ -25,7 +25,8 @@ import { useNavigation } from "@react-navigation/native";
 import { database } from "firebase";
 import ImageZoom from "react-native-image-pan-zoom";
 
-
+import AppContext from '../components/AppContext'
+import { Button } from 'react-native-elements'
 type iItem = {
 	item: typeImageData;
 	index: number;
@@ -100,6 +101,16 @@ type infoUser = {
 
 type listData = descriptionType[];
 
+type globalTypes = {
+	onJourney: boolean,
+	setOnJourney: (onJourney: boolean) => void,
+	currentJourneyID: string,
+	setCurrentJourneyID: (journeyID: string) => void,
+	currentAttractionID: string | null,
+	setCurrentAttractionID: (attractionID: string) => void
+}
+
+
 const DescriptionTab = ({ route, navigation }: Props) => {
 	const offset = useRef(new Animated.Value(0)).current;
 	const { latitude, longitude, description, name, id, distance, reward, galleryImage } =
@@ -117,10 +128,17 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 	const [currentReviewImg, setCurrentReviewImg] = useState<any>("https://i.imgur.com/knFzSA7.png"); // current index of img array in a review // set Default image at initial point
 	const [reviewDialog, setReviewDialog] = useState<boolean>(false);
 
+	// User global data
+
+	const userGlobalData = useContext(AppContext) as globalTypes
+
 	// fetch list of reviews
 	useEffect(() => {
-		console.log("id: ", id);
-		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`;
+		
+		console.log('id: ', id);
+		console.log('attraction id:', userGlobalData.currentAttractionID);
+		
+		let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/reviews/attractions/${id}`
 		fetch(url)
 			.then((response) => response.json())
 			.then((json) => {
@@ -135,26 +153,41 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 		return id;
 	}
 
+	async function backToJourney() {
+		navigation.navigate("Journey Map", {
+			// rmit 10.730283804989273, 106.69316143068589
+			// home 10.791044000816369, 106.6839532702234
+			latitude: latitude,
+			longitude: longitude,
+			journeyID: userGlobalData.currentJourneyID,
+			attractionID: id,
+			reward: reward
+		});
+	}
+
 	async function takeJourney() {
 		let body = {
-			userID: await getData("id"),
-			attractionID: id,
-		};
-		axios
-			.post("https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories", body)
-			.then((res) => {
-				console.log(res.data);
-				navigation.navigate("Journey Map", {
-					// rmit 10.730283804989273, 106.69316143068589
-					// home 10.791044000816369, 106.6839532702234
-					latitude: latitude,
-					longitude: longitude,
-					journeyID: res.data.id,
-					attractionID: id,
-					reward: reward,
-				});
-			})
-			.catch((err) => console.log(err));
+			userID: await getData('id'),
+			attractionID: id
+		}
+
+		// Set the state of user to currently take the journey
+		userGlobalData.setOnJourney(true);
+		axios.post('https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories', body)
+		.then(res => {
+		console.log(res.data);
+		userGlobalData.setCurrentJourneyID(res.data.id)
+		userGlobalData.setCurrentAttractionID(id)
+		navigation.navigate("Journey Map", {
+				// rmit 10.730283804989273, 106.69316143068589
+				// home 10.791044000816369, 106.6839532702234
+				latitude: latitude,
+				longitude: longitude,
+				journeyID: res.data.id,
+				attractionID: id,
+				reward: reward
+		});
+		}).catch(err => console.log(err))
 	}
 
 	let dataCombination = [] as listData;
@@ -536,12 +569,43 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 						zIndex: 2,
 					}}
 				>
+				<View style={{marginBottom: 20}}>
+				{userGlobalData.onJourney?
+
+				<>
+					{userGlobalData.currentAttractionID == id?
 					<LoginButton
-						title="Take the journey"
-						onPress={() => takeJourney()}
-						color="#4B8FD2"
-						textColor="#E2D0A2"
+					title="Back to journey"
+					onPress={() => backToJourney()}
+					color="#E2D0A2"
+					textColor="#4B8FD2"
 					/>
+					:
+					<View >
+						<Button
+						title="You are on another journey"
+						buttonStyle={{
+							backgroundColor: "#E2D0A2", width: 300,
+							padding: 20, borderRadius: 30}}
+						titleStyle={{color: "#4B8FD2"}}
+						disabled={true}
+						/>
+					</View>
+					
+					}
+				</>
+
+				:
+				<LoginButton
+					title="Take the journey"
+					onPress={() => takeJourney()}
+					color="#4B8FD2"
+					textColor="#E2D0A2"
+				/>
+				}
+				</View>
+				
+				
 				</LinearGradient>
 
 				{/* Modal for editing/deleting */}

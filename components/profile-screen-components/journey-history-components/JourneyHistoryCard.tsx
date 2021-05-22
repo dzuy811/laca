@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 import moment from "moment";
+import * as Location from 'expo-location'
 
 interface JourneyCardProps {
 	data: HistoryData;
@@ -20,6 +21,16 @@ interface HistoryData {
 const JourneyHistoryCard = ({ data }: JourneyCardProps) => {
 	const { id, createdAt, user, attraction } = data;
 	const timestamp = new Date(createdAt._seconds * 1000);
+	let address: string;
+	Location.reverseGeocodeAsync({latitude: attraction.geoPoint._latitude, longitude: attraction.geoPoint._longitude})
+	.then(res => { 
+		console.log();
+		
+	})
+
+
+	// console.log('attraction: ', location);
+	
 
 	const formatDateString = (timestamp: Date): string => {
 		moment.locale("en");
@@ -34,9 +45,6 @@ const JourneyHistoryCard = ({ data }: JourneyCardProps) => {
 				<Text style={{ fontSize: 18 }}>
 					{attraction.name ? attraction.name : "Unknown Location"}
 				</Text>
-			</View>
-			<View style={[{ marginTop: 10, flexDirection: "row", flexWrap: "wrap" }]}>
-				<Text style={style.addressText}>69 Đồng Khởi</Text>
 			</View>
 			<View style={[{ marginTop: 14, flexDirection: "row", alignItems: "center" }]}>
 				<Image source={require("../../../assets/dollar.png")} />

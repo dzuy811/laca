@@ -1,20 +1,28 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./constants/firebase";
 import MainNav from "./navigation/mainNav";
-import VoucherShop from "./screens/VoucherShop";
+import MyVoucherScreen from "./screens/MyVoucherScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AttractionMap from "./screens/AttractionMap";
 import AttractionNavigator from "./navigator/AttractionNavigator";
-
+import AppContext from './components/AppContext'
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 
 const Tab = createBottomTabNavigator();
 
-let barStyle: string = "light-content";
+type types = {
+	onJourney: boolean,
+	setOnJourney: (onJourney: boolean) => void,
+	currentJourneyID: string,
+	setCurrentJourneyID: (journeyID: string) => void,
+	currentAttractionID: string | null,
+	setCurrentAttractionID: (attractionID: string) => void
+}
+
 
 export default function App() {
 	// surpress warnings for virtualizedLists
@@ -23,17 +31,28 @@ export default function App() {
 		LogBox.ignoreLogs(["Setting a timer"]);
 	}, []);
 
+	const [onJourney, setOnJourney] = useState(false)
+	const [currentJourneyID, setCurrentJourneyID] = useState("")
+	const [currentAttractionID, setCurrentAttractionID] = useState("");
+
+	const userGlobalData:types = {
+		onJourney: onJourney,
+		setOnJourney,
+		currentJourneyID: currentJourneyID,
+		setCurrentJourneyID,
+		currentAttractionID: currentAttractionID,
+		setCurrentAttractionID
+	}
+
 	return (
 		<SafeAreaProvider>
 			<StatusBar
 			style="light"
 			backgroundColor="#4B8FD2"
 			/>
-			{/* <MainNav /> */}
-			{/* <ReviewScreen/> */}
-			<MainNav />
-			{/* <VoucherShop /> */}
-
+			<AppContext.Provider value={userGlobalData}>
+				<MainNav />
+			</AppContext.Provider>
 		</SafeAreaProvider>
 	);
 }
