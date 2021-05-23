@@ -15,6 +15,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 const Tab = createBottomTabNavigator();
 
 type types = {
+	userInfo: any,
+	setUserInfo: (object: any) => void,
 	onJourney: boolean,
 	setOnJourney: (onJourney: boolean) => void,
 	currentJourneyID: string,
@@ -31,11 +33,14 @@ export default function App() {
 		LogBox.ignoreLogs(["Setting a timer"]);
 	}, []);
 
-	const [onJourney, setOnJourney] = useState(false)
-	const [currentJourneyID, setCurrentJourneyID] = useState("")
+	const [userInfo, setUserInfo] = useState();
+	const [onJourney, setOnJourney] = useState(false);
+	const [currentJourneyID, setCurrentJourneyID] = useState("");
 	const [currentAttractionID, setCurrentAttractionID] = useState("");
 
 	const userGlobalData:types = {
+		userInfo: userInfo,
+		setUserInfo,
 		onJourney: onJourney,
 		setOnJourney,
 		currentJourneyID: currentJourneyID,

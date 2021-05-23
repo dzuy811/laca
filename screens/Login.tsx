@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import { LoginButton, AppLogo } from '../components';
 import FormInput from "../components/FormInput";
 import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
 import * as firebase from 'firebase';
 import 'firebase/firestore';
+import AppContext from '../components/AppContext'
 
 interface Props {
     navigation: any;
@@ -46,6 +47,7 @@ const Login: React.FC <Props> = (props) => {
     const [verificationId, setVerificationId] = React.useState();
     const [verificationCode, setVerificationCode] = React.useState<string>("");
     const firebaseConfig = firebase.apps.length ? firebase.app().options : undefined;
+    const userGlobalData = useContext(AppContext)
 
     const handlePhoneChange = (newText: string) => {
 		setPhoneNumber(newText);
@@ -116,7 +118,11 @@ const Login: React.FC <Props> = (props) => {
                                 verificationId,
                                 verificationCode
                             );
-                            await firebase.auth().signInWithCredential(credential);
+                            await firebase.auth().signInWithCredential(credential).then((res) => {
+                                console.log('credential: ', res);
+                                
+                                userGlobalData.setUserInfo(res)
+                            });
                             await checkUser(phoneNumber);
                             } catch (err) {
                                 showMessage({ text: `Error: ${err.message}`, color: 'red' });

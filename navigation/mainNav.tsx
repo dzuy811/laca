@@ -1,10 +1,12 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, useContext } from "react";
 import { getFocusedRouteNameFromRoute, NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./authstack";
 import { Image, StyleSheet, Platform, Alert } from "react-native";
 import { storeData, getData } from "../constants/utility";
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import AppContext from '../components/AppContext'
+
 
 import firebase from "firebase";
 
@@ -33,6 +35,7 @@ const Tab = createBottomTabNavigator();
 const MainNav: FC = () => {
 	const [user, setUser] = useState<any>(null);
 	const [userData, setUserData] = useState<any>(null);
+	const userGlobalData = useContext(AppContext);
 
 	const bootstrap = () => {
 		firebase.auth().onAuthStateChanged((_user) => {
@@ -126,13 +129,14 @@ const MainNav: FC = () => {
 
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => {
-
+		console.log('aaa:', userGlobalData.userInfo);
+		
         })
     }, [])
 
     return (
         <NavigationContainer>
-            {user != null ?
+            {userGlobalData.userInfo != null ?
                 <InitialNavigator loading={true}/>
 			 : (
 				<AuthStack />
