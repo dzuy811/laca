@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { FontAwesome5, AntDesign } from "@expo/vector-icons";
 import moment from "moment";
-import * as Location from 'expo-location'
+import * as Location from "expo-location";
 
 interface JourneyCardProps {
 	data: HistoryData;
@@ -22,15 +22,7 @@ const JourneyHistoryCard = ({ data }: JourneyCardProps) => {
 	const { id, createdAt, user, attraction } = data;
 	const timestamp = new Date(createdAt._seconds * 1000);
 	let address: string;
-	Location.reverseGeocodeAsync({latitude: attraction.geoPoint._latitude, longitude: attraction.geoPoint._longitude})
-	.then(res => { 
-		console.log();
-		
-	})
-
-
 	// console.log('attraction: ', location);
-	
 
 	const formatDateString = (timestamp: Date): string => {
 		moment.locale("en");
