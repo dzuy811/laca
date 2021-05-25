@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 export default {
     name: "Laca",
-    version: '1.0.0',
+    version: '1.0.1',
     extra: {
         googleAPI: process.env.GOOGLE_MAPS_API_KEY
     },
