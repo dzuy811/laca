@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, Alert, FlatList, Animated,TouchableOpacity,KeyboardAvoidingView,Platform } from "react-native";
 import AnimatedHeader from "../components/AnimatedHeader";
-import { Rating } from 'react-native-elements';
+import { Rating , Header} from 'react-native-elements';
 import { AntDesign } from "@expo/vector-icons";
 import moment from 'moment';
+import { getData } from "../constants/utility";
+import firebase from "firebase";
+import ReplyChange from "../components/review-screen-components/ReplyChange";
+
 
 
 type props = {
@@ -17,9 +21,9 @@ type props = {
 		timeStamp: string,
 		username : string,
 		likeCount: number,
+		images: any[],
+		refreshFunction:any
 		}
-
-
 	}
 }
 
@@ -75,42 +79,49 @@ interface uniqueReviews  {
 
 }
 
-const Data = [
-	{
-		id: "01",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "02",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "03",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "04",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-	{
-		id: "05",
-		source: "https://cdn.vntrip.vn/cam-nang/wp-content/uploads/2017/07/ben-nha-rong-chua.jpg",
-	},
-];
-
-const PassedData = {
-	name : "Dat",
-	content : "i enjoyed the trip so much",
-	timeCreated: "18:20 12-3-2020",
-	avatar : "https://media.vneconomy.vn/w900/images/upload/2021/04/20/8-crop-15385326887281768852049.jpg",
-	rating : 4,
-	likeCount: 3
+type imgprop = { id:string,
+source : string}
 
 
-}
 
-// const ReviewScreen = ({navigation,route} : props) =>{
-const ReviewScreen = () =>{
+const ReviewScreen = ({navigation,route} : props) =>{
+
+
+	const [user, setUser] = useState<any>(firebase.auth().currentUser);
+	const [UserInfor, setUserInfor] = useState({});
+	const [text, setText] = useState<string>("");
+	const submitFunc = () =>{
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply`,{
+			method: "POST",
+			headers: { 
+			Accept: 'application/json',
+			'Content-Type': 'application/json' },
+			body :JSON.stringify({
+				rid:id,
+				uid:userID,
+				content : text
+			})
+		})
+		.then( (res) =>{
+			if (res.status == 200){
+				refresh();
+				setViewBox(false)
+				
+			}
+		}
+			
+		)
+		console.log(userID)
+		console.log(text)
+	}
+
+	async function getUser() {
+		let uid = await getData("id");
+		return uid;
+	}
+	
+	
+// const ReviewScreen = () =>{
 	const offset = useRef(new Animated.Value(0)).current;
 	const description = "aaaaaaaaaa";
 	const renderImage = ({ item, index }: IItem) => {
@@ -118,14 +129,67 @@ const ReviewScreen = () =>{
 	};
 
 	const [data, setData] = useState<uniqueReviews[]>([]);
-	let id = "JmTVF0qul9fTptyQjzNQ"
+	const [userID, setUserID] = useState<any>();
 
-	// const {id,content,rating,urlAvatar,timeStamp,username,likeCount} = route.params
+	const [ViewBox,setViewBox] = useState(false);
+
+	const {id,content,rating,urlAvatar,timeStamp,username,likeCount,images,refreshFunction} = route.params
+
+	let imgData: imgprop[] = []
+	let imgCount = 0
+	images.forEach(imgi =>{
+		imgCount ++;
+		let imgdt = {
+			id: imgCount.toString(),
+			source : imgi
+		}
+		imgData.push(imgdt)
+		
+
+	})
+
+	const refresh = () => {
+		
+		console.log("effect called")
+		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply/reviews/${id}`)
+		.then((response) => response.json())
+		.then((json) => {
+			setData(json)
+			console.log("==============================")
+			console.log(json) // For debugging. Check if the effect is called multiple times or not
+			getUser().then(data => {
+				
+				setUserID(data)
+				console.log("user id: ", data);
+				
+			})
+		})
+		.catch((err) => console.error(err))
+		
+	
+		console.log(data[0])
+	
+		console.log("before Fetch user")
+		async function getUserInfo() {
+			// Get user's information from collection
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
+			let dataInfo = user_info.data();
+			setUserInfor(dataInfo) 
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+		getUserInfo();
+		setDataCombine();
+
+	}
 
 
 
 	// let name = `Review of ${username}`
 	// fetch list of reviews 
+	console.log("before fetch reply")
+	console.log(id)
+
 	useEffect(() => {
 		console.log("effect called")
 		fetch(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/reply/reviews/${id}`)
@@ -134,32 +198,63 @@ const ReviewScreen = () =>{
             setData(json)
 			console.log("==============================")
             console.log(json) // For debugging. Check if the effect is called multiple times or not
+			getUser().then(data => {
+				
+				setUserID(data)
+				console.log("user id: ", data);
+				
+			})
         })
 		.catch((err) => console.error(err))
 	},[])
 
+	console.log(data[0])
+
+	console.log("before Fetch user")
+	useEffect(() => {
+		async function getUserInfo() {
+			// Get user's information from collection
+			firebase.firestore().collection("users").doc(user.uid).get().then((user_info: object) => { 
+			let dataInfo = user_info.data();
+			setUserInfor(dataInfo) 
+		})
+		.catch((error) => { console.log("error:", error) });
+		}
+		getUserInfo();
+    },[])
+
+
 	let dataPoint = 0
 	let dataCombine = [] as ListData
+	
+	const setDataCombine = () =>{
+		if(data.length > 0) {
+			data.forEach((review) => {
+				let ThisData = {} as descriptionType  
+				const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
+				const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
+				ThisData.id = dataPoint.toString()
+				dataPoint ++
+				ThisData.content = review.comment.content
+				ThisData.avatar = review.userInfo.urlAvatar
+				ThisData.timeCreated = formattedDate;
+				ThisData.name = review.userInfo.name
+				ThisData.rating = review.comment.rating
+				dataCombine.push(ThisData)
+			})
+			dataCombine.forEach((datapoint) => {
+				console.log("=============================================\n\n\n")
+				console.log("hahaa")
+				console.log(datapoint.avatar)
+			})
+		}
+	}
 
-	data.forEach((review) => {
-		let ThisData = {} as descriptionType  
-		const timestamp = new Date(review.comment.timeCreated._seconds * 1000);
-		const formattedDate = (moment(timestamp)).format('HH:mm DD-MM-YYYY');
-		ThisData.id = dataPoint.toString()
-		dataPoint ++
-		ThisData.content = review.comment.content
-		ThisData.avatar = review.userInfo.urlAvatar
-		ThisData.timeCreated = formattedDate;
-		ThisData.name = review.userInfo.name
-		ThisData.rating = review.comment.rating
-		dataCombine.push(ThisData)
-	})
-	dataCombine.forEach((datapoint) => {
-		console.log("=============================================\n\n\n")
-		console.log("hahaa")
-		console.log(datapoint.avatar)
-	})
+	const handleReview = (review:string) =>{
+		setText(review)
+    }
 
+	setDataCombine();
 
 
 	const renderDescription = ({ item }: dataDescrip) => (
@@ -174,23 +269,23 @@ const ReviewScreen = () =>{
 						<Text style={styles.timeStamp}>{item.timeCreated}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
-						<Rating 
+						{/* <Rating 
 							imageSize={15} 
 							readonly 
 							startingValue={item.rating} 
 							style={styles.rating} 
-						/>
+						/> */}
 					</View>
 				</View>
 
 			</View>
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
-				<View style={{width: '10%',  marginRight: "2%"}}>
+				{/* <View style={{width: '10%',  marginRight: "2%"}}>
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
 						<AntDesign name="up" size={30} color={item.likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
 					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{item.likeCount}</Text>
-				</View>
+				</View> */}
 				<View style={{ width: '80%'}}>
 					<Text style={{ fontSize: 15 }}>{item.content}</Text>
 				</View>
@@ -203,9 +298,9 @@ const ReviewScreen = () =>{
 						</View>
 					) : (
 						<View>
-								<TouchableOpacity onPress={() => console.log("Reply")}>
+								{/* <TouchableOpacity onPress={() => console.log("Reply")}>
 									<Text style={{color: "#40D0EF", fontWeight: "bold"}}> View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}</Text>
-								</TouchableOpacity>
+								</TouchableOpacity> */}
 						</View>
 					)}
 				</View>
@@ -217,17 +312,20 @@ const ReviewScreen = () =>{
 	
     return (<>
         <View style={{ flex: 1 }} >
-		<View style={{
-			flex:0.23,
-			backgroundColor:"#4B8FD2",
-			borderBottomRightRadius:18,
-			borderBottomLeftRadius:18
-		}}>
-
-		</View>
+		<Header
+                leftComponent={
+                    <TouchableOpacity onPress={() => {
+						navigation.goBack();
+						refreshFunction()
+					}}>
+                        <AntDesign name="arrowleft" size={24} color="#fff" />
+                    </TouchableOpacity>
+                }
+                centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>{`Reply`}</Text>}
+            />
 		<View style={{ flex: 1, backgroundColor: "white", paddingLeft: "5%", paddingRight: "5%" }}>
 			<Animated.ScrollView
-			style={{ backgroundColor: "white" }}
+			style={{ backgroundColor: "white" ,marginBottom: 15}}
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{}}
 			scrollEventThrottle={16}
@@ -241,18 +339,18 @@ const ReviewScreen = () =>{
 			<Text style={styles.descriptionTitle}>Review</Text>
 			<View style={{paddingBottom : 20 }}>
 			<View style={{ flexDirection: "row" }}>
-				<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
+				<Image source={{uri: urlAvatar}} style={styles.profileImage} />
 				<View style={{marginLeft: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start'}}>
 					<View style={{width: '73%'}}>
 
-						<Text style={styles.profileName}>{PassedData.name}</Text>
-						<Text style={styles.timeStamp}>{PassedData.timeCreated}</Text>
+						<Text style={styles.profileName}>{username}</Text>
+						<Text style={styles.timeStamp}>{timeStamp}</Text>
 					</View>
 					<View style={{ width: '10%' }}>
 						<Rating 
 							imageSize={15} 
 							readonly 
-							startingValue={PassedData.rating} 
+							startingValue={rating} 
 							style={styles.rating} 
 						/>
 					</View>
@@ -264,18 +362,18 @@ const ReviewScreen = () =>{
 			<View style={{marginLeft: 50, marginRight: 30, flexDirection: "row", marginTop: 10}}>
 				<View style={{width: '10%',  marginRight: "2%"}}>
 					<TouchableOpacity onPress={() => console.log("The up vote test")}>
-						<AntDesign name="up" size={30} color={PassedData.likeCount != 0 ? "green" : "black"} />
+						<AntDesign name="up" size={30} color={likeCount != 0 ? "green" : "black"} />
 					</TouchableOpacity>
-					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{PassedData.likeCount}</Text>
+					<Text style={{ position: "absolute", paddingLeft: 11, paddingTop: 20 }}>{likeCount}</Text>
 				</View>
 				<View style={{ width: '80%'}}>
-					<Text style={{ fontSize: 15 }}>{PassedData.content}</Text>
+					<Text style={{ fontSize: 15 }}>{content}</Text>
 				</View>
 				</View>
 			</View>
 			<View style={{ marginLeft: "10%" }}>
 				<FlatList
-					data={Data}
+					data={imgData}
 					renderItem={renderImage}
 					keyExtractor={(item) => item.id}
 					horizontal={true}
@@ -283,7 +381,7 @@ const ReviewScreen = () =>{
 					style={styles.flatList}
 				/>
 			</View>
-			<Text style={styles.descriptionTitle}>reply</Text>
+			<Text style={styles.descriptionTitle}>Reply</Text>
 			<View style={{ paddingBottom: 0 }}>
 				
 				<FlatList
@@ -292,15 +390,35 @@ const ReviewScreen = () =>{
 					keyExtractor={(item) => item.id}
 				></FlatList>
 			</View>
-			<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
-			<Image source={{uri: PassedData.avatar}} style={styles.profileImage} />
-			<TouchableOpacity style={styles.containerButton}>
-				<Text style = {styles.buttonText}>type your comment here</Text>
+			{ !ViewBox ? (
+				<View style = {{flexDirection: "row", paddingLeft: "5%", paddingRight: "5%"}}>
+				<Image source={{uri: UserInfor.urlAvatar}} style={styles.profileImage} />
+				<TouchableOpacity style={styles.containerButton} onPress={() =>{
+					 console.log("do it ");
+					 setViewBox(true);
+				}}>
+					<Text style = {styles.buttonText}>Type your comment here</Text>
+					
+				</TouchableOpacity>
+					
+				</View>
+			) : (
+				<></>
+			)
 				
-			</TouchableOpacity>
-				
-			</View>
+			}
 			</Animated.ScrollView>
+			{ViewBox?  (
+				<KeyboardAvoidingView
+					behavior={Platform.OS === "ios" ? "padding" : "height"} >
+						<ReplyChange handleReview={handleReview} word = {`Type your reply here`} submitFunc = {submitFunc} />
+				</KeyboardAvoidingView>
+			) : (
+				<></>
+			)
+				
+			}
+			
 
 		</View>
 

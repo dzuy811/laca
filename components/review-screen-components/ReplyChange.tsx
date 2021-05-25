@@ -8,9 +8,6 @@ type inputprop = {handleReview:any,word:string,submitFunc:any}
 const ReplyChange = ({handleReview,word,submitFunc} :inputprop) => {
     return (
         <View style={{ alignItems: 'center' }}>
-            <Text style = {styles.titleArea}>
-                Edit your reply here
-            </Text>
                 <TextInput
                     style={styles.textArea}
                     underlineColorAndroid="transparent"
@@ -22,7 +19,7 @@ const ReplyChange = ({handleReview,word,submitFunc} :inputprop) => {
                 />
 
                 <LoginButton 
-                title="submit "
+                title="Submit "
                 onPress={() => submitFunc()}
                 color="#4B8FD2"
                 textColor="#E2D0A2"/>

@@ -162,7 +162,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 				parseFloat(destinationStr.split(",")[1])
 			);
 			// if the user is within the radius of 100meters -> user has arrived!
-			if (dist <= 0.05) {
+			if (dist <= 0.5) {
 				setIsArrived(true);
 				console.log("journey:", journeyID);
 				

@@ -13,6 +13,8 @@ import axios from "axios";
 import Svg, { Circle, Rect } from "react-native-svg";
 import UserAvatar from "../assets/user_avatar.jpg";
 import FBLogo from "../assets/fb_logo.png";
+import Constants from 'expo-constants'
+import { getData } from "../constants/utility";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -31,13 +33,14 @@ interface Props {
 const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigation }) => {
 	const [coordinates, setCoordinates] = useState<Coordinate[]>();
 	const [isBlinking, setIsBlinking] = useState<boolean>(false);
+	const [urlAvatar, setUrlAvatar] = useState<string>("");
 	let blinkingInterval: any = false;
 
 	const mode = "driving";
 
 	// fetch Google's Map API for routes and navigations
 	useEffect(() => {
-		let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${startGeoLocation}&destination=${finishGeoLocation}&key=${process.env.GOOGLE_MAPS_API_KEY}&mode=${mode}`;
+		let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${startGeoLocation}&destination=${finishGeoLocation}&key=${Constants.manifest.extra.googleAPI}&mode=${mode}`;
 		fetchAPI(url);
 	}, []);
 
@@ -138,6 +141,16 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 		};
 	});
 
+	// FETCH URL AVATAR
+	useEffect(() => {
+		(async () => {
+			if (urlAvatar == "") {
+				let imgUrlAvatar = await getData("url_avatar");
+				setUrlAvatar(imgUrlAvatar!);
+			}
+		})();
+	}, [urlAvatar]);
+
 	// STYLES Defined
 	const styles = StyleSheet.create({
 		container: {
@@ -194,8 +207,7 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 											borderColor: "#4B8FD2",
 										}}
 										source={{
-											uri:
-												"https://firebasestorage.googleapis.com/v0/b/laca-59b8c.appspot.com/o/avatars%2FuSfiylphMIO0mv8BI2GDLnj1rz32?alt=media&token=2fc26d6c-eebf-47f5-8280-4dcdaeeee151",
+											uri: urlAvatar,
 										}}
 									/>
 								</Svg>

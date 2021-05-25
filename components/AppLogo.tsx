@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
         width: 170,
         borderRadius: 100,
         borderWidth: 1,
-        shadowOpacity: 1,
         borderColor: "transparent",
         marginBottom: 35,
     },

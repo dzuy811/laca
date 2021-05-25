@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react'
-import { StyleSheet, TouchableOpacity, View, Text, Image } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Text, Image, ActivityIndicator } from 'react-native'
 import { Header } from 'react-native-elements'
 import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from './ProfileStackParams'
@@ -63,7 +63,7 @@ const UserFriendListScreen = (props:Props) => {
 
 
     return (
-        <View>
+        <View style={{height: '100%'}}>
             <Header
 				leftComponent={
 					<TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -102,8 +102,8 @@ const UserFriendListScreen = (props:Props) => {
 
                 :
 
-                <View>
-                    <Text>Loading</Text>
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%'}}>
+                    <ActivityIndicator size="large" color="#2966A3"/>
                 </View>
             
                 }

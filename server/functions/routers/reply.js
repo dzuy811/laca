@@ -39,16 +39,20 @@ router.post("/", async (req, res) => {
 router.get("/reviews/:id", async (req, res) => {
 	try {
 		let db = admin.firestore();
-		console.log("hello world");
 		const reviews = db.collection("reviews").doc(req.params.id);
 
 		let attractionRef = await db.collection("reply").where("rid", "==", reviews).get();
+		console.log("data below")
+		console.log(typeof attractionRef)
 
 		if (!attractionRef.empty) {
+			console.log("not empty list")
 			let attraction = [];
 			for await (a of attractionRef.docs) {
+				console.log(a.data().uid)
 				const userRef = await a.data().uid.get();
-				const useInfo = await userRef.data();
+				const useInfo = userRef.data();
+				console.log(useInfo)
 				if (useInfo && typeof useInfo != "undefined" && typeof a != "undefined" && a) {
 					console.log("it wworked bae uhh");
 				} else {
@@ -69,7 +73,7 @@ router.get("/reviews/:id", async (req, res) => {
 
 			return res.json(attraction);
 		}
-		return res.json({ error: "haizza" });
+		return res.json([]);
 	} catch (err) {
 		console.log(err);
 	}
@@ -94,7 +98,7 @@ router.get("/:id", async (req, res) => {
 			});
 			return res.json(attraction[0]);
 		}
-		return res.json({ error: "haizza" });
+		return res.json({});
 	} catch (err) {
 		console.log(err);
 	}

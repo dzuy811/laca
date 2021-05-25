@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "laca",
-    "slug": "laca",
+    "name": "Laca",
+    "slug": "Laca",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,13 +17,16 @@
       "**/*"
     ],
     "ios": {
+      "bundleIdentifier": "com.RMIT.laca",
+      "buildNumber": "1.0.0",
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": ["location", "fetch"]
       }
     },
     "android": {
-      "permissions": ["ACCESS_BACKGROUND_LOCATION"],
+      "package": "com.RMIT.laca",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

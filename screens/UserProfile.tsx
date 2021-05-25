@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Platform } from "react-native";
 import FormUserProfile from "../components/FormUserProfile";
 import { RadioButton } from "react-native-paper";
@@ -8,6 +8,7 @@ import { Header } from "react-native-elements";
 import 'firebase/firestore';
 import * as ImagePicker from 'expo-image-picker';
 import 'firebase/storage';
+import AppContext from '../components/AppContext'
 import DropDownPicker from 'react-native-dropdown-picker';
 
 const windowWidth = Dimensions.get("window").width;
@@ -33,6 +34,7 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	const [checkValidation, setValidation] = useState<boolean>(false);
 	const [checkValidationGender, setValidationGender] = useState<boolean>(false);
 	const [addressStatus, setAddressStatus] = useState<number>(-1);
+	const userGlobalData = useContext(AppContext)
 
 	// Generate the data for Vietnam's Administrative Division
 	let province = [];
@@ -100,6 +102,8 @@ const UserProfile = ({route, navigation}: UserProfile) => {
 	// Sign out function
 	const signOut = () => {
 		firebase.auth().signOut();
+		userGlobalData.setUserInfo(null);
+		navigation.navigate('home')
 	};
 
 	const bootstrap = () => {
