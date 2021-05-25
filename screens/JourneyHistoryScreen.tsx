@@ -7,7 +7,7 @@ import {
 	TouchableOpacity,
 	ScrollView,
 	FlatList,
-	ActivityIndicator
+	ActivityIndicator,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { Header } from "react-native-elements";
@@ -17,7 +17,7 @@ import { getData } from "../constants/utility";
 const JourneyHistoryScreen: React.FC<any> = (props) => {
 	const [histories, setHistories] = useState<any>();
 	const [userJourneyCount, setUserJourneyCount] = useState<number>();
-	const [loading, setLoading] = useState(true)
+	const [loading, setLoading] = useState(true);
 
 	// Dynamically fetch histories based on user's id
 	const fetchHistoryByUserID = async () => {
@@ -35,8 +35,8 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 			console.log(error);
 		}
 		return () => {
-			mounted = false
-		}
+			mounted = false;
+		};
 	};
 
 	const fetchUserJourneyCount = async () => {
@@ -63,14 +63,13 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 
 	// Fetch on component's mount
 	useEffect(() => {
-		fetchUserJourneyCount().then(res => {
-			fetchHistoryByUserID().then(res => setLoading(false));
+		fetchUserJourneyCount().then((res) => {
+			fetchHistoryByUserID().then((res) => setLoading(false));
 		});
 		return () => {
 			// fetchHistoryByUserID();
 			// fetchUserJourneyCount();
-		}
-		
+		};
 	}, []);
 
 	// Log histories
@@ -81,7 +80,7 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 	}, [histories]);
 
 	return (
-		<View style={{height: '100%'}}>
+		<View>
 			<Header
 				leftComponent={
 					<TouchableOpacity onPress={() => props.navigation.goBack()}>
@@ -91,48 +90,50 @@ const JourneyHistoryScreen: React.FC<any> = (props) => {
 				centerComponent={<Text style={{ fontSize: 18, color: "#fff" }}>Journey History</Text>}
 			/>
 			{/* Journey History card section */}
-			{loading ?
-				<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+			{loading ? (
+				<View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }}>
 					<ActivityIndicator size="large" color="#2966A3" />
 				</View>
-				:
-
-				<View style={{ marginTop: 20 }}>
+			) : (
+				<View style={{ paddingTop: 20 }}>
 					<View style={{ paddingLeft: 25 }}>
 						{userJourneyCount ? (
 							<>
-								<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
+								<Text
+									style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700", marginBottom: 10 }}
+								>
 									Completed journey ({userJourneyCount})
-							</Text>
+								</Text>
 							</>
 						) : (
 							<>
-								<Text style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700" }}>
+								<Text
+									style={{ fontSize: 16, color: "#bdbdbd", fontWeight: "700", marginBottom: 10 }}
+								>
 									Completed journey (N/A)
-							</Text>
+								</Text>
 							</>
 						)}
 					</View>
 					<ScrollView>
-					{histories ? (
-						<FlatList data={histories} renderItem={renderHistory} />
-					) : (
-						<>
-							{userJourneyCount == 0 ? (
-								<View style={{ marginLeft: 24 }}>
-									<Text>There aren't any histories yet!</Text>
-								</View>
-							) : (
-								<View style={{ marginLeft: 2 }}>
-									<ActivityIndicator size="large" color="#2966A3" />
-								</View>
-							)}
-						</>
-					)}
+						{histories ? (
+							<FlatList data={histories} renderItem={renderHistory} style={{ paddingBottom: 80 }} />
+						) : (
+							<>
+								{userJourneyCount == 0 ? (
+									<View style={{ marginLeft: 24 }}>
+										<Text>There aren't any histories yet!</Text>
+									</View>
+								) : (
+									<View style={{ marginLeft: 2 }}>
+										<ActivityIndicator size="large" color="#2966A3" />
+									</View>
+								)}
+							</>
+						)}
 					</ScrollView>
 				</View>
-			}
-
+			)}
 		</View>
 	);
 };
