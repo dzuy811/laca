@@ -71,6 +71,8 @@ const FriendScreen = ({navigation}) => {
                     } else {
                         foundUserData['isFriend'] = true;
                     }
+                    
+                    setFoundUser(foundUserData)
                 })
                 
                 
