@@ -3,7 +3,7 @@ import firebase from 'firebase';
 import React, { useEffect, useState } from 'react'
 import { Text, View, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getData } from '../constants/utility';
 
@@ -31,16 +31,18 @@ const FriendRanking = () => {
     const navigation = useNavigation();
     const [leaderboard, setLeaderboard] = useState([])
 
-    useEffect(() => {
-        const userID = firebase.auth().currentUser?.uid
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
-        axios.get(url)
-            .then(res => {
-                setLeaderboard(res.data.leaderboard);
-            })
-        console.log(url)
-
-    }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            const userID = firebase.auth().currentUser?.uid
+            const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
+          const unsubscribe = axios.get(url)
+          .then(res => {
+              setLeaderboard(res.data.leaderboard);
+          })
+          console.log(leaderboard);
+          return () => unsubscribe;
+        }, [navigation])
+      );
 
 
     return (
@@ -149,15 +151,20 @@ const GlobalRanking = () => {
         })
     }
 
-    useEffect(() => {
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
-        axios.get(url)
-            .then(res => {
-                setLeaderboard(res.data.leaderboard);
-            })
-        console.log(url)
+    useFocusEffect(
+        React.useCallback(() => {
+            const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
+            const unsubscribe = axios.get(url)
+          .then(res => {
+              setLeaderboard(res.data.leaderboard);
+              console.log(leaderboard);
+              
+          })
+    
+          return () => unsubscribe;
+        }, [navigation])
+      );
 
-    }, [])
 
 
     return (
@@ -265,6 +272,8 @@ const renderTabBar = (props: any) => {
 
 const RankingScreen = () => {
     const layout = useWindowDimensions();
+
+
 
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([

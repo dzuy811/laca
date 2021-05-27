@@ -373,7 +373,7 @@ const ReviewScreen = ({navigation,route} : props) =>{
 			</View>
 			<View style={{ marginLeft: "10%" }}>
 				<FlatList
-					data={imgData}
+					data={images}
 					renderItem={renderImage}
 					keyExtractor={(item) => item.id}
 					horizontal={true}

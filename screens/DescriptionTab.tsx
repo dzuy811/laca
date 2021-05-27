@@ -331,15 +331,27 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 								<View style={{ marginLeft: "25%", marginBottom: "5%" }}>
 									{item.replyCount != 0 ? ( // if the review has reply
 										<View>
-											<TouchableOpacity onPress={() => console.log("Reply")}>
+											<TouchableOpacity onPress={() => {
+										console.log("this review's id:", item);
+										navigation.navigate("ReviewScreen", {
+											id: item.id,
+											content: item.content,
+											rating: item.rating,
+											urlAvatar: item.avatar,
+											timeStamp: item.timeCreated,
+											username: item.name,
+											likeCount: item.likeCount,
+											images: item.images,
+											refreshFunction:refresh
+										});
+									}}>
 												<Text style={{ color: "#40D0EF", fontWeight: "bold" }}>
-													{" "}
 													View all {item.replyCount} comment{item.replyCount == 1 ? "" : "s"}
 												</Text>
 											</TouchableOpacity>
 										</View>
 									) : (
-										<> </>
+										null
 									)}
 								</View>
 								<>
@@ -570,7 +582,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					}}
 				>
 				<View style={{marginBottom: 20}}>
-				{/* {userGlobalData.onJourney?
+				{userGlobalData.onJourney?
 
 				<>
 					{userGlobalData.currentAttractionID == id?
@@ -595,14 +607,14 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					}
 				</>
 
-				: */}
+				:
 				<LoginButton
 					title="Take the journey"
 					onPress={() => takeJourney()}
 					color="#4B8FD2"
 					textColor="#E2D0A2"
 				/>
-				{/* } */}
+				} 
 				</View>
 				
 				
