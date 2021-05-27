@@ -20,19 +20,19 @@ function FriendProfile({ route, navigation }) {
     const unfriend = () => {
         let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/friendships/${data.id}/remove`
         axios.delete(url)
-        .then(res => console.log(res.data))
-        .catch(err => console.log(err))
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err))
         navigation.goBack()
     }
 
     const [visible, setVisible] = useState(false);
 
     const toggleOverlay = () => {
-      setVisible(!visible);
+        setVisible(!visible);
     };
     return (
         <View>
-           
+
             {/* Navigation */}
             <Header
                 leftComponent={
@@ -44,9 +44,9 @@ function FriendProfile({ route, navigation }) {
                 rightComponent={
                     <TouchableOpacity
                         onPress={() => toggleOverlay()}
-                        style={{marginRight: 10}}
+                        style={{ marginRight: 10 }}
                     >
-                        <Text style={{color: '#dedede'}}>Unfriend</Text>
+                        <Text style={{ color: '#dedede' }}>Unfriend</Text>
                     </TouchableOpacity>
                 }
             />
@@ -54,12 +54,12 @@ function FriendProfile({ route, navigation }) {
             <View style={styles.centeredView}>
                 <View>
                     <Overlay
-                    isVisible={visible}
-                    onBackdropPress={() => toggleOverlay()}
-                    overlayStyle={styles.overlay}
+                        isVisible={visible}
+                        onBackdropPress={() => toggleOverlay()}
+                        overlayStyle={styles.overlay}
                     >
-                        <Text style={{fontSize: 16}}>Are you sure you want to revmove {data.name} as your friend?</Text>
-                        <View style={{flexDirection: 'row', justifyContent:'flex-end', marginTop: 15}}>
+                        <Text style={{ fontSize: 16 }}>Are you sure you want to revmove {data.name} as your friend?</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 15 }}>
                             <TouchableOpacity onPress={() => toggleOverlay()}>
                                 <Text style={styles.cancelButton}>CANCEL</Text>
                             </TouchableOpacity>
@@ -67,7 +67,7 @@ function FriendProfile({ route, navigation }) {
                                 <Text style={styles.confirmButton}>CONFIRM</Text>
                             </TouchableOpacity>
                         </View>
-                        
+
                     </Overlay>
                 </View>
             </View>
@@ -118,35 +118,41 @@ function FriendProfile({ route, navigation }) {
                         {data.gender}
                     </Text>
                 </View>
+                {data.address ?
+                    <View>
+                        <View style={styles.dataContainer}>
+                            <Text
+                                style={{
+                                    height: 26,
+                                    fontSize: 14,
+                                    color: "#BDBDBD",
+                                }}
+                            >
+                                Province
+					</Text>
+                            <Text>
+                                {data.address[0]}
+                            </Text>
+                        </View>
+                        <View style={styles.dataContainer}>
+                            <Text
+                                style={{
+                                    height: 26,
+                                    fontSize: 14,
+                                    color: "#BDBDBD",
+                                }}
+                            >
+                                District
+					</Text>
+                            <Text>
+                                {data.address[1]}
+                            </Text>
+                        </View>
+                    </View>
+                    :
+                    null
+                }
 
-                <View style={styles.dataContainer}>
-                    <Text
-                        style={{
-                            height: 26,
-                            fontSize: 14,
-                            color: "#BDBDBD",
-                        }}
-                    >
-                        Province
-					</Text>
-                    <Text>
-                        {data.address[0]}
-                    </Text>
-                </View>
-                <View style={styles.dataContainer}>
-                    <Text
-                        style={{
-                            height: 26,
-                            fontSize: 14,
-                            color: "#BDBDBD",
-                        }}
-                    >
-                        District
-					</Text>
-                    <Text>
-                        {data.address[1]}
-                    </Text>
-                </View>
             </View>
 
         </View>
