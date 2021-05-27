@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import {
 	View,
 	Text,
@@ -9,11 +9,15 @@ import {
 	Platform,
 } from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
+import { Button } from 'react-native-elements'
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'
 import firebase from "firebase";
+import AppContext from '../components/AppContext' 
+import axios from "axios";
+
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -26,6 +30,22 @@ interface Props {
 
 // Previous Screen -> Call Map Screen /:id -> fetch Routes based on that req.params.id -> pass fetched results to MapTile components for route
 
+async function cancelJourney(journeyID: string) {
+	let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories/${journeyID}/cancel`
+	axios.put(url)
+	.then(res => {
+		console.log(url);
+		console.log(res);
+		
+		return res
+	})
+	.catch(err => {
+		console.log(err);
+		
+		return err
+	})
+}
+
 const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [userLocation, setUserLocation] = useState<any>(null);
 	const [userLocationStr, setUserLocationStr] = useState<any>(""); // format example: "10.734327169637687,106.6536388713616"
@@ -34,6 +54,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
 	const { latitude, longitude, journeyID, attractionID, reward} = route.params
+	const userGlobalData = useContext(AppContext);
 
 
 	//Background task defined
@@ -162,7 +183,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 				parseFloat(destinationStr.split(",")[1])
 			);
 			// if the user is within the radius of 100meters -> user has arrived!
-			if (dist <= 0.05) {
+			if (dist <= 0.5) {
 				setIsArrived(true);
 				console.log("journey:", journeyID);
 				
@@ -205,6 +226,18 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 					>
 						<AntDesign name="leftcircleo" size={40} color="#4B8FD2" />
 					</TouchableOpacity>
+					<Button
+						containerStyle={styles.overlayButton}
+						title="Cancel the journey"
+						buttonStyle={styles.button}
+						titleStyle={{color: "#f8ede3"}}
+						onPress={() => {
+							cancelJourney(journeyID).then(() => {
+								userGlobalData.setOnJourney(false)
+								navigation.goBack();
+							})
+						}}
+					/>
 					{isArrived ? <></> : <></>}
 				</>
 			) : (
@@ -236,6 +269,22 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
+	overlayButton: {
+		position: 'absolute',
+		bottom: 20,
+		left: 0,
+		right: 0,
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	button: {
+		backgroundColor: "#ce1212",
+		borderColor: '#ce1212',
+		width: 300,
+		padding: 20,
+		borderRadius: 30,
+		borderWidth: 1
+	}
 });
 
 export default MapScreen;

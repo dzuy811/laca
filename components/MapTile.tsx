@@ -13,6 +13,7 @@ import axios from "axios";
 import Svg, { Circle, Rect } from "react-native-svg";
 import UserAvatar from "../assets/user_avatar.jpg";
 import FBLogo from "../assets/fb_logo.png";
+import Constants from 'expo-constants'
 import { getData } from "../constants/utility";
 
 const windowWidth = Dimensions.get("window").width;
@@ -39,7 +40,7 @@ const MapTile: React.FC<Props> = ({ startGeoLocation, finishGeoLocation, navigat
 
 	// fetch Google's Map API for routes and navigations
 	useEffect(() => {
-		let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${startGeoLocation}&destination=${finishGeoLocation}&key=${process.env.GOOGLE_MAPS_API_KEY}&mode=${mode}`;
+		let url = `https://maps.googleapis.com/maps/api/directions/json?origin=${startGeoLocation}&destination=${finishGeoLocation}&key=${Constants.manifest.extra.googleAPI}&mode=${mode}`;
 		fetchAPI(url);
 	}, []);
 

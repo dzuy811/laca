@@ -169,7 +169,7 @@ export default VoucherShop;
 const styles = StyleSheet.create({
 	voucherBox: {
 		borderColor: "#4B8FD2", 
-		height:windowHeight - 600, 
+        padding: 20,
 		width: windowWidth - 60, 
 		borderWidth: 4, 
 		backgroundColor: "#FDFDFD",
