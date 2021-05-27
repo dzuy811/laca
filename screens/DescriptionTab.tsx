@@ -570,7 +570,7 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					}}
 				>
 				<View style={{marginBottom: 20}}>
-				{userGlobalData.onJourney?
+				{/* {userGlobalData.onJourney?
 
 				<>
 					{userGlobalData.currentAttractionID == id?
@@ -595,14 +595,14 @@ const DescriptionTab = ({ route, navigation }: Props) => {
 					}
 				</>
 
-				:
+				: */}
 				<LoginButton
 					title="Take the journey"
 					onPress={() => takeJourney()}
 					color="#4B8FD2"
 					textColor="#E2D0A2"
 				/>
-				}
+				{/* } */}
 				</View>
 				
 				
