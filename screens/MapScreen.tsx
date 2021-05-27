@@ -246,14 +246,14 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 					<TouchableOpacity style={styles.overlayRight} onPress={getUserLocation}>
 						<Ionicons name="md-refresh-circle-outline" size={50} color="#4B8FD2" />
 					</TouchableOpacity>
-					{/* <TouchableOpacity
+					<TouchableOpacity
 						style={styles.overlayLeft}
 						onPress={() => {
 							navigation.navigate("Attraction detail");
 						}}
 					>
 						<AntDesign name="leftcircleo" size={40} color="#4B8FD2" />
-					</TouchableOpacity> */}
+					</TouchableOpacity>
 					<Button
 						containerStyle={styles.overlayButton}
 						title="Cancel the journey"
