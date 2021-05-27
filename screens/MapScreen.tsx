@@ -9,7 +9,7 @@ import {
 	Platform,
 } from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
-import { Button } from 'react-native-elements'
+import { Button, Overlay } from 'react-native-elements'
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
 import * as BackgroundFetch from 'expo-background-fetch'
@@ -35,8 +35,6 @@ async function cancelJourney(journeyID: string) {
 	axios.put(url)
 	.then(res => {
 		console.log(url);
-		console.log(res);
-		
 		return res
 	})
 	.catch(err => {
@@ -55,6 +53,11 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [image, setImage] = useState<any>("");
 	const { latitude, longitude, journeyID, attractionID, reward} = route.params
 	const userGlobalData = useContext(AppContext);
+	const [visible, setVisible] = useState(false);
+
+    const toggleOverlay = () => {
+      setVisible(!visible);
+    };
 
 
 	//Background task defined
@@ -206,6 +209,9 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		}
 	}, [isArrived]);
 
+
+	
+
 	return (
 		<>
 			{userLocationStr && destinationStr ? (
@@ -215,6 +221,28 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 						finishGeoLocation={destinationStr}
 						navigation={navigation}
 					/>
+					<View style={styles.centeredView}>
+						<View>
+							<Overlay
+								isVisible={visible}
+								onBackdropPress={() => toggleOverlay()}
+								overlayStyle={styles.overlay}
+							>
+								<Text style={{ fontSize: 16 }}>Are you sure you want cancel the journey?</Text>
+								<View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 15 }}>
+									<TouchableOpacity onPress={() => toggleOverlay()}>
+										<Text style={styles.cancelButton}>CANCEL</Text>
+									</TouchableOpacity>
+									<TouchableOpacity onPress={() => {
+										cancelJourney(journeyID).then(() => userGlobalData.setOnJourney(false)).then(navigation.goBack())
+									}}>
+										<Text style={styles.confirmButton}>CONFIRM</Text>
+									</TouchableOpacity>
+								</View>
+
+							</Overlay>
+						</View>
+					</View>
 					<TouchableOpacity style={styles.overlayRight} onPress={getUserLocation}>
 						<Ionicons name="md-refresh-circle-outline" size={50} color="#4B8FD2" />
 					</TouchableOpacity>
@@ -232,10 +260,7 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 						buttonStyle={styles.button}
 						titleStyle={{color: "#f8ede3"}}
 						onPress={() => {
-							cancelJourney(journeyID).then(() => {
-								userGlobalData.setOnJourney(false)
-								navigation.goBack();
-							})
+							toggleOverlay()
 						}}
 					/>
 					{isArrived ? <></> : <></>}
@@ -284,7 +309,26 @@ const styles = StyleSheet.create({
 		padding: 20,
 		borderRadius: 30,
 		borderWidth: 1
-	}
+	},
+	centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22,
+    },
+	overlay: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        width: '86%'
+    },
+	cancelButton: {
+        fontSize: 15,
+        marginRight: 20
+    },
+    confirmButton: {
+        fontSize: 15,
+        color: '#488fd2'
+    }
 });
 
 export default MapScreen;
