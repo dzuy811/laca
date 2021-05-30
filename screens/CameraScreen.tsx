@@ -64,7 +64,7 @@ console.log("images: ", body.images);
     })
     .then(() => {
         // still using local because not merge code for deploy yet
-        axios.put(`http://192.168.2.105:5000/laca-59b8c/asia-east2/api/users/histories/${journeyID}/finish`)
+        axios.put(`https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories/${journeyID}/finish`)
         .then(() => {
             console.log("journey ID: ", journeyID);
 

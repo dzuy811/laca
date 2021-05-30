@@ -3,7 +3,7 @@ import firebase from 'firebase';
 import React, { useEffect, useState } from 'react'
 import { Text, View, Image, StyleSheet, useWindowDimensions, Platform } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getData } from '../constants/utility';
 
@@ -31,16 +31,18 @@ const FriendRanking = () => {
     const navigation = useNavigation();
     const [leaderboard, setLeaderboard] = useState([])
 
-    useEffect(() => {
-        const userID = firebase.auth().currentUser?.uid
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
-        axios.get(url)
-            .then(res => {
-                setLeaderboard(res.data.leaderboard);
-            })
-        console.log(url)
-
-    }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            const userID = firebase.auth().currentUser?.uid
+            const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/${userID}/friendships/leaderboard`
+          const unsubscribe = axios.get(url)
+          .then(res => {
+              setLeaderboard(res.data.leaderboard);
+          })
+          console.log(leaderboard);
+          return () => unsubscribe;
+        }, [navigation])
+      );
 
 
     return (
@@ -48,74 +50,81 @@ const FriendRanking = () => {
             {leaderboard ?
                 <View>
                     {leaderboard.map((user, index) =>
-                               <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
-                               <View style={styles.rankingNumberBox}>
-                                   {index == 0 ?
-                                       <Image
-                                           source={require('../assets/gold-medal.png')}
-                                           style={styles.logo}
-                                       />
-                                       :
-                                       <>
-                                           {index == 1 ?
-                                               <Image
-                                                   source={require('../assets/silver-medal.png')}
-                                                   style={styles.logo}
-                                               />
-                                               :
-                                               <>
-                                                   {index == 2 ?
-                                                       <Image
-                                                           source={require('../assets/bronze-medal.png')}
-                                                           style={styles.logo}
-                                                       />
-                                                       :
-                                                       <Text style={styles.rankingNumberText}>{index + 1}</Text>
-       
-                                                   }
-                                               </>
-                                           }
-                                       </>
-                                   }
-                               </View>
-                            {user.id == firebase.auth().currentUser?.uid?
-                            <View style={styles.rankingNameBox}>
-                            <View>
-                                <Image
-                                    source={{ uri: user.urlAvatar }}
-                                    style={styles.logo}
-                                />
+                            <View key={user.id}>
+                                {user.journeyCount?
+                                         <View style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
+                                         <View style={styles.rankingNumberBox}>
+                                             {index == 0 ?
+                                                 <Image
+                                                     source={require('../assets/gold-medal.png')}
+                                                     style={styles.logo}
+                                                 />
+                                                 :
+                                                 <>
+                                                     {index == 1 ?
+                                                         <Image
+                                                             source={require('../assets/silver-medal.png')}
+                                                             style={styles.logo}
+                                                         />
+                                                         :
+                                                         <>
+                                                             {index == 2 ?
+                                                                 <Image
+                                                                     source={require('../assets/bronze-medal.png')}
+                                                                     style={styles.logo}
+                                                                 />
+                                                                 :
+                                                                 <Text style={styles.rankingNumberText}>{index + 1}</Text>
+                 
+                                                             }
+                                                         </>
+                                                     }
+                                                 </>
+                                             }
+                                         </View>
+                                      {user.id == firebase.auth().currentUser?.uid?
+                                      <View style={styles.rankingNameBox}>
+                                      <View>
+                                          <Image
+                                              source={{ uri: user.urlAvatar }}
+                                              style={styles.logo}
+                                          />
+                                      </View>
+                                      <View style={{ marginLeft: 10 }}>
+                                          <Text style={styles.userName}>{user.name}</Text>
+                                      </View>
+                                  </View>
+                                  : 
+                                  <TouchableOpacity
+                                  onPress={() => navigation.navigate('Friend Profile', {data: user})}
+                                  >
+                                      <View style={styles.rankingNameBox}>
+                                          <View>
+                                              <Image
+                                                  source={{ uri: user.urlAvatar }}
+                                                  style={styles.logo}
+                                              />
+                                          </View>
+                                          <View style={{ marginLeft: 10 }}>
+                                              <Text style={styles.userName}>{user.name}</Text>
+                                          </View>
+                                      </View>
+                                  </TouchableOpacity>
+                                      
+                                      }
+                                        
+                                         <View style={styles.rankingJourneyBox}>
+                                             <Image
+                                                 source={require('../assets/sneakers.png')}
+                                             />
+                                             <Text>{user.journeyCount}</Text>
+                                         </View>
+                                     </View>   
+                            :
+                            null
+                                }
                             </View>
-                            <View style={{ marginLeft: 10 }}>
-                                <Text style={styles.userName}>{user.name}</Text>
-                            </View>
-                        </View>
-                        : 
-                        <TouchableOpacity
-                        onPress={() => navigation.navigate('Friend Profile', {data: user})}
-                        >
-                            <View style={styles.rankingNameBox}>
-                                <View>
-                                    <Image
-                                        source={{ uri: user.urlAvatar }}
-                                        style={styles.logo}
-                                    />
-                                </View>
-                                <View style={{ marginLeft: 10 }}>
-                                    <Text style={styles.userName}>{user.name}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                            
-                            }
-                              
-                               <View style={styles.rankingJourneyBox}>
-                                   <Image
-                                       source={require('../assets/sneakers.png')}
-                                   />
-                                   <Text>{user.journeyCount}</Text>
-                               </View>
-                           </View>
+                   
                     )}
                 </View>
                 :
@@ -149,15 +158,20 @@ const GlobalRanking = () => {
         })
     }
 
-    useEffect(() => {
-        const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
-        axios.get(url)
-            .then(res => {
-                setLeaderboard(res.data.leaderboard);
-            })
-        console.log(url)
+    useFocusEffect(
+        React.useCallback(() => {
+            const url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/details/leaderboard`
+            const unsubscribe = axios.get(url)
+          .then(res => {
+              setLeaderboard(res.data.leaderboard);
+              console.log(leaderboard);
+              
+          })
+    
+          return () => unsubscribe;
+        }, [navigation])
+      );
 
-    }, [])
 
 
     return (
@@ -165,73 +179,81 @@ const GlobalRanking = () => {
             {/* <RankingHeader /> */}
             {leaderboard.map((user, index) => {                
                 return (
-                    <View key={user.id} style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
-                        <View style={styles.rankingNumberBox}>
-                            {index == 0 ?
-                                <Image
-                                    source={require('../assets/gold-medal.png')}
-                                    style={styles.logo}
-                                />
-                                :
-                                <>
-                                    {index == 1 ?
-                                        <Image
-                                            source={require('../assets/silver-medal.png')}
-                                            style={styles.logo}
-                                        />
-                                        :
-                                        <>
-                                            {index == 2 ?
-                                                <Image
-                                                    source={require('../assets/bronze-medal.png')}
-                                                    style={styles.logo}
-                                                />
-                                                :
-                                                <Text style={styles.rankingNumberText}>{index + 1}</Text>
-
-                                            }
-                                        </>
-                                    }
-                                </>
-                            }
-                        </View>
-                    {user.id == firebase.auth().currentUser.uid?
-                            <View style={styles.rankingNameBox}>
-                                <View>
-                                    <Image
-                                        source={{ uri: user.urlAvatar }}
-                                        style={styles.logo}
-                                    />
-                                </View>
-                                <View style={{ marginLeft: 10 }}>
-                                    <Text style={styles.userName}>{user.name}</Text>
-                                </View>
-                            </View>
+                    <View key={user.id}>
+                        {user.journeyCount?
+                               <View style={{ flexDirection: 'row', alignItems: 'center',height: 80, width: '100%'}}>
+                               <View style={styles.rankingNumberBox}>
+                                   {index == 0 ?
+                                       <Image
+                                           source={require('../assets/gold-medal.png')}
+                                           style={styles.logo}
+                                       />
+                                       :
+                                       <>
+                                           {index == 1 ?
+                                               <Image
+                                                   source={require('../assets/silver-medal.png')}
+                                                   style={styles.logo}
+                                               />
+                                               :
+                                               <>
+                                                   {index == 2 ?
+                                                       <Image
+                                                           source={require('../assets/bronze-medal.png')}
+                                                           style={styles.logo}
+                                                       />
+                                                       :
+                                                       <Text style={styles.rankingNumberText}>{index + 1}</Text>
+       
+                                                   }
+                                               </>
+                                           }
+                                       </>
+                                   }
+                               </View>
+                           {user.id == firebase.auth().currentUser.uid?
+                                   <View style={styles.rankingNameBox}>
+                                       <View>
+                                           <Image
+                                               source={{ uri: user.urlAvatar }}
+                                               style={styles.logo}
+                                           />
+                                       </View>
+                                       <View style={{ marginLeft: 10 }}>
+                                           <Text style={styles.userName}>{user.name}</Text>
+                                       </View>
+                                   </View>
+                               :
+                               <TouchableOpacity
+                               onPress={() => checkFriend(user.id, user)}
+                               >
+                                   <View style={styles.rankingNameBox}>
+                                       <View>
+                                           <Image
+                                               source={{ uri: user.urlAvatar }}
+                                               style={styles.logo}
+                                           />
+                                       </View>
+                                       <View style={{ marginLeft: 10 }}>
+                                           <Text style={styles.userName}>{user.name}</Text>
+                                       </View>
+                                   </View>
+                               </TouchableOpacity>
+                           }
+                               
+                               <View style={styles.rankingJourneyBox}>
+                                   <Image
+                                       source={require('../assets/sneakers.png')}
+                                   />
+                                   <Text>{user.journeyCount}</Text>
+                               </View>
+                           </View>
                         :
-                        <TouchableOpacity
-                        onPress={() => checkFriend(user.id, user)}
-                        >
-                            <View style={styles.rankingNameBox}>
-                                <View>
-                                    <Image
-                                        source={{ uri: user.urlAvatar }}
-                                        style={styles.logo}
-                                    />
-                                </View>
-                                <View style={{ marginLeft: 10 }}>
-                                    <Text style={styles.userName}>{user.name}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    }
-                        
-                        <View style={styles.rankingJourneyBox}>
-                            <Image
-                                source={require('../assets/sneakers.png')}
-                            />
-                            <Text>{user.journeyCount}</Text>
-                        </View>
+                           null
+
+                        }
                     </View>
+             
                 )
             }
 
@@ -265,6 +287,8 @@ const renderTabBar = (props: any) => {
 
 const RankingScreen = () => {
     const layout = useWindowDimensions();
+
+
 
     const [index, setIndex] = React.useState(0);
     const [routes] = React.useState([

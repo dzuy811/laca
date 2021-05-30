@@ -54,6 +54,7 @@ const MainNav: FC = () => {
 	useEffect(() => {
 		if (user != null && typeof user !== "undefined") {
 			const user = firebase.auth().currentUser;
+			userGlobalData.setUserInfo(user);
 			(() => {
 				firebase
 					.firestore()

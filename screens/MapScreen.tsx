@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
 import {
 	View,
 	Text,
@@ -9,11 +9,15 @@ import {
 	Platform,
 } from "react-native";
 import { Ionicons, AntDesign, EvilIcons } from "@expo/vector-icons";
+import { Button, Overlay } from 'react-native-elements'
 import MapTile from "../components/MapTile";
 import * as Location from "expo-location";
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'
 import firebase from "firebase";
+import AppContext from '../components/AppContext' 
+import axios from "axios";
+
 
 interface PermissionStatus {
 	status: "granted" | "undetermined" | "denied";
@@ -26,6 +30,20 @@ interface Props {
 
 // Previous Screen -> Call Map Screen /:id -> fetch Routes based on that req.params.id -> pass fetched results to MapTile components for route
 
+async function cancelJourney(journeyID: string) {
+	let url = `https://asia-east2-laca-59b8c.cloudfunctions.net/api/users/histories/${journeyID}/cancel`
+	axios.put(url)
+	.then(res => {
+		console.log(url);
+		return res
+	})
+	.catch(err => {
+		console.log(err);
+		
+		return err
+	})
+}
+
 const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [userLocation, setUserLocation] = useState<any>(null);
 	const [userLocationStr, setUserLocationStr] = useState<any>(""); // format example: "10.734327169637687,106.6536388713616"
@@ -34,6 +52,12 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [isArrived, setIsArrived] = useState<boolean>();
 	const [image, setImage] = useState<any>("");
 	const { latitude, longitude, journeyID, attractionID, reward} = route.params
+	const userGlobalData = useContext(AppContext);
+	const [visible, setVisible] = useState(false);
+
+    const toggleOverlay = () => {
+      setVisible(!visible);
+    };
 
 
 	//Background task defined
@@ -185,6 +209,9 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 		}
 	}, [isArrived]);
 
+
+	
+
 	return (
 		<>
 			{userLocationStr && destinationStr ? (
@@ -194,6 +221,28 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 						finishGeoLocation={destinationStr}
 						navigation={navigation}
 					/>
+					<View style={styles.centeredView}>
+						<View>
+							<Overlay
+								isVisible={visible}
+								onBackdropPress={() => toggleOverlay()}
+								overlayStyle={styles.overlay}
+							>
+								<Text style={{ fontSize: 16 }}>Are you sure you want cancel the journey?</Text>
+								<View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 15 }}>
+									<TouchableOpacity onPress={() => toggleOverlay()}>
+										<Text style={styles.cancelButton}>CANCEL</Text>
+									</TouchableOpacity>
+									<TouchableOpacity onPress={() => {
+										cancelJourney(journeyID).then(() => userGlobalData.setOnJourney(false)).then(navigation.goBack())
+									}}>
+										<Text style={styles.confirmButton}>CONFIRM</Text>
+									</TouchableOpacity>
+								</View>
+
+							</Overlay>
+						</View>
+					</View>
 					<TouchableOpacity style={styles.overlayRight} onPress={getUserLocation}>
 						<Ionicons name="md-refresh-circle-outline" size={50} color="#4B8FD2" />
 					</TouchableOpacity>
@@ -205,6 +254,15 @@ const MapScreen: React.FC<Props> = ({ route, navigation }) => {
 					>
 						<AntDesign name="leftcircleo" size={40} color="#4B8FD2" />
 					</TouchableOpacity>
+					<Button
+						containerStyle={styles.overlayButton}
+						title="Cancel the journey"
+						buttonStyle={styles.button}
+						titleStyle={{color: "#f8ede3"}}
+						onPress={() => {
+							toggleOverlay()
+						}}
+					/>
 					{isArrived ? <></> : <></>}
 				</>
 			) : (
@@ -236,6 +294,41 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
+	overlayButton: {
+		position: 'absolute',
+		bottom: 20,
+		left: 0,
+		right: 0,
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	button: {
+		backgroundColor: "#ce1212",
+		borderColor: '#ce1212',
+		width: 300,
+		padding: 20,
+		borderRadius: 30,
+		borderWidth: 1
+	},
+	centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22,
+    },
+	overlay: {
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        width: '86%'
+    },
+	cancelButton: {
+        fontSize: 15,
+        marginRight: 20
+    },
+    confirmButton: {
+        fontSize: 15,
+        color: '#488fd2'
+    }
 });
 
 export default MapScreen;
